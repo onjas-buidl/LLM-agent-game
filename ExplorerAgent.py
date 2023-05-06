@@ -9,21 +9,49 @@ class ExplorerAgent:
         surroundings = world.get_surroundings(self.name)
         stamina, wealth = world.get_agent_state(self.name)
 
-        message_history = [
-            {"role": "system", "content": "You are a belligerent explorer trying to maximize your wealth by attacking and defeating other explorers."},
-            {"role": "system", "content": "You can only see things within 2 steps from you. You can move, gather wealth, rest, or attack other explorers. Stamina is consumed with actions."},
-            {"role": "user", "content": f"Current surroundings: {surroundings}"},
-            {"role": "user", "content": f"Current stamina: {stamina}"},
-            {"role": "user", "content": f"Current wealth: {wealth}"}
-        ]
+        message_history = [{"role": "system", "content": "You are an explorer roaming in a 2D grid-based world. Based on the principles, the game rules, and the current game state, strictly output one action and a short comment each round, nothing else."},
+              {"role": "user", "content": """**Rules you need to follow**:
+1. You have stamina and wealth. If your stamina goes to 0, you die.
+2. Each round, you can choose one of the following actions:
+    1.1 Move: move up, down, left, right, for 1 step. No diagonal move. This action consumes 1 stamina.
+    1.2 Gather: gather wealth if the location you are at has wealth resource. This action consumes 1 stamina and depletes the wealth resource.
+    1.3 Rest: increase stamina by 3.
+    1.4 Attack: you can choose to attack other explorer. Whoever has a higher stamina wins, and gets all wealth of the loser. The loser dies.  
+3. Principles
+		2.1 You are a belligerent person that wants to maximize your wealth by attacking and defeating other explorers. 
+
+**Current game situation**:
+You can see things within 2 steps from you. Your surrounding look like this (in Markdown table format): 
+
+|  | wealth |  |  |  |
+|  |  | wealth |  |  |
+|  |  | You |  |  |
+|  |  |  | explorer 1 |  |
+| explorer 2 |  |  |  |  |
+
+Your current stamina: {stamina}
+Your current wealth: {wealth}
+
+---
+
+Based on the game rules, your principles and the current game state, select one action to perform this round and give a short comment on the motivation. 
+
+Please output the action and motivation in the following format: 
+
+Action: {Move up/down/left/right, gather, rest, attack up/down/left/right}
+Motivation:""".format(stamina=stamina, wealth=wealth)}]
 
         response = openai.ChatCompletion.create(
             model="gpt-3.5-turbo",
-            messages=message_history
+            messages=message_history,
+            temperature=0.1
         )
 
         action_motivation = response.choices[0].message.content
         return action_motivation
+
+    def format_surroundings(surroundings):
+        pass
 
     def take_action(self, world):
         action_motivation = self.get_action_and_motivation()
@@ -85,4 +113,7 @@ if __name__ == "__main__":
 
 
 
-
+[0, 0, 0]
+[0, 0, 0]
+[0, 0, 0]
+[0, ('Charlie', 0), 0]

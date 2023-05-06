@@ -1,5 +1,6 @@
 import random, pprint
 import numpy as np
+import pandas as pd
 
 
 class ExplorerWorld:
@@ -78,17 +79,18 @@ class ExplorerWorld:
         if explorer is None:
             raise Exception("Explorer does not exist")
         x, y = explorer["x"], explorer["y"]
-        min_x, max_x = max(0, x - 2), min(self.map_size, x + 3)
-        min_y, max_y = max(0, y - 2), min(self.map_size, y + 3)
-        surroundings = [[0 for _ in range(min_x, max_x)] for _ in range(min_y, max_y)]
+        min_x, max_x = max(0, x - self.scope_size), min(self.map_size, x + self.scope_size + 1)
+        min_y, max_y = max(0, y - self.scope_size), min(self.map_size, y + self.scope_size + 1)
+        surroundings = [[self.map[_x][_y] for _x in range(min_x, max_x)] for _y in range(min_y, max_y)]
         for other_name, other_explorer in self.explorers.items():
             other_x, other_y = other_explorer["x"], other_explorer["y"]
             if other_x >= min_x and other_x < max_x and other_y >= min_y and other_y < max_y:
-                surroundings[other_x - min_x][other_y - min_y] = other_name
-        return transpose_lol(surroundings)
+                surroundings[other_x - min_x][other_y - min_y] = (other_name,
+                                                                  surroundings[other_x - min_x][other_y - min_y])
+        return surroundings
 
     def print_surroundings(self, name):
-        s = self.get_surroundings(name)
+        s = transpose_lol(self.get_surroundings(name))
         s.reverse()
         print(*s, sep="\n")
 
@@ -183,6 +185,7 @@ if __name__ == "__main__":
         assert len(surroundings) == 3
         assert len(surroundings[0]) == 4
     if "Charlie" in world.explorers:
+        world.print_surroundings('Charlie')
         surroundings = world.get_surroundings("Charlie")
         assert surroundings[2][2] == "Charlie"
         assert surroundings[3][2] == "Dave"
