@@ -77,8 +77,6 @@ class ExplorerWorld:
             other_x, other_y = other_explorer["x"], other_explorer["y"]
             if other_x >= min_x and other_x < max_x and other_y >= min_y and other_y < max_y:
                 surroundings[other_x - min_x][other_y - min_y] = other_name
-        print(surroundings)
-        print(transpose_lol(surroundings))
         return transpose_lol(surroundings)
         # surroundings = []
         # for i in range(max(0, x - 2), min(self.map_size, x + 3)):
