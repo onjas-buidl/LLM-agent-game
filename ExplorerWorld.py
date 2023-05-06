@@ -101,7 +101,7 @@ class ExplorerWorld:
         for name, explorer in self.explorers.items():            
             world_state[explorer["x"]][explorer["y"]] = name
         
-        world_state = [self.map[i][j] if world_state[i][j] == -1 else world_state[i][j] for i in range(self.map_size) for j in range(self.map_size)]
+        world_state = [[self.map[i][j] if world_state[i][j] == -1 else world_state[i][j] for i in range(self.map_size)] for j in range(self.map_size)]
         
         return world_state
         
@@ -123,8 +123,7 @@ class ExplorerWorld:
 # A function to transpose a list of list (square)
 def transpose_lol(square_list):
     # Use the built-in zip function to transpose the list
-    transposed_list = list(map(list, zip(*square_list)))
-    return transposed_list
+    return [list(i) for i in zip(*square_list)]
 
 
 # Testing framework for ExplorerWorld class
