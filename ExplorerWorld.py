@@ -85,7 +85,7 @@ class ExplorerWorld:
         for other_name, other_explorer in self.explorers.items():
             other_x, other_y = other_explorer["x"], other_explorer["y"]
             if other_x >= min_x and other_x < max_x and other_y >= min_y and other_y < max_y:
-                surroundings[max_y - 1 - (other_y - min_y)][other_x - min_x] = (other_name, surroundings[other_x - min_x][other_y - min_y])
+                surroundings[max_y - other_y - 1][other_x - min_x] = (other_name, surroundings[max_y - other_y - 1][other_y - min_y])
         return surroundings
 
     def print_surroundings(self, name):
@@ -170,7 +170,6 @@ if __name__ == "__main__":
     world.explorers["Charlie"]["wealth"] = 3
     world.attack("Alice", "Charlie")
     assert len(world.explorers) == 2
-    print(world.explorers)
     if "Alice" in world.explorers:
         assert world.explorers["Alice"]["wealth"] == 8
         assert "Charlie" not in world.explorers
