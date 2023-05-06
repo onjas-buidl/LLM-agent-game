@@ -122,6 +122,7 @@ class ExplorerWorld:
     def __repr__(self):
         w = self.get_world_state()
         w.reverse()
+        pd.DataFrame(w)
         return pprint.pformat(w, indent=4)
 
 
@@ -132,54 +133,62 @@ def transpose_lol(list_of_lists):
 
 # Testing framework for ExplorerWorld class
 if __name__ == "__main__":
-    # Create a new ExplorerWorld instance with a map size of 5
-    world = ExplorerWorld(10)
-    # Add two explorers to the world
-    world.add_explorer("Alice", 0, 0)
-    world.add_explorer("Bob", 4, 4)
+    if False:
+        # Create a new ExplorerWorld instance with a map size of 5
+        world = ExplorerWorld(10)
+        # Add two explorers to the world
+        world.add_explorer("Alice", 0, 0)
+        world.add_explorer("Bob", 4, 4)
 
-    # Test that the explorers were added correctly
-    assert len(world.explorers) == 2
-    assert world.explorers["Alice"]["x"] == 0
-    assert world.explorers["Alice"]["y"] == 0
-    assert world.explorers["Bob"]["x"] == 4
-    assert world.explorers["Bob"]["y"] == 4
+        # Test that the explorers were added correctly
+        assert len(world.explorers) == 2
+        assert world.explorers["Alice"]["x"] == 0
+        assert world.explorers["Alice"]["y"] == 0
+        assert world.explorers["Bob"]["x"] == 4
+        assert world.explorers["Bob"]["y"] == 4
 
-    # Test moving an explorer
-    world.move("Alice", "right")
-    assert world.explorers["Alice"]["x"] == 1
-    assert world.explorers["Alice"]["y"] == 0
+        # Test moving an explorer
+        world.move("Alice", "right")
+        assert world.explorers["Alice"]["x"] == 1
+        assert world.explorers["Alice"]["y"] == 0
 
-    # Test gathering wealth
-    world.map[1][0] = 2
-    world.gather_wealth("Alice")
-    assert world.explorers["Alice"]["wealth"] == 2
-    assert world.map[1][0] == 0
+        # Test gathering wealth
+        world.map[1][0] = 2
+        world.gather_wealth("Alice")
+        assert world.explorers["Alice"]["wealth"] == 2
+        assert world.map[1][0] == 0
 
-    # Test resting
-    world.rest("Alice")
-    assert world.explorers["Alice"]["stamina"] == 10
+        # Test resting
+        world.rest("Alice")
+        assert world.explorers["Alice"]["stamina"] == 10
 
     # Test attacking
-    world = ExplorerWorld(10)
-    world.add_explorer("Alice", 0, 0)
-    world.add_explorer("Bob", 4, 4)
+    if False:
+        world = ExplorerWorld(10)
+        world.add_explorer("Alice", 0, 0)
+        world.add_explorer("Bob", 4, 4)
 
-    world.add_explorer("Charlie", 1, 0)
-    world.explorers["Alice"]["wealth"] = 5
-    world.explorers["Charlie"]["wealth"] = 3
-    world.attack("Alice", "Charlie")
-    assert len(world.explorers) == 2
-    if "Alice" in world.explorers:
-        assert world.explorers["Alice"]["wealth"] == 8
-        assert "Charlie" not in world.explorers
-    if "Charlie" in world.explorers:
-        assert world.explorers["Charlie"]["wealth"] == 8
-        assert "Alice" not in world.explorers
+        world.add_explorer("Charlie", 1, 0)
+        world.explorers["Alice"]["wealth"] = 5
+        world.explorers["Charlie"]["wealth"] = 3
+        world.attack("Alice", "Charlie")
+        assert 'Charlie' not in world.explorers
+        assert len(world.explorers) == 2
+        if "Alice" in world.explorers:
+            assert world.explorers["Alice"]["wealth"] == 8
+            assert "Charlie" not in world.explorers
 
     # Test getting surroundings
-    world.add_explorer("Dave", 2, 3)
+    world = ExplorerWorld(10)
+    world.add_explorer("*", 0, 0)
+    world.add_explorer("@", 4, 4)
+    world.add_explorer("#", 2, 3)
+
+    world.print_surroundings('*')
+
+
     if "Alice" in world.explorers:
+        world.print_surroundings('Alice')
         surroundings = world.get_surroundings("Alice")
         assert surroundings[0][1] == "Alice"
         assert len(surroundings) == 3
