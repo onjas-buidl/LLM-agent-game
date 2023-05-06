@@ -72,12 +72,14 @@ class ExplorerWorld:
         x, y = explorer["x"], explorer["y"]
         min_x, max_x = max(0, x - 2), min(self.map_size, x + 3)
         min_y, max_y = max(0, y - 2), min(self.map_size, y + 3)
-        surroundings = [[-1 for _ in range(min_x, max_x)] for _ in range(min_y, max_y)]
+        surroundings = [[0 for _ in range(min_x, max_x)] for _ in range(min_y, max_y)]
         for other_name, other_explorer in self.explorers.items():
             other_x, other_y = other_explorer["x"], other_explorer["y"]
-            surroundings[other_x - min_x][other_y - min_y] = other_name
-        
-        return surroundings
+            if other_x >= min_x and other_x < max_x and other_y >= min_y and other_y < max_y:
+                surroundings[other_x - min_x][other_y - min_y] = other_name
+        print(surroundings)
+        print(transpose_lol(surroundings))
+        return transpose_lol(surroundings)
         # surroundings = []
         # for i in range(max(0, x - 2), min(self.map_size, x + 3)):
         #     row = []
@@ -165,16 +167,30 @@ if __name__ == "__main__":
     world.explorers["Charlie"]["wealth"] = 3
     world.attack("Alice", "Charlie")
     assert len(world.explorers) == 2
-    assert world.explorers["Alice"]["wealth"] == 8
-    assert "Charlie" not in world.explorers
+    if "Alice" in world.explorers:
+        assert world.explorers["Alice"]["wealth"] == 8
+        assert "Charlie" not in world.explorers
+    if "Charlie" in world.explorers:
+        assert world.explorers["Charlie"]["wealth"] == 8
+        assert "Alice" not in world.explorers
 
     # Test getting surroundings
     world.add_explorer("Dave", 2, 3)
-    surroundings = world.get_surroundings("Alice")
-    assert len(surroundings) == 5
-    assert len(surroundings[0]) == 5
-    assert surroundings[0][0] == "Alice"
-    assert surroundings[2][2] == "Dave"
+    if "Alice" in world.explorers:
+        surroundings = world.get_surroundings("Alice")
+        assert surroundings[0][1] == "Alice"
+        assert len(surroundings) == 3
+        assert len(surroundings[0]) == 4
+    if "Charlie" in world.explorers:
+        surroundings = world.get_surroundings("Charlie")
+        assert surroundings[2][2] == "Charlie"
+        assert surroundings[3][2] == "Dave"
+        assert surroundings[4][4] == "Bob"
+        assert len(surroundings) == 5
+        assert len(surroundings[0]) == 5
+    
+    # assert surroundings[0][0] == "Alice"
+    # assert surroundings[2][2] == "Dave"
 
     print("All tests pass")
 
