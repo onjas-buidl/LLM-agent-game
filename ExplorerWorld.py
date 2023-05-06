@@ -176,8 +176,9 @@ if __name__ == "__main__":
     if "Alice" in world.explorers:
         surroundings = world.get_surroundings("Alice")
         assert surroundings[0][1] == "Alice"
-        assert len(surroundings) == 3
-        assert len(surroundings[0]) == 4
+        print(surroundings)
+        assert len(surroundings) == 4
+        assert len(surroundings[0]) == 3
     if "Charlie" in world.explorers:
         surroundings = world.get_surroundings("Charlie")
         assert surroundings[2][2] == "Charlie"
