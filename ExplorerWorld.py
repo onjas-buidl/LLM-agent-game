@@ -30,7 +30,7 @@ class ExplorerWorld:
                 explorer["x"] += 1
         explorer["stamina"] -= 1
 
-    def gather(self, name):
+    def gather_wealth(self, name):
         explorer = self.explorers[name]
         x, y = explorer["x"], explorer["y"]
         if self.map[x][y] > 0:
@@ -128,7 +128,7 @@ if __name__ == "__main__":
 
     # Test gathering wealth
     world.map[1][0] = 2
-    world.gather("Alice")
+    world.gather_wealth("Alice")
     assert world.explorers["Alice"]["wealth"] == 2
     assert world.map[1][0] == 0
 
