@@ -1,9 +1,11 @@
-import random
+import random, pprint
+import numpy as np
 
 
 class ExplorerWorld:
     def __init__(self, map_size):
         self.map_size = map_size
+        self.scope_size = 2  # used to indicate the scope of an agent
         # used to indicate wealth of a position
         self.map = [[0 for _ in range(map_size)] for _ in range(map_size)]
         self.explorers = {}
@@ -49,8 +51,14 @@ class ExplorerWorld:
     def attack(self, attacker_name, defender_name):
         attacker = self.explorers.get(attacker_name, None)
         defender = self.explorers.get(defender_name, None)
-        if attacker is None or defender is None:
-            raise Exception("At least one explorer does not exist")
+
+        if abs(attacker["x"] - defender["x"]) + abs(attacker["y"] - defender["y"]) != 1:
+            raise Exception("Cannot attack: the defender is not 1 step up/down/left/right to the attacker.")
+        if attacker is None:
+            raise Exception("The attacker name does not exist")
+        if defender is None:
+            raise Exception("The defender name does not exist")
+
         if attacker["stamina"] > defender["stamina"]:
             attacker["wealth"] += defender["wealth"]
             del self.explorers[defender_name]
@@ -78,64 +86,55 @@ class ExplorerWorld:
             if other_x >= min_x and other_x < max_x and other_y >= min_y and other_y < max_y:
                 surroundings[other_x - min_x][other_y - min_y] = other_name
         return transpose_lol(surroundings)
-        # surroundings = []
-        # for i in range(max(0, x - 2), min(self.map_size, x + 3)):
-        #     row = []
-        #     for j in range(max(0, y - 2), min(self.map_size, y + 3)):
-        #         if i == x and j == y:
-        #             row.append(name)
-        #         else:
-        #             found = False
-        #             for other_name, other_explorer in self.explorers.items():
-        #                 if other_explorer["x"] == i and other_explorer["y"] == j:
-        #                     row.append(other_name)
-        #                     found = True
-        #                     break
-        #             if not found:
-        #                 row.append(self.map[i][j])
-        #     surroundings.append(row)
-        # return transpose_lol(surroundings)
 
+    def print_surroundings(self, name):
+        s = self.get_surroundings(name)
+        s.reverse()
+        print(*s, sep="\n")
+
+    # def get_world_state(self):
+    #     world_state = [[-1 for _ in range(self.map_size)] for _ in range(self.map_size)]
+    #     for name, explorer in self.explorers.items():
+    #         world_state[explorer["x"]][explorer["y"]] = name
+    #
+    #     world_state = [self.map[i][j] if world_state[i][j] == -1 else world_state[i][j] for i in range(self.map_size)
+    #                    for j in range(self.map_size)]
+    #
+    #     return world_state
     def get_world_state(self):
-        world_state = [[-1 for _ in range(self.map_size)] for _ in range(self.map_size)]
-        for name, explorer in self.explorers.items():            
-            world_state[explorer["x"]][explorer["y"]] = name
-        
-        world_state = [self.map[i][j] if world_state[i][j] == -1 else world_state[i][j] for i in range(self.map_size) for j in range(self.map_size)]
-        
-        return world_state
-        
-        # for i in range(self.map_size):
-        #     row = []
-        #     for j in range(self.map_size):
-        #         found = False
-        #         for name, explorer in self.explorers.items():
-        #             if explorer["x"] == i and explorer["y"] == j:
-        #                 row.append(name)
-        #                 found = True
-        #                 break
-        #         if not found:
-        #             row.append(self.map[i][j])
-        #     world_state.append(row)
-        # return transpose_lol(world_state)
+        world_state = []
+        for i in range(self.map_size):
+            row = []
+            for j in range(self.map_size):
+                found = False
+                for name, explorer in self.explorers.items():
+                    if explorer["x"] == i and explorer["y"] == j:
+                        row.append(name)
+                        found = True
+                        break
+                if not found:
+                    row.append(self.map[i][j])
+            world_state.append(row)
+        return transpose_lol(world_state)
+
+    def __repr__(self):
+        w = self.get_world_state()
+        w.reverse()
+        return pprint.pformat(w, indent=4)
 
 
 # A function to transpose a list of list (square)
-def transpose_lol(square_list):
-    # Use the built-in zip function to transpose the list
-    transposed_list = list(map(list, zip(*square_list)))
-    return transposed_list
+def transpose_lol(list_of_lists):
+    return np.array(list_of_lists).T.tolist()
 
 
 # Testing framework for ExplorerWorld class
 if __name__ == "__main__":
     # Create a new ExplorerWorld instance with a map size of 5
     world = ExplorerWorld(10)
-
     # Add two explorers to the world
     world.add_explorer("Alice", 0, 0)
     world.add_explorer("Bob", 4, 4)
-    a = world.get_world_state()
 
     # Test that the explorers were added correctly
     assert len(world.explorers) == 2
@@ -160,7 +159,11 @@ if __name__ == "__main__":
     assert world.explorers["Alice"]["stamina"] == 10
 
     # Test attacking
-    world.add_explorer("Charlie", 2, 2)
+    world = ExplorerWorld(10)
+    world.add_explorer("Alice", 0, 0)
+    world.add_explorer("Bob", 4, 4)
+
+    world.add_explorer("Charlie", 1, 0)
     world.explorers["Alice"]["wealth"] = 5
     world.explorers["Charlie"]["wealth"] = 3
     world.attack("Alice", "Charlie")
@@ -186,12 +189,8 @@ if __name__ == "__main__":
         assert surroundings[4][4] == "Bob"
         assert len(surroundings) == 5
         assert len(surroundings[0]) == 5
-    
+
     # assert surroundings[0][0] == "Alice"
     # assert surroundings[2][2] == "Dave"
 
     print("All tests pass")
-
-
-
-
