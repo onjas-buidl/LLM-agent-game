@@ -2,6 +2,11 @@ import random, pprint
 import numpy as np
 import pandas as pd
 
+class WorldError(Exception):
+    """
+    Exception raised for errors in the world. To feed back into the chatbot.
+    """
+    pass
 
 class ExplorerWorld:
     def __init__(self, map_size):
@@ -19,7 +24,7 @@ class ExplorerWorld:
     def move(self, name, direction):
         explorer = self.explorers.get(name, None)
         if explorer is None:
-            raise Exception("Explorer does not exist")
+            raise WorldError("Explorer does not exist")
         x, y = explorer["x"], explorer["y"]
         if direction == "down":
             explorer["y"] = max(0, y - 1)
@@ -30,23 +35,25 @@ class ExplorerWorld:
         elif direction == "right":
             explorer["x"] = min(self.map_size - 1, x + 1)
         else:
-            raise Exception("Invalid direction")
+            raise WorldError("Cannot Move: Invalid direction")
         explorer["stamina"] -= 1
 
     def gather_wealth(self, name):
         explorer = self.explorers.get(name, None)
         if explorer is None:
-            raise Exception("Explorer does not exist")
+            raise WorldError("Explorer does not exist")
         x, y = explorer["x"], explorer["y"]
         if self.map[x][y] > 0:
             explorer["wealth"] += self.map[x][y]
             self.map[x][y] = 0
             explorer["stamina"] -= 1
+        else:
+            raise WorldError("Gather failed: No wealth to gather at your current location.")
 
     def rest(self, name):
         explorer = self.explorers.get(name, None)
         if explorer is None:
-            raise Exception("Explorer does not exist")
+            raise WorldError("Explorer does not exist")
         explorer["stamina"] = min(explorer["stamina"] + 3, self.max_stamina)
 
     def attack(self, attacker_name, defender_name):
@@ -54,11 +61,11 @@ class ExplorerWorld:
         defender = self.explorers.get(defender_name, None)
 
         if abs(attacker["x"] - defender["x"]) + abs(attacker["y"] - defender["y"]) != 1:
-            raise Exception("Cannot attack: the defender is not 1 step up/down/left/right to the attacker.")
+            raise WorldError("Cannot attack: the defender is not 1 step up/down/left/right to the attacker.")
         if attacker is None:
-            raise Exception("The attacker name does not exist")
+            raise WorldError("The attacker name does not exist")
         if defender is None:
-            raise Exception("The defender name does not exist")
+            raise WorldError("The defender name does not exist")
 
         if attacker["stamina"] > defender["stamina"]:
             attacker["wealth"] += defender["wealth"]
@@ -77,7 +84,7 @@ class ExplorerWorld:
     def get_surroundings(self, name):
         explorer = self.explorers.get(name, None)
         if explorer is None:
-            raise Exception("Explorer does not exist")
+            raise WorldError("Explorer does not exist")
         x, y = explorer["x"], explorer["y"]
         min_x, max_x = max(0, x - self.scope_size), min(self.map_size, x + self.scope_size + 1)
         min_y, max_y = max(0, y - self.scope_size), min(self.map_size, y + self.scope_size + 1)
@@ -85,13 +92,43 @@ class ExplorerWorld:
         for other_name, other_explorer in self.explorers.items():
             other_x, other_y = other_explorer["x"], other_explorer["y"]
             if other_x >= min_x and other_x < max_x and other_y >= min_y and other_y < max_y:
-                surroundings[max_y - other_y - 1][other_x - min_x] = (other_name, surroundings[max_y - other_y - 1][other_y - min_y])
+                if other_name == name:
+                    surroundings[max_y - other_y - 1][other_x - min_x] = ('Yourself', surroundings[max_y - other_y - 1][other_y - min_y])
+                else:
+                    surroundings[max_y - other_y - 1][other_x - min_x] = (other_name, surroundings[max_y - other_y - 1][other_y - min_y])
         return surroundings
 
     def print_surroundings(self, name):
         s = self.get_surroundings(name)
         # s.reverse()
         print(*s, sep="\n")
+
+    def get_explorer_name_by_direction(self, self_name, self_pos, direction) -> str:
+        direction = direction.lower()
+        assert direction in ["up", "down", "left", "right"], WorldError("Invalid direction")
+        if self_pos:
+            x, y = self_pos
+        elif self_name:
+            x, y = self.explorers[self_name]['x'], self.explorers[self_name]['y']
+        else:
+            raise Exception("Either self_pos or self_name must be provided")
+
+        if direction == "down":
+            y_ = y - 1
+        elif direction == "up":
+            y_ = y + 1
+        elif direction == "left":
+            x_ = x - 1
+        elif direction == "right":
+            x_ = x + 1
+
+        for explor_name in self.explorers.keys():
+            if self.explorers[explor_name]['x'] == x_ and self.explorers[explor_name]['y'] == y_:
+                return explor_name
+
+        raise WorldError("There is no explorer at the given direction: {}".format(direction))
+
+
 
     # def get_world_state(self):
     #     world_state = [[-1 for _ in range(self.map_size)] for _ in range(self.map_size)]
@@ -197,3 +234,4 @@ if __name__ == "__main__":
     # assert surroundings[2][2] == "Dave"
 
     print("All tests pass")
+
