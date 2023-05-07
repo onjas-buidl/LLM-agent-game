@@ -36,7 +36,7 @@ class ExplorerAgent:
         self.name = name
         self.principles = principles
 
-    def get_action_and_motivation(self, world, print_all=False):
+    def get_action_and_motivation(self, world, print_all=True):
         surroundings = self.get_self_formatted_surroundings(world)
         stamina, wealth = world.explorers[self.name]["stamina"], world.explorers[self.name]["wealth"]
 
@@ -81,9 +81,11 @@ You can only select one of [Move up/down/left/right, gather, rest, attack up/dow
         action_motivation = response.choices[0].message.content
         print(action_motivation)
         if print_all:
+            print(self.name)
             print(message_history)
-            print()
+            # print()
             print(action_motivation)
+            print()
         return action_motivation
 
     def get_self_formatted_surroundings(self, world) -> str:
@@ -142,42 +144,44 @@ You can only select one of [Move up/down/left/right, gather, rest, attack up/dow
 
     def take_action(self, world):
         action_motivation = self.get_action_and_motivation(world)
-        # motivation, action_parts = action_motivation.split("Action:")
-        # action_parts = action_parts.lower().strip().replace(".", "")
+        motivation, action_parts = action_motivation.split("Action:")
+        action_parts = action_parts.lower().strip().replace(".", "")
 
-        # if 'move' in action_parts:
-        #     print(action_parts)
-        #     _, direction = action_parts.split(" ")
-        #     world.move(self.name, direction)
-        # elif 'gather' in action_parts:
-        #     world.gather(self.name)
-        # elif 'rest' in action_parts:
-        #     world.rest(self.name)
-        # elif 'attack' in action_parts:
-        #     _, t = action_parts.split(" ")
-        #     if t in ['up', 'down', 'left', 'right']:
-        #         target_name = world.get_explorer_name_by_direction(self_name=self.name, self_pos=None, direction=t)
-        #         world.attack(self.name, target_name)
-        #     else:
-        #         # if the target is an explorer
-        #         world.attack(self.name, t)
+        if 'move' in action_parts:
+            print(action_parts)
+            _, direction = action_parts.split(" ")
+            world.move(self.name, direction)
+        elif 'gather' in action_parts:
+            world.gather_wealth(self.name)
+        elif 'rest' in action_parts:
+            world.rest(self.name)
+        elif 'attack' in action_parts:
+            _, t = action_parts.split(" ")
+            if t in ['up', 'down', 'left', 'right']:
+                target_name = world.get_explorer_name_by_direction(self_name=self.name, self_pos=None, direction=t)
+                world.attack(self.name, target_name)
+            else:
+                # if the target is an explorer
+                world.attack(self.name, t)
 
-        # if action_parts[0] == "move":
-        #     direction = action_parts[1]
-        #     world.move(self.name, direction)
-        # elif action_parts[0] == "gather":
-        #     world.gather(self.name)
-        # elif action_parts[0] == "rest":
-        #     world.rest(self.name)
-        # elif action_parts[0] == "attack":
-        #     direction = action_parts[1]
-        #     target_name = world.get_explorer_name_by_direction(self.name, direction)
-        #     if target_name:
-        #         world.attack(self.name, target_name)
+        if action_parts[0] == "move":
+            direction = action_parts[1]
+            world.move(self.name, direction)
+        elif action_parts[0] == "gather":
+            world.gather(self.name)
+        elif action_parts[0] == "rest":
+            world.rest(self.name)
+        elif action_parts[0] == "attack":
+            direction = action_parts[1]
+            target_name = world.get_explorer_name_by_direction(self.name, direction)
+            if target_name:
+                world.attack(self.name, target_name)
 
 
 if __name__ == "__main__":
-    world = ew.ExplorerWorld(10)
+    world_size = 7
+    world = ew.ExplorerWorld(world_size)
+    world.random_initialize_map(wealth_density=0.2)
     # Add two explorers to the world
     world.add_explorer("Alice", 0, 0)
     world.add_explorer("Bob", 2, 2)
@@ -189,30 +193,47 @@ if __name__ == "__main__":
     a3 = ExplorerAgent("Charlie",
                        'You are a weird person that does not want to attack or defense. You are afraid of death.')
     
-    # print(world)
-    for i in range(25):
-        world.explorers["Alice"]['x'] = random.randint(0, 9)
-        world.explorers["Alice"]['y'] = random.randint(0, 9)
-        world.explorers["Bob"]['x'] = random.randint(0, 9)
-        world.explorers["Bob"]['y'] = random.randint(0, 9)
-        world.explorers["Charlie"]['x'] = random.randint(0, 9)
-        world.explorers["Charlie"]['y'] = random.randint(0, 9)
-        print("current world:")
-        print(world)
-        a1.take_action(world)
-        a2.take_action(world)
-        a3.take_action(world)
-        
-        print('\n'*10)
-        
-    # a1.take_action(world)
-    # print(world)
-    # a2.take_action(world)
-    # print(world)
-    # a1.take_action(world)
-    # print(world)
-    # a3.take_action(world)
-    # print(world)
-    # a2.take_action(world)
-    # print(world)
+    # for i in range(25):
+    # Generate random x and y coordinates for the first point
+    x1 = random.randint(0, world_size)
+    y1 = random.randint(0, world_size)
+    # Generate random x and y coordinates for the second point
+    x2 = random.randint(0, world_size)
+    y2 = random.randint(0, world_size)
+    # Generate random x and y coordinates for the third point
+    x3 = random.randint(0, world_size)
+    y3 = random.randint(0, world_size)
+
+    # Ensure that all points are distinct
+    while (x1, y1) == (x2, y2) or (x1, y1) == (x3, y3) or (x2, y2) == (x3, y3):
+        x1 = random.randint(0, 10)
+        y1 = random.randint(0, 10)
+        x2 = random.randint(0, 10)
+        y2 = random.randint(0, 10)
+        x3 = random.randint(0, 10)
+        y3 = random.randint(0, 10)
+
+
+    world.explorers["Alice"]['x'] = x1
+    world.explorers["Alice"]['y'] = y1
+    world.explorers["Bob"]['x'] = x2
+    world.explorers["Bob"]['y'] = y2
+    world.explorers["Charlie"]['x'] = x3
+    world.explorers["Charlie"]['y'] = y3
+    print("current world:")
+    print(world)
+    a1.take_action(world)
+    a2.take_action(world)
+    a3.take_action(world)
+
+    a1.take_action(world)
+    a2.take_action(world)
+    a3.take_action(world)
+
+    a1.take_action(world)
+    a2.take_action(world)
+    a3.take_action(world)
+
+    print('\n'*10)
+
 

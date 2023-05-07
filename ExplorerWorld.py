@@ -1,3 +1,4 @@
+import copy
 import random, pprint
 import numpy as np
 import pandas as pd
@@ -15,11 +16,20 @@ class ExplorerWorld:
         # used to indicate wealth of a position
         self.map = [[0 for _ in range(map_size)] for _ in range(map_size)]
         self.explorers = {}
-        self.max_wealth = 5
+        self.max_wealth = 10
         self.max_stamina = 10
 
-    def add_explorer(self, name, x, y):
-        self.explorers[name] = {"x": x, "y": y, "wealth": 0, "stamina": self.max_stamina}
+    def random_initialize_map(self, wealth_density=0.1):
+        """
+        Randomly initialize the map with wealth resources.
+        """
+        for i in range(self.map_size):
+            for j in range(self.map_size):
+                if random.random() < wealth_density:
+                    self.map[i][j] = 1
+
+    def add_explorer(self, name, x, y, stamina=None):
+        self.explorers[name] = {"x": x, "y": y, "wealth": 0, "stamina": self.max_stamina if not stamina else stamina}
 
     def move(self, name, direction):
         explorer = self.explorers.get(name, None)
@@ -89,14 +99,15 @@ class ExplorerWorld:
         min_x, max_x = max(0, x - self.scope_size), min(self.map_size, x + self.scope_size + 1)
         min_y, max_y = max(0, y - self.scope_size), min(self.map_size, y + self.scope_size + 1)
         surroundings = [[self.map[_x][_y] for _x in range(min_x, max_x)] for _y in range(min_y, max_y)]
+        out_surroundings = copy.deepcopy(surroundings) # create a deep copy of surroundings
         for other_name, other_explorer in self.explorers.items():
             other_x, other_y = other_explorer["x"], other_explorer["y"]
             if other_x >= min_x and other_x < max_x and other_y >= min_y and other_y < max_y:
                 if other_name == name:
-                    surroundings[max_y - other_y - 1][other_x - min_x] = ('Yourself', surroundings[max_y - other_y - 1][other_y - min_y])
+                    out_surroundings[max_y - other_y - 1][other_x - min_x] = ('Yourself', surroundings[max_y - other_y - 1][other_y - min_y])
                 else:
-                    surroundings[max_y - other_y - 1][other_x - min_x] = (other_name, surroundings[max_y - other_y - 1][other_y - min_y])
-        return surroundings
+                    out_surroundings[max_y - other_y - 1][other_x - min_x] = (other_name, surroundings[max_y - other_y - 1][other_y - min_y])
+        return out_surroundings
 
     def print_surroundings(self, name):
         s = self.get_surroundings(name)
