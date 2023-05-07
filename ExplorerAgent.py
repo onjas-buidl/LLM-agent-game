@@ -3,7 +3,8 @@ import ExplorerWorld as ew
 import logging, os
 from logging.handlers import RotatingFileHandler
 from datetime import datetime
-openai.api_key = "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"
+import random
+
 # get the absolute path to the current directory
 current_directory = os.path.abspath(os.path.dirname(__file__))
 
@@ -12,7 +13,7 @@ timestamp = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
 log_file_name = f'example_{timestamp}.log'
 log_file_path = os.path.join(current_directory, 'logs', log_file_name)
 handler = RotatingFileHandler(log_file_path, maxBytes=1024 * 1024, backupCount=1)
-handler.setLevel(logging.DEBUG)
+handler.setLevel(logging.INFO)
 formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 handler.setFormatter(formatter)
 logging.getLogger().addHandler(handler)
@@ -60,11 +61,11 @@ Your current stamina: {stamina}
 Your current wealth: {wealth}
 
 ---
-Based on all information above, give a comment on your thinking process
+Based on all information above, give a comment on your thinking process and select one action to perform this round.
 Please output the action and motivation in the following format:
 
 Motivation:
-Action: [Move up/down/left/right, gather, rest, attack up/down/left/right]
+Action: [Select one of the following action: Move up, Move down, Move left, Move right, gather, rest, attack up, attack down, attack left, attack right]
 
 You can only select one of [Move up/down/left/right, gather, rest, attack up/down/left/right] as Action
 
@@ -76,8 +77,9 @@ You can only select one of [Move up/down/left/right, gather, rest, attack up/dow
             temperature=0.05
         )
         logging.info('CALLED openai.ChatCompletion: {}\n\n\nRESPONSE: \n{}'.format(str(message_history), response))
-
+        
         action_motivation = response.choices[0].message.content
+        print(action_motivation)
         if print_all:
             print(message_history)
             print()
@@ -140,25 +142,25 @@ You can only select one of [Move up/down/left/right, gather, rest, attack up/dow
 
     def take_action(self, world):
         action_motivation = self.get_action_and_motivation(world)
-        motivation, action_parts = action_motivation.split("Action:")
-        action_parts = action_parts.lower().strip().replace(".", "")
+        # motivation, action_parts = action_motivation.split("Action:")
+        # action_parts = action_parts.lower().strip().replace(".", "")
 
-        if 'move' in action_parts:
-            print(action_parts)
-            _, direction = action_parts.split(" ")
-            world.move(self.name, direction)
-        elif 'gather' in action_parts:
-            world.gather(self.name)
-        elif 'rest' in action_parts:
-            world.rest(self.name)
-        elif 'attack' in action_parts:
-            _, t = action_parts.split(" ")
-            if t in ['up', 'down', 'left', 'right']:
-                target_name = world.get_explorer_name_by_direction(self_name=self.name, direction=t)
-                world.attack(self.name, target_name)
-            else:
-                # if the target is an explorer
-                world.attack(self.name, t)
+        # if 'move' in action_parts:
+        #     print(action_parts)
+        #     _, direction = action_parts.split(" ")
+        #     world.move(self.name, direction)
+        # elif 'gather' in action_parts:
+        #     world.gather(self.name)
+        # elif 'rest' in action_parts:
+        #     world.rest(self.name)
+        # elif 'attack' in action_parts:
+        #     _, t = action_parts.split(" ")
+        #     if t in ['up', 'down', 'left', 'right']:
+        #         target_name = world.get_explorer_name_by_direction(self_name=self.name, self_pos=None, direction=t)
+        #         world.attack(self.name, target_name)
+        #     else:
+        #         # if the target is an explorer
+        #         world.attack(self.name, t)
 
         # if action_parts[0] == "move":
         #     direction = action_parts[1]
@@ -179,18 +181,38 @@ if __name__ == "__main__":
     # Add two explorers to the world
     world.add_explorer("Alice", 0, 0)
     world.add_explorer("Bob", 2, 2)
-
+    world.add_explorer("Charlie", 4, 4)
     a1 = ExplorerAgent("Alice",
                        'You are a belligerent person that wants to maximize your wealth by attacking and defeating other explorers. You are not afraid of death.')
     a2 = ExplorerAgent("Bob",
                        'You are a peaceful person that wants to maximize your wealth by gathering resources. You are afraid of death.')
     a3 = ExplorerAgent("Charlie",
                        'You are a weird person that does not want to attack or defense. You are afraid of death.')
-    print(world)
-    a1.take_action(world)
-    a2.take_action(world)
-    a1.take_action(world)
-    a3.take_action(world)
-    a2.take_action(world)
-    print(world)
+    
+    # print(world)
+    for i in range(25):
+        world.explorers["Alice"]['x'] = random.randint(0, 9)
+        world.explorers["Alice"]['y'] = random.randint(0, 9)
+        world.explorers["Bob"]['x'] = random.randint(0, 9)
+        world.explorers["Bob"]['y'] = random.randint(0, 9)
+        world.explorers["Charlie"]['x'] = random.randint(0, 9)
+        world.explorers["Charlie"]['y'] = random.randint(0, 9)
+        print("current world:")
+        print(world)
+        a1.take_action(world)
+        a2.take_action(world)
+        a3.take_action(world)
+        
+        print('\n'*10)
+        
+    # a1.take_action(world)
+    # print(world)
+    # a2.take_action(world)
+    # print(world)
+    # a1.take_action(world)
+    # print(world)
+    # a3.take_action(world)
+    # print(world)
+    # a2.take_action(world)
+    # print(world)
 
