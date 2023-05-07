@@ -3,7 +3,7 @@ import ExplorerWorld as ew
 import logging, os
 from logging.handlers import RotatingFileHandler
 from datetime import datetime
-
+openai.api_key = "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"
 # get the absolute path to the current directory
 current_directory = os.path.abspath(os.path.dirname(__file__))
 
@@ -60,12 +60,13 @@ Your current stamina: {stamina}
 Your current wealth: {wealth}
 
 ---
-
-Based on all information above, give a comment on your thinking process and select one action to perform this round.
+Based on all information above, give a comment on your thinking process
 Please output the action and motivation in the following format:
 
 Motivation:
 Action: [Move up/down/left/right, gather, rest, attack up/down/left/right]
+
+You can only select one of [Move up/down/left/right, gather, rest, attack up/down/left/right] as Action
 
 """.format(stamina=stamina, wealth=wealth, surroundings=surroundings)}]
 
@@ -143,6 +144,7 @@ Action: [Move up/down/left/right, gather, rest, attack up/down/left/right]
         action_parts = action_parts.lower().strip().replace(".", "")
 
         if 'move' in action_parts:
+            print(action_parts)
             _, direction = action_parts.split(" ")
             world.move(self.name, direction)
         elif 'gather' in action_parts:
@@ -182,7 +184,13 @@ if __name__ == "__main__":
                        'You are a belligerent person that wants to maximize your wealth by attacking and defeating other explorers. You are not afraid of death.')
     a2 = ExplorerAgent("Bob",
                        'You are a peaceful person that wants to maximize your wealth by gathering resources. You are afraid of death.')
+    a3 = ExplorerAgent("Charlie",
+                       'You are a weird person that does not want to attack or defense. You are afraid of death.')
     print(world)
     a1.take_action(world)
+    a2.take_action(world)
+    a1.take_action(world)
+    a3.take_action(world)
+    a2.take_action(world)
     print(world)
 
