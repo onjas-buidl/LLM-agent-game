@@ -4,6 +4,14 @@ import logging, os
 from logging.handlers import RotatingFileHandler
 from datetime import datetime
 import random
+from langchain.output_parsers import StructuredOutputParser, ResponseSchema
+from langchain.prompts import ChatPromptTemplate, HumanMessagePromptTemplate
+from langchain.llms import OpenAI
+from langchain.chat_models import ChatOpenAI
+import pandas as pd
+import json
+
+
 
 # get the absolute path to the current directory
 current_directory = os.path.abspath(os.path.dirname(__file__))
@@ -26,7 +34,6 @@ logging.getLogger().addHandler(handler)
 # logging.critical('This is a critical message')
 
 
-
 TEST_MODE = True
 logging.basicConfig(filename='logs/', level=logging.INFO)
 
@@ -35,58 +42,60 @@ class ExplorerAgent:
     def __init__(self, name, principles):
         self.name = name
         self.principles = principles
+        openai_api_key = os.environ.get("OPENAI_API_KEY")
+        # Temp = 0 so that we get clean information without a lot of creativity
+        self.chat_model = ChatOpenAI(temperature=0, openai_api_key=openai_api_key, max_tokens=1500)
 
-    def get_action_and_motivation(self, world, print_all=True):
-        surroundings = self.get_self_formatted_surroundings(world)
-        stamina, wealth = world.explorers[self.name]["stamina"], world.explorers[self.name]["wealth"]
+        # How you would like your reponse structured. This is basically a fancy prompt template
+        response_schemas = [
+            ResponseSchema(name="Motivation",
+                           description="This is the motivation and thought process behind the action."),
+            ResponseSchema(name="Action",
+                           description="Select one of the following action: move up, move down, move left, move right, gather, rest, attack up, attack down, attack left, attack right"),
+        ]
 
-        message_history = [{"role": "system",
-                            "content": "You are an explorer roaming in a 2D grid-based world. Based on the principles, the game rules, and the current game state, strictly output one action and a short comment each round, nothing else."},
-                           {"role": "user", "content": """**Rules you need to follow**:
-1. You have stamina and wealth. If your stamina goes to 0, you die.
-2. Each round, you can choose one of the following actions:
-    2.1 Move: move up, down, left, right, for 1 step. No diagonal move. This action consumes 1 stamina.
-    2.2 Gather: gather wealth if the location you are at has wealth resource. This action consumes 1 stamina and depletes the wealth resource.
-    2.3 Rest: increase stamina by 3.
-    2.4 Attack: you can choose to attack other explorer. Whoever has a higher stamina wins, and gets all wealth of the loser. The loser dies.  
-3. Principles
-	3.1 You are a belligerent person that wants to maximize your wealth by attacking and defeating other explorers. 
+        # How you would like to parse your output
+        output_parser = StructuredOutputParser.from_response_schemas(response_schemas)
+        # See the prompt template you created for formatting
+        format_instructions = output_parser.get_format_instructions()
 
-**Current game situation**:
-You can see things within 2 steps from you. Your surrounding look like this (in Markdown table format): 
+        mind_template = """
+        You are an explorer roaming in a 2D grid-based world. Based on the principles, the game rules, and the current game state, strictly output one action and a short comment each round in the specified format.
+        **Rules you need to follow**:
+        1. You have stamina and wealth. If your stamina goes to 0, you die.
+        2. Each round, you can choose one of the following actions:
+            2.1 Move: move up, down, left, right, for 1 step. No diagonal move. This action consumes 1 stamina.
+            2.2 Gather: gather wealth if the location you are at has wealth resource. This action consumes 1 stamina and depletes the wealth resource.
+            2.3 Rest: increase stamina by 3.
+            2.4 Attack: you can choose to attack other explorer. Whoever has a higher stamina wins, and gets all wealth of the loser. The loser dies.  
+        3. You should follow the principles to decide your action.
+        	3.1 {principle} 
 
-{surroundings}
+        **Current game situation**:
+        You can see things within 2 steps from you. Your surrounding look like this (in Markdown table format): 
 
-Your current stamina: {stamina}
-Your current wealth: {wealth}
+        {surroundings}
 
----
-Based on all information above, give a comment on your thinking process and select one action to perform this round.
-Please output the action and motivation in the following format:
+        Your current stamina: {stamina}
+        Your current wealth: {wealth}
 
-Motivation:
-Action: [Select one of the following action: Move up, Move down, Move left, Move right, gather, rest, attack up, attack down, attack left, attack right]
+        ---
+        Based on all information above, give a comment on your thinking process and select one action to perform this round.
 
-You can only select one of [Move up/down/left/right, gather, rest, attack up/down/left/right] as Action
+        {format_instructions}
 
-""".format(stamina=stamina, wealth=wealth, surroundings=surroundings)}]
+        YOUR RESPONSE:
+        """
 
-        response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",
-            messages=message_history,
-            temperature=0.05
+        self.prompt = ChatPromptTemplate(
+            messages=[
+                HumanMessagePromptTemplate.from_template(mind_template)
+            ],
+            input_variables=["surroundings", "stamina", "wealth"],
+            partial_variables={"format_instructions": format_instructions, "principle": principles}
         )
-        logging.info('CALLED openai.ChatCompletion: {}\n\n\nRESPONSE: \n{}'.format(str(message_history), response))
-        
-        action_motivation = response.choices[0].message.content
-        print(action_motivation)
-        if print_all:
-            print(self.name)
-            print(message_history)
-            # print()
-            print(action_motivation)
-            print()
-        return action_motivation
+
+
 
     def get_self_formatted_surroundings(self, world) -> str:
         lst = world.get_surroundings(self.name)
@@ -142,9 +151,26 @@ You can only select one of [Move up/down/left/right, gather, rest, attack up/dow
         else:
             return ''
 
-    def take_action(self, world):
-        action_motivation = self.get_action_and_motivation(world)
-        motivation, action_parts = action_motivation.split("Action:")
+
+    def take_action(self, world, print_all=True):
+        surroundings = self.get_self_formatted_surroundings(world)
+        stamina, wealth = world.explorers[self.name]["stamina"], world.explorers[self.name]["wealth"]
+
+        _input = self.prompt.format_prompt(surroundings=surroundings, stamina=stamina, wealth=wealth)
+
+        print(_input.messages)
+
+        _output = self.chat_model(_input.to_messages())
+
+        if "```json" in _output.content:
+            json_string = _output.content.split("```json")[1].strip().replace('```', '')
+        else:
+            json_string = _output.content
+
+        output = json.loads(json_string)
+        assert 'Motivation' in output.keys() and 'Action' in output.keys(), "Output format is wrong"
+        assert output['Action'] in ["move up", "move down", "move left", "move right", "gather", "rest", "attack up", "attack down", "attack left", "attack right"]
+        action_parts = output['Action']
         action_parts = action_parts.lower().strip().replace(".", "")
 
         if 'move' in action_parts:
@@ -164,18 +190,18 @@ You can only select one of [Move up/down/left/right, gather, rest, attack up/dow
                 # if the target is an explorer
                 world.attack(self.name, t)
 
-        if action_parts[0] == "move":
-            direction = action_parts[1]
-            world.move(self.name, direction)
-        elif action_parts[0] == "gather":
-            world.gather(self.name)
-        elif action_parts[0] == "rest":
-            world.rest(self.name)
-        elif action_parts[0] == "attack":
-            direction = action_parts[1]
-            target_name = world.get_explorer_name_by_direction(self.name, direction)
-            if target_name:
-                world.attack(self.name, target_name)
+        # if action_parts[0] == "move":
+        #     direction = action_parts[1]
+        #     world.move(self.name, direction)
+        # elif action_parts[0] == "gather":
+        #     world.gather(self.name)
+        # elif action_parts[0] == "rest":
+        #     world.rest(self.name)
+        # elif action_parts[0] == "attack":
+        #     direction = action_parts[1]
+        #     target_name = world.get_explorer_name_by_direction(self.name, direction)
+        #     if target_name:
+        #         world.attack(self.name, target_name)
 
 
 if __name__ == "__main__":
@@ -195,14 +221,14 @@ if __name__ == "__main__":
     
     # for i in range(25):
     # Generate random x and y coordinates for the first point
-    x1 = random.randint(0, world_size)
-    y1 = random.randint(0, world_size)
+    x1 = random.randint(0, world_size-1)
+    y1 = random.randint(0, world_size-1)
     # Generate random x and y coordinates for the second point
-    x2 = random.randint(0, world_size)
-    y2 = random.randint(0, world_size)
+    x2 = random.randint(0, world_size-1)
+    y2 = random.randint(0, world_size-1)
     # Generate random x and y coordinates for the third point
-    x3 = random.randint(0, world_size)
-    y3 = random.randint(0, world_size)
+    x3 = random.randint(0, world_size-1)
+    y3 = random.randint(0, world_size-1)
 
     # Ensure that all points are distinct
     while (x1, y1) == (x2, y2) or (x1, y1) == (x3, y3) or (x2, y2) == (x3, y3):
