@@ -157,38 +157,40 @@ class ExplorerAgent:
         stamina, wealth = world.explorers[self.name]["stamina"], world.explorers[self.name]["wealth"]
 
         _input = self.prompt.format_prompt(surroundings=surroundings, stamina=stamina, wealth=wealth)
-
-        print(_input.messages)
-
+        # print(_input.messages)
         _output = self.chat_model(_input.to_messages())
-
         if "```json" in _output.content:
             json_string = _output.content.split("```json")[1].strip().replace('```', '')
         else:
             json_string = _output.content
-
         output = json.loads(json_string)
+
         assert 'Motivation' in output.keys() and 'Action' in output.keys(), "Output format is wrong"
         assert output['Action'] in ["move up", "move down", "move left", "move right", "gather", "rest", "attack up", "attack down", "attack left", "attack right"]
         action_parts = output['Action']
         action_parts = action_parts.lower().strip().replace(".", "")
 
-        if 'move' in action_parts:
-            print(action_parts)
-            _, direction = action_parts.split(" ")
-            world.move(self.name, direction)
-        elif 'gather' in action_parts:
-            world.gather_wealth(self.name)
-        elif 'rest' in action_parts:
-            world.rest(self.name)
-        elif 'attack' in action_parts:
-            _, t = action_parts.split(" ")
-            if t in ['up', 'down', 'left', 'right']:
-                target_name = world.get_explorer_name_by_direction(self_name=self.name, self_pos=None, direction=t)
-                world.attack(self.name, target_name)
-            else:
-                # if the target is an explorer
-                world.attack(self.name, t)
+        try:
+            print(self.name, action_parts)
+            print(output['Motivation'])
+            if 'move' in action_parts:
+                _, direction = action_parts.split(" ")
+                world.move(self.name, direction)
+            elif 'gather' in action_parts:
+                world.gather_wealth(self.name)
+            elif 'rest' in action_parts:
+                world.rest(self.name)
+            elif 'attack' in action_parts:
+                _, t = action_parts.split(" ")
+                if t in ['up', 'down', 'left', 'right']:
+                    target_name = world.get_explorer_name_by_direction(self_name=self.name, self_pos=None, direction=t)
+                    world.attack(self.name, target_name)
+                else:
+                    # if the target is an explorer
+                    world.attack(self.name, t)
+        except ew.WorldError:
+            # TODO++: build up error handling and LLM self-debug system
+            pass
 
         # if action_parts[0] == "move":
         #     direction = action_parts[1]
@@ -219,25 +221,16 @@ if __name__ == "__main__":
     a3 = ExplorerAgent("Charlie",
                        'You are a weird person that does not want to attack or defense. You are afraid of death.')
     
-    # for i in range(25):
-    # Generate random x and y coordinates for the first point
-    x1 = random.randint(0, world_size-1)
-    y1 = random.randint(0, world_size-1)
-    # Generate random x and y coordinates for the second point
-    x2 = random.randint(0, world_size-1)
-    y2 = random.randint(0, world_size-1)
-    # Generate random x and y coordinates for the third point
-    x3 = random.randint(0, world_size-1)
-    y3 = random.randint(0, world_size-1)
+    x1, y1, x2, y2, x3, y3 = 0, 0, 0, 0, 0, 0
 
     # Ensure that all points are distinct
     while (x1, y1) == (x2, y2) or (x1, y1) == (x3, y3) or (x2, y2) == (x3, y3):
-        x1 = random.randint(0, 10)
-        y1 = random.randint(0, 10)
-        x2 = random.randint(0, 10)
-        y2 = random.randint(0, 10)
-        x3 = random.randint(0, 10)
-        y3 = random.randint(0, 10)
+        x1 = random.randint(0, world_size-1)
+        y1 = random.randint(0, world_size-1)
+        x2 = random.randint(0, world_size-1)
+        y2 = random.randint(0, world_size-1)
+        x3 = random.randint(0, world_size-1)
+        y3 = random.randint(0, world_size-1)
 
 
     world.explorers["Alice"]['x'] = x1
@@ -248,18 +241,17 @@ if __name__ == "__main__":
     world.explorers["Charlie"]['y'] = y3
     print("current world:")
     print(world)
-    a1.take_action(world)
-    a2.take_action(world)
-    a3.take_action(world)
 
-    a1.take_action(world)
-    a2.take_action(world)
-    a3.take_action(world)
+    for i in range(3):
+        a1.take_action(world)
+        print("current world:")
+        print(world)
+        a2.take_action(world)
+        print("current world:")
+        print(world)
+        a3.take_action(world)
+        print("current world:")
+        print(world)
 
-    a1.take_action(world)
-    a2.take_action(world)
-    a3.take_action(world)
-
-    print('\n'*10)
 
 

@@ -29,6 +29,7 @@ class ExplorerWorld:
                     self.map[i][j] = 1
 
     def add_explorer(self, name, x, y, stamina=None):
+        assert x < self.map_size and y < self.map_size
         self.explorers[name] = {"x": x, "y": y, "wealth": 0, "stamina": self.max_stamina if not stamina else stamina}
 
     def move(self, name, direction):
@@ -125,13 +126,13 @@ class ExplorerWorld:
             raise Exception("Either self_pos or self_name must be provided")
 
         if direction == "down":
-            y_ = y - 1
+            x_, y_ = x, y - 1
         elif direction == "up":
-            y_ = y + 1
+            x_, y_ = x, y + 1
         elif direction == "left":
-            x_ = x - 1
+            x_, y_ = x - 1, y
         elif direction == "right":
-            x_ = x + 1
+            x_, y_ = x + 1, y
 
         for explor_name in self.explorers.keys():
             if self.explorers[explor_name]['x'] == x_ and self.explorers[explor_name]['y'] == y_:
@@ -169,6 +170,8 @@ class ExplorerWorld:
     def __repr__(self):
         w = self.get_world_state()
         w.reverse()
+        w = pd.DataFrame(w)
+        w.index = list(range(self.map_size-1, -1, -1))
         return pprint.pformat(w, indent=4)
 
 
