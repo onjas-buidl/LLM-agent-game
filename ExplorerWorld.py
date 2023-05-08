@@ -18,6 +18,7 @@ class ExplorerWorld:
         self.explorers = {}
         self.max_wealth = 10
         self.max_stamina = 10
+    # TODO add check death function decorator to every action that could possibly lead to death
 
     def random_initialize_map(self, wealth_density=0.1):
         """
@@ -28,9 +29,42 @@ class ExplorerWorld:
                 if random.random() < wealth_density:
                     self.map[i][j] = 1
 
-    def add_explorer(self, name, x, y, stamina=None):
-        assert x < self.map_size and y < self.map_size
+    def add_explorer(self, name, x=None, y=None, stamina=None):
+        """
+        Add an explorer to the world. If x and y are not specified, randomly assign a position to the explorer.
+        Automatically check if the position is occupied by another explorer.
+        :param name:
+        :param x:
+        :param y:
+        :param stamina:
+        :return:
+        """
+        if x and y:
+            assert x < self.map_size and y < self.map_size
+        else:
+            x = random.randint(0, self.map_size - 1)
+            y = random.randint(0, self.map_size - 1)
+
+        retry, loop_num = True, 0
+        while retry and loop_num < 100:
+            loop_num += 1
+            # check this (x,y) position is not occupied by other explorers, by checking world.explorer dictionary
+            for other_explorer in self.explorers.keys():
+                if self.explorers[other_explorer]["x"] == x and self.explorers[other_explorer]["y"] == y:
+                    retry = True
+                    x = random.randint(0, self.map_size - 1)
+                    y = random.randint(0, self.map_size - 1)
+                    break
+                    # raise WorldError("Cannot add explorer: the position is occupied by another explorer.")
+            retry = False
+        if loop_num == 100:
+            raise WorldError("Cannot add explorer: hard to find a position not occupied by another explorer.")
+
         self.explorers[name] = {"x": x, "y": y, "wealth": 0, "stamina": self.max_stamina if not stamina else stamina}
+
+
+
+
 
     def move(self, name, direction):
         explorer = self.explorers.get(name, None)
@@ -48,6 +82,7 @@ class ExplorerWorld:
         else:
             raise WorldError("Cannot Move: Invalid direction")
         explorer["stamina"] -= 1
+
 
     def gather_wealth(self, name):
         explorer = self.explorers.get(name, None)
@@ -168,10 +203,13 @@ class ExplorerWorld:
         return transpose_lol(world_state)
 
     def __repr__(self):
+        # TODO - print also the wealth on a agent position
         w = self.get_world_state()
         w.reverse()
         w = pd.DataFrame(w)
-        w.index = list(range(self.map_size-1, -1, -1))
+        idx_list = list(range(self.map_size-1, -1, -1))
+        w.index = list(map(lambda s: "|"+str(s)+"|", idx_list)) # list(range(self.map_size-1, -1, -1))
+        w = w.rename(columns=lambda s: "|"+str(s)+"|")
         return pprint.pformat(w, indent=4)
 
 

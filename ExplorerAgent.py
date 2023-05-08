@@ -39,10 +39,15 @@ logging.basicConfig(filename='logs/', level=logging.INFO)
 
 
 class ExplorerAgent:
-    def __init__(self, name, principles):
+    def __init__(self, world, name, principles, x=None, y=None, stamina=None):
         self.name = name
         self.principles = principles
         openai_api_key = os.environ.get("OPENAI_API_KEY")
+
+        world.add_explorer(name, x, y, stamina)
+
+
+        ##### Initialize the LLM part of the agent #####
         # Temp = 0 so that we get clean information without a lot of creativity
         self.chat_model = ChatOpenAI(temperature=0, openai_api_key=openai_api_key, max_tokens=1500)
 
@@ -209,49 +214,23 @@ class ExplorerAgent:
 if __name__ == "__main__":
     world_size = 7
     world = ew.ExplorerWorld(world_size)
-    world.random_initialize_map(wealth_density=0.2)
-    # Add two explorers to the world
-    world.add_explorer("Alice", 0, 0)
-    world.add_explorer("Bob", 2, 2)
-    world.add_explorer("Charlie", 4, 4)
-    a1 = ExplorerAgent("Alice",
-                       'You are a belligerent person that wants to maximize your wealth by attacking and defeating other explorers. You are not afraid of death.')
-    a2 = ExplorerAgent("Bob",
-                       'You are a peaceful person that wants to maximize your wealth by gathering resources. You are afraid of death.')
-    a3 = ExplorerAgent("Charlie",
-                       'You are a weird person that does not want to attack or defense. You are afraid of death.')
-    
-    x1, y1, x2, y2, x3, y3 = 0, 0, 0, 0, 0, 0
+    world.random_initialize_map(wealth_density=0.3)
 
-    # Ensure that all points are distinct
-    while (x1, y1) == (x2, y2) or (x1, y1) == (x3, y3) or (x2, y2) == (x3, y3):
-        x1 = random.randint(0, world_size-1)
-        y1 = random.randint(0, world_size-1)
-        x2 = random.randint(0, world_size-1)
-        y2 = random.randint(0, world_size-1)
-        x3 = random.randint(0, world_size-1)
-        y3 = random.randint(0, world_size-1)
+    a1 = ExplorerAgent(world=world, name="Alice",
+                       principles='You are a belligerent person that wants to maximize your wealth by attacking and defeating other explorers. You are not afraid of death.')
+    a2 = ExplorerAgent(world=world, name="Bob",
+                       principles='You are a peaceful person that wants to maximize your wealth by gathering resources. You are afraid of death.')
+    a3 = ExplorerAgent(world=world, name="Charlie",
+                       principles='You are a weird person that does not want to attack or defense. You are afraid of death.')
 
-
-    world.explorers["Alice"]['x'] = x1
-    world.explorers["Alice"]['y'] = y1
-    world.explorers["Bob"]['x'] = x2
-    world.explorers["Bob"]['y'] = y2
-    world.explorers["Charlie"]['x'] = x3
-    world.explorers["Charlie"]['y'] = y3
+    agent_dict = {"Alice": a1, "Bob": a2, "Charlie": a3}
     print("current world:")
     print(world)
 
-    for i in range(3):
-        a1.take_action(world)
-        print("current world:")
-        print(world)
-        a2.take_action(world)
-        print("current world:")
-        print(world)
-        a3.take_action(world)
-        print("current world:")
-        print(world)
+    for i in range(10):
+        for agent_name in world.explorers.keys(): # To make sure each agent we simulate is alive
+            agent_dict[agent_name].take_action(world)
+            print("current world:", "\n", world)
 
 
 
