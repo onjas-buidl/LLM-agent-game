@@ -15,8 +15,12 @@ Why we need this?
 
 
 # Running Guide 
-- Setup OpenAI API key
+1. Setup OpenAI API key 
   - Get your key [here](https://platform.openai.com/account/api-keys). 
   - Set your local environmental variable by typing in terminal: `export OPENAI_API_KEY=<your secret key>`.
-  - Currently, cost is quite low. ~30 rounds of game cost less than $0.1.  
-- Run the `ExplorerAgent.py` file. Feel free to change world_size, change the agent principles, and play with other parameters.
+  - Currently, cost is quite low. ~30 rounds of game cost less than $0.1.
+2. Create a folder named `logs` in the root directory. (otherwise the code will throw an error)
+3. Run the `ExplorerAgent.py` file. Feel free to change world_size, change the agent principles, and play with other parameters.
+
+
+

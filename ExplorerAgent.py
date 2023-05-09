@@ -123,19 +123,22 @@ class ExplorerAgent:
                 h_diff = j - yourself_pos[1]
                 if lst[i][j] == 0:
                     continue
-                elif (i, j) == yourself_pos:
-                    continue
+                # elif (i, j) == yourself_pos:
+                #     continue
                 elif isinstance(lst[i][j], int):
-                    # if it's wealth
-                    result.append(
-                        "{v_diff} step{v_plural} {v_direction} and {h_diff} step{h_plural} {h_direction}: {content} wealth".format(
-                            v_diff=abs(v_diff),
-                            v_plural='' if abs(v_diff) == 1 else 's',
-                            v_direction='up' if v_diff < 0 else 'down',
-                            h_diff=abs(h_diff),
-                            h_plural='' if abs(h_diff) == 1 else 's',
-                            h_direction='left' if h_diff < 0 else 'right',
-                            content=lst[i][j]))
+                    if (i, j) == yourself_pos:
+                        result.append("Your current location: {content} wealth".format(content=lst[i][j]))
+                    else:
+                        # if it's wealth
+                        result.append(
+                            "{v_diff} step{v_plural} {v_direction} and {h_diff} step{h_plural} {h_direction}: {content} wealth".format(
+                                v_diff=abs(v_diff),
+                                v_plural='' if abs(v_diff) == 1 else 's',
+                                v_direction='up' if v_diff < 0 else 'down',
+                                h_diff=abs(h_diff),
+                                h_plural='' if abs(h_diff) == 1 else 's',
+                                h_direction='left' if h_diff < 0 else 'right',
+                                content=lst[i][j]))
                 else:
                     # if it's explorer & wealth format it as "explorer, wealth"
                     result_str = "{v_diff} step{v_plural} {v_direction} and {h_diff} step{h_plural} {h_direction}: {content}".format(
@@ -195,23 +198,14 @@ class ExplorerAgent:
                     world.attack(self.name, t)
         except ew.WorldError:
             # TODO++: build up error handling and LLM self-debug system
-            pass
 
-        # if action_parts[0] == "move":
-        #     direction = action_parts[1]
-        #     world.move(self.name, direction)
-        # elif action_parts[0] == "gather":
-        #     world.gather(self.name)
-        # elif action_parts[0] == "rest":
-        #     world.rest(self.name)
-        # elif action_parts[0] == "attack":
-        #     direction = action_parts[1]
-        #     target_name = world.get_explorer_name_by_direction(self.name, direction)
-        #     if target_name:
-        #         world.attack(self.name, target_name)
+            # if after one self-correction attempt, it's still making errors, we raise an actual error to halt the game  
+
+            pass
 
 
 if __name__ == "__main__":
+    random.seed(123)
     world_size = 7
     world = ew.ExplorerWorld(world_size)
     world.random_initialize_map(wealth_density=0.3)

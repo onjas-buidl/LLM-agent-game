@@ -1,7 +1,7 @@
 # custom stuff 
 .idea/
 .DS_Store
-logs/
+logs/*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

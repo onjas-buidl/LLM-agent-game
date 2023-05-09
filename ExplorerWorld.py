@@ -175,17 +175,6 @@ class ExplorerWorld:
 
         raise WorldError("There is no explorer at the given direction: {}".format(direction))
 
-
-
-    # def get_world_state(self):
-    #     world_state = [[-1 for _ in range(self.map_size)] for _ in range(self.map_size)]
-    #     for name, explorer in self.explorers.items():
-    #         world_state[explorer["x"]][explorer["y"]] = name
-    #
-    #     world_state = [self.map[i][j] if world_state[i][j] == -1 else world_state[i][j] for i in range(self.map_size)
-    #                    for j in range(self.map_size)]
-    #
-    #     return world_state
     def get_world_state(self):
         world_state = []
         for i in range(self.map_size):
@@ -194,21 +183,20 @@ class ExplorerWorld:
                 found = False
                 for name, explorer in self.explorers.items():
                     if explorer["x"] == i and explorer["y"] == j:
-                        row.append(name)
+                        row.append(name + '(' + str(self.map[i][j]) + ')')
                         found = True
                         break
                 if not found:
-                    row.append(self.map[i][j])
+                    row.append('(' + str(self.map[i][j]) + ')')
             world_state.append(row)
         return transpose_lol(world_state)
 
     def __repr__(self):
-        # TODO - print also the wealth on a agent position
         w = self.get_world_state()
         w.reverse()
         w = pd.DataFrame(w)
         idx_list = list(range(self.map_size-1, -1, -1))
-        w.index = list(map(lambda s: "|"+str(s)+"|", idx_list)) # list(range(self.map_size-1, -1, -1))
+        w.index = list(map(lambda s: "|"+str(s)+"|", idx_list))
         w = w.rename(columns=lambda s: "|"+str(s)+"|")
         return pprint.pformat(w, indent=4)
 
