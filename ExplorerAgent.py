@@ -1,70 +1,63 @@
-import openai
-import ExplorerWorld as ew
-import logging, os
-from logging.handlers import RotatingFileHandler
-from datetime import datetime
+import os
+import json
 import random
+import logging
+from datetime import datetime
+from logging.handlers import RotatingFileHandler
 from langchain.output_parsers import StructuredOutputParser, ResponseSchema
 from langchain.prompts import ChatPromptTemplate, HumanMessagePromptTemplate
-from langchain.llms import OpenAI
+from langchain.schema import SystemMessage, HumanMessage
 from langchain.chat_models import ChatOpenAI
-import pandas as pd
-import json
+import ExplorerWorld as ew
 
+# # get the absolute path to the current directory
+# current_directory = os.path.abspath(os.path.dirname(__file__))
 
+# # set up logging
+# timestamp = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+# log_file_name = f'example_{timestamp}.log'
+# log_file_path = os.path.join(current_directory, 'logs', log_file_name)
+# handler = RotatingFileHandler(
+#     log_file_path, maxBytes=1024 * 1024, backupCount=1)
+# handler.setLevel(logging.INFO)
+# formatter = logging.Formatter(
+#     '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+# handler.setFormatter(formatter)
+# logging.getLogger().addHandler(handler)
 
-# get the absolute path to the current directory
-current_directory = os.path.abspath(os.path.dirname(__file__))
-
-# set up logging
-timestamp = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
-log_file_name = f'example_{timestamp}.log'
-log_file_path = os.path.join(current_directory, 'logs', log_file_name)
-handler = RotatingFileHandler(log_file_path, maxBytes=1024 * 1024, backupCount=1)
-handler.setLevel(logging.INFO)
-formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-handler.setFormatter(formatter)
-logging.getLogger().addHandler(handler)
-
-# log some messages
-# logging.debug('This is a debug message')
-# logging.info('This is an info message')
-# logging.warning('This is a warning message')
-# logging.error('This is an error message')
-# logging.critical('This is a critical message')
-
-
-TEST_MODE = True
-logging.basicConfig(filename='logs/', level=logging.INFO)
+# # log some messages
+# # logging.debug('This is a debug message')
+# # logging.info('This is an info message')
+# # logging.warning('This is a warning message')
+# # logging.error('This is an error message')
+# # logging.critical('This is a critical message')
+# TEST_MODE = True
+# logging.basicConfig(filename='logs/', level=logging.INFO)
 
 
 class ExplorerAgent:
     def __init__(self, world, name, principles, x=None, y=None, stamina=None):
+        world.add_explorer(name, x, y, stamina)
+        
         self.name = name
         self.principles = principles
-        openai_api_key = os.environ.get("OPENAI_API_KEY")
+        self.docs = self.get_docs()
+        self.message_history = []
+        self.reset()
+        self.retry_times = 3
+        self.chat_model = ChatOpenAI(
+            temperature=0, openai_api_key=os.environ.get("OPENAI_API_KEY"), max_tokens=1500, request_timeout=120)
+        self.instruction = self.get_instruction()
+        self.error_message = self.get_error_message()
 
-        world.add_explorer(name, x, y, stamina)
-
-
-        ##### Initialize the LLM part of the agent #####
-        # Temp = 0 so that we get clean information without a lot of creativity
-        self.chat_model = ChatOpenAI(temperature=0, openai_api_key=openai_api_key, max_tokens=1500)
-
-        # How you would like your reponse structured. This is basically a fancy prompt template
-        response_schemas = [
-            ResponseSchema(name="Motivation",
-                           description="This is the motivation and thought process behind the action."),
-            ResponseSchema(name="Action",
-                           description="Select one of the following action: move up, move down, move left, move right, gather, rest, attack up, attack down, attack left, attack right"),
+    def reset(self):
+        self.message_history = [
+            SystemMessage(content=self.docs),
         ]
-
-        # How you would like to parse your output
-        output_parser = StructuredOutputParser.from_response_schemas(response_schemas)
-        # See the prompt template you created for formatting
-        format_instructions = output_parser.get_format_instructions()
-
-        mind_template = """
+        self.retry_times = 3
+        
+    def get_docs(self):
+        return """
         You are an explorer roaming in a 2D grid-based world. Based on the principles, the game rules, and the current game state, strictly output one action and a short comment each round in the specified format.
         **Rules you need to follow**:
         1. You have stamina and wealth. If your stamina goes to 0, you die.
@@ -73,9 +66,25 @@ class ExplorerAgent:
             2.2 Gather: gather wealth if the location you are at has wealth resource. This action consumes 1 stamina and depletes the wealth resource.
             2.3 Rest: increase stamina by 3.
             2.4 Attack: you can choose to attack other explorer. Whoever has a higher stamina wins, and gets all wealth of the loser. The loser dies.  
-        3. You should follow the principles to decide your action.
-        	3.1 {principle} 
+        3. You should follow your current principles to decide your action.
 
+        """
+        
+    def get_instruction(self):
+        response_schemas = [
+            ResponseSchema(name="Motivation",
+                           description="This is the motivation and thought process behind the action."),
+            ResponseSchema(name="Action",
+                           description="Select one of the following action: move up, move down, move left, move right, gather, rest, attack up, attack down, attack left, attack right"),
+        ]
+
+        # How you would like to parse your output
+        output_parser = StructuredOutputParser.from_response_schemas(
+            response_schemas)
+        # See the prompt template you created for formatting
+        format_instructions = output_parser.get_format_instructions()
+
+        mind_template = """
         **Current game situation**:
         You can see things within 2 steps from you. Your surrounding look like this (in Markdown table format): 
 
@@ -83,7 +92,7 @@ class ExplorerAgent:
 
         Your current stamina: {stamina}
         Your current wealth: {wealth}
-
+        Your current principle: {principle}
         ---
         Based on all information above, give a comment on your thinking process and select one action to perform this round.
 
@@ -91,17 +100,28 @@ class ExplorerAgent:
 
         YOUR RESPONSE:
         """
-
-        self.prompt = ChatPromptTemplate(
+        
+        return ChatPromptTemplate(
             messages=[
                 HumanMessagePromptTemplate.from_template(mind_template)
             ],
             input_variables=["surroundings", "stamina", "wealth"],
-            partial_variables={"format_instructions": format_instructions, "principle": principles}
+            partial_variables={
+                "format_instructions": format_instructions, "principle": self.principles}
         )
-
-
-
+    
+    def get_error_message(self):
+        error_template = """
+                        Unable to perform action {action} because {error_message}.
+                        """
+        
+        return ChatPromptTemplate(
+            messages=[
+                HumanMessagePromptTemplate.from_template(error_template)
+            ],
+            input_variables=["action", "error_message"]
+        )
+        
     def get_self_formatted_surroundings(self, world) -> str:
         lst = world.get_surroundings(self.name)
         n = len(lst)
@@ -127,7 +147,8 @@ class ExplorerAgent:
                 #     continue
                 elif isinstance(lst[i][j], int):
                     if (i, j) == yourself_pos:
-                        result.append("Your current location: {content} wealth".format(content=lst[i][j]))
+                        result.append(
+                            "Your current location: {content} wealth".format(content=lst[i][j]))
                     else:
                         # if it's wealth
                         result.append(
@@ -159,28 +180,53 @@ class ExplorerAgent:
         else:
             return ''
 
-
-    def take_action(self, world, print_all=True):
+    def check_response_format(self, response):
+        try:
+            assert 'Motivation' in response.keys() and 'Action' in response.keys(), "Output format is wrong"
+        except AssertionError as e:
+            if self.retry_times > 0:
+                self.retry_times -= 1
+                self.message_history.append(HumanMessage(content="The response format is wrong. Please try again."))
+                self.take_action(world)
+            else:
+                print("The response format is wrong, and retry times reached 3. HALT.")
+                raise e
+        
+        try:
+            action_in_category = [x in response['Action'] for x in ["move up", "move down", "move left", "move right",
+                                    "gather", "rest", "attack up", "attack down", "attack left", "attack right"]]
+            assert any(action_in_category)
+        except AssertionError as e:
+            if self.retry_times > 0:
+                self.retry_times -= 1
+                self.message_history.append(HumanMessage(content="The action result is not one of the following action: move up, move down, move left, move right, gather, rest, attack up, attack down, attack left, attack right. Please try again."))
+                self.take_action(world)
+            else:
+                print("The action is not in pre-design categorys, and retry times reached 3. HALT.")
+                raise e
+    
+    def _act(self, world):
         surroundings = self.get_self_formatted_surroundings(world)
         stamina, wealth = world.explorers[self.name]["stamina"], world.explorers[self.name]["wealth"]
-
-        _input = self.prompt.format_prompt(surroundings=surroundings, stamina=stamina, wealth=wealth)
-        # print(_input.messages)
-        _output = self.chat_model(_input.to_messages())
-        if "```json" in _output.content:
-            json_string = _output.content.split("```json")[1].strip().replace('```', '')
-        else:
-            json_string = _output.content
+        _input = self.instruction.format_prompt(
+            surroundings=surroundings, stamina=stamina, wealth=wealth)
+        self.message_history.extend(_input.to_messages())
+        
+        _output = self.chat_model(self.message_history)
+        json_string = _output.content.split("```json")[-1].strip().replace('```', '')
         output = json.loads(json_string)
-
-        assert 'Motivation' in output.keys() and 'Action' in output.keys(), "Output format is wrong"
-        assert output['Action'] in ["move up", "move down", "move left", "move right", "gather", "rest", "attack up", "attack down", "attack left", "attack right"]
+        self.check_response_format(output)
+        
+        return output
+            
+    def take_action(self, world, print_all=True):
+        output = self._act(world)
         action_parts = output['Action']
         action_parts = action_parts.lower().strip().replace(".", "")
 
         try:
-            print(self.name, action_parts)
-            print(output['Motivation'])
+            print(self.name, "choose to: ", action_parts)
+            print("Motivation: ", output['Motivation'])
             if 'move' in action_parts:
                 _, direction = action_parts.split(" ")
                 world.move(self.name, direction)
@@ -191,18 +237,26 @@ class ExplorerAgent:
             elif 'attack' in action_parts:
                 _, t = action_parts.split(" ")
                 if t in ['up', 'down', 'left', 'right']:
-                    target_name = world.get_explorer_name_by_direction(self_name=self.name, self_pos=None, direction=t)
+                    target_name = world.get_explorer_name_by_direction(
+                        self_name=self.name, self_pos=None, direction=t)
                     world.attack(self.name, target_name)
                 else:
                     # if the target is an explorer
                     world.attack(self.name, t)
-        except ew.WorldError:
-            # TODO++: build up error handling and LLM self-debug system
-
-            # if after one self-correction attempt, it's still making errors, we raise an actual error to halt the game  
-
-            pass
-
+            self.reset()
+            
+        except ew.WorldError as e:
+            error_message = e.args[0]
+            print("[ERROR] Getting World Error: ", error_message)
+            print("[ERROR] Retrying...\n")
+            if self.retry_times > 0:
+                self.retry_times -= 1
+                _error_message = self.error_message.format_prompt(action=action_parts, error_message=error_message)
+                self.message_history.extend(_error_message.to_messages())
+                self.take_action(world, print_all)
+            else:
+                print("HALT due to retry times reached 3.")
+                raise e
 
 if __name__ == "__main__":
     random.seed(123)
@@ -218,13 +272,15 @@ if __name__ == "__main__":
                        principles='You are a weird person that does not want to attack or defense. You are afraid of death.')
 
     agent_dict = {"Alice": a1, "Bob": a2, "Charlie": a3}
-    print("current world:")
-    print(world)
 
-    for i in range(10):
-        for agent_name in world.explorers.keys(): # To make sure each agent we simulate is alive
+    for i in range(5):
+        print("*" * 25, "Turn", i, "Start", "*" * 25)
+        for agent_name in list(world.explorers.keys()):  # To make sure each agent we simulate is alive
+            print("*" * 50)
+            print("World Before Changing:", "\n", world)
             agent_dict[agent_name].take_action(world)
-            print("current world:", "\n", world)
-
-
-
+            print("World After Changing:", "\n", world)
+            print("*" * 50)
+            print("\n" * 2)
+        print("*" * 25, "Turn", i, "End", "*" * 25)
+        print("\n" * 10)
