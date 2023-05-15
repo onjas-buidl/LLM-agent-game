@@ -41,7 +41,6 @@ class ExplorerAgent:
         
         self.name = name
         self.principles = principles
-        self.docs = self.get_docs()
         self.message_history = []
         self.reset()
         self.retry_times = 3
@@ -55,20 +54,6 @@ class ExplorerAgent:
             SystemMessage(content=self.docs),
         ]
         self.retry_times = 3
-        
-    def get_docs(self):
-        return """
-        You are an explorer roaming in a 2D grid-based world. Based on the principles, the game rules, and the current game state, strictly output one action and a short comment each round in the specified format.
-        **Rules you need to follow**:
-        1. You have stamina and wealth. If your stamina goes to 0, you die.
-        2. Each round, you can choose one of the following actions:
-            2.1 Move: move up, down, left, right, for 1 step. No diagonal move. This action consumes 1 stamina.
-            2.2 Gather: gather wealth if the location you are at has wealth resource. This action consumes 1 stamina and depletes the wealth resource.
-            2.3 Rest: increase stamina by 3.
-            2.4 Attack: you can choose to attack other explorer. Whoever has a higher stamina wins, and gets all wealth of the loser. The loser dies.  
-        3. You should follow your current principles to decide your action.
-
-        """
         
     def get_instruction(self):
         response_schemas = [
@@ -123,6 +108,9 @@ class ExplorerAgent:
         )
         
     def get_self_formatted_surroundings(self, world) -> str:
+        """
+        This function returns the world context surrounding for the agent, in a specified format.
+        """
         lst = world.get_surroundings(self.name)
         n = len(lst)
         m = len(lst[0])
@@ -173,7 +161,6 @@ class ExplorerAgent:
                     if lst[i][j][1] > 0:
                         result_str += f", and {lst[i][j][1]} wealth"
                     result.append(result_str)
-        # Add the following code between <|END_PREFIX|> and <|START_SUFFIX|>
         if len(result) > 0:
             result = ["- " + x for x in result]
             return '\n'.join(result)
@@ -189,7 +176,7 @@ class ExplorerAgent:
                 self.message_history.append(HumanMessage(content="The response format is wrong. Please try again."))
                 self.take_action(world)
             else:
-                print("The response format is wrong, and retry times reached 3. HALT.")
+                print("The response format is wrong, and retry times reached {}. HALT.".format(self.retry_times))
                 raise e
         
         try:
@@ -202,7 +189,7 @@ class ExplorerAgent:
                 self.message_history.append(HumanMessage(content="The action result is not one of the following action: move up, move down, move left, move right, gather, rest, attack up, attack down, attack left, attack right. Please try again."))
                 self.take_action(world)
             else:
-                print("The action is not in pre-design categorys, and retry times reached 3. HALT.")
+                print("The action is not in pre-design categorys, and retry times reached {}. HALT.".format(self.retry_times))
                 raise e
     
     def _act(self, world):
@@ -244,7 +231,9 @@ class ExplorerAgent:
                     # if the target is an explorer
                     world.attack(self.name, t)
             self.reset()
-            
+
+        # if the output is violates game rules (ew.WorldError will be emitted), feed error message back to chat model
+        # and in many cases it's able to perform self-correction
         except ew.WorldError as e:
             error_message = e.args[0]
             print("[ERROR] Getting World Error: ", error_message)
@@ -255,7 +244,7 @@ class ExplorerAgent:
                 self.message_history.extend(_error_message.to_messages())
                 self.take_action(world, print_all)
             else:
-                print("HALT due to retry times reached 3.")
+                print("HALT due to retry times reached {}.".format(self.retry_times))
                 raise e
 
 if __name__ == "__main__":
