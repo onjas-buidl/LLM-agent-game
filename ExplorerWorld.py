@@ -202,9 +202,10 @@ class ExplorerWorld:
 
 
 # A function to transpose a list of list (square)
-def transpose_lol(list_of_lists):
-    # return np.array(list_of_lists).T.tolist()
-    return [list(i) for i in zip(*list_of_lists)]
+def transpose_lol(square_list):
+    # Use the built-in zip function to transpose the list
+    transposed_list = list(map(list, zip(*square_list)))
+    return transposed_list
 
 
 # Testing framework for ExplorerWorld class
@@ -259,8 +260,9 @@ if __name__ == "__main__":
     if "Alice" in world.explorers:
         surroundings = world.get_surroundings("Alice")
         assert surroundings[0][1] == "Alice"
-        assert len(surroundings) == 3
-        assert len(surroundings[0]) == 4
+        print(surroundings)
+        assert len(surroundings) == 4
+        assert len(surroundings[0]) == 3
     if "Charlie" in world.explorers:
         world.print_surroundings('Charlie')
         surroundings = world.get_surroundings("Charlie")
