@@ -36,15 +36,16 @@ import ExplorerWorld as ew
 
 
 class ExplorerAgent:
-    def __init__(self, world, name, principles, x=None, y=None, stamina=None):
+    def __init__(self, world, name, principles, x=None, y=None, stamina=None, max_retry_times=5):
         world.add_explorer(name, x, y, stamina)
         
         self.name = name
         self.principles = principles
         self.docs = self.get_docs()
         self.message_history = []
+        self.max_retry_times = max_retry_times
+        self.retry_times = max_retry_times
         self.reset()
-        self.retry_times = 3
         self.chat_model = ChatOpenAI(
             temperature=0, openai_api_key=os.environ.get("OPENAI_API_KEY"), max_tokens=1500, request_timeout=120)
         self.instruction = self.get_instruction()
@@ -54,7 +55,7 @@ class ExplorerAgent:
         self.message_history = [
             SystemMessage(content=self.docs),
         ]
-        self.retry_times = 3
+        self.retry_times = self.max_retry_times
         
     def get_docs(self):
         return """
@@ -262,7 +263,7 @@ if __name__ == "__main__":
     random.seed(123)
     world_size = 7
     world = ew.ExplorerWorld(world_size)
-    world.random_initialize_map(wealth_density=0.3)
+    world.random_initialize_map(wealth_density=0.6)
 
     a1 = ExplorerAgent(world=world, name="Alice",
                        principles='You are a belligerent person that wants to maximize your wealth by attacking and defeating other explorers. You are not afraid of death.')
