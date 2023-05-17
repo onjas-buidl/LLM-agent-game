@@ -41,6 +41,7 @@ class ExplorerAgent:
         
         self.name = name
         self.principles = principles
+        self.docs = self.get_docs()
         self.message_history = []
         self.max_retry_times = max_retry_times
         self.retry_times = max_retry_times
@@ -56,6 +57,18 @@ class ExplorerAgent:
         ]
         self.retry_times = self.max_retry_times
         
+    def get_docs(self):
+        return """
+        You are an explorer roaming in a 2D grid-based world. Based on the principles, the game rules, and the current game state, strictly output one action and a short comment each round in the specified format.
+        **Rules you need to follow**:
+        1. You have stamina and wealth. If your stamina goes to 0, you die.
+        2. Each round, you can choose one of the following actions:
+            2.1 Move: move up, down, left, right, for 1 step. No diagonal move. This action consumes 1 stamina.
+            2.2 Gather: gather wealth if the location you are at has wealth resource. This action consumes 1 stamina and depletes the wealth resource.
+            2.3 Rest: increase stamina by 3.
+            2.4 Attack: you can choose to attack other explorer. Whoever has a higher stamina wins, and gets all wealth of the loser. The loser dies.  
+        3. You should follow your current principles to decide your action.
+        """
     def get_instruction(self):
         response_schemas = [
             ResponseSchema(name="Motivation",
