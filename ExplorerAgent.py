@@ -36,7 +36,7 @@ import ExplorerWorld as ew
 
 
 class ExplorerAgent:
-    def __init__(self, world, name, principles, x=None, y=None, stamina=None, max_retry_times=5):
+    def __init__(self, world, name, principles, x=None, y=None, stamina=None, max_retry_times=5, surrounding_mode='bullet_text'):
         world.add_explorer(name, x, y, stamina)
         
         self.name = name
@@ -50,6 +50,9 @@ class ExplorerAgent:
             temperature=0, openai_api_key=os.environ.get("OPENAI_API_KEY"), max_tokens=1500, request_timeout=120)
         self.instruction = self.get_instruction()
         self.error_message = self.get_error_message()
+
+        # 'markdown_table' or 'bullet_text', implemented in get_self_formatted_surroundings
+        self.surrounding_mode = surrounding_mode
 
     def reset(self):
         self.message_history = [
@@ -66,7 +69,7 @@ class ExplorerAgent:
             2.1 Move: move up, down, left, right, for 1 step. No diagonal move. This action consumes 1 stamina.
             2.2 Gather: gather wealth if the location you are at has wealth resource. This action consumes 1 stamina and depletes the wealth resource.
             2.3 Rest: increase stamina by 3.
-            2.4 Attack: you can choose to attack other explorer. Whoever has a higher stamina wins, and gets all wealth of the loser. The loser dies.  
+            2.4 Attack: you can choose to attack other explorer that is 1 step up/down/left/right, not any agent that is 2 steps away. No diagonal attack. Whoever has a higher stamina wins and gets all wealth of the loser. The loser dies.   
         3. You should follow your current principles to decide your action.
         """
     def get_instruction(self):
@@ -85,7 +88,7 @@ class ExplorerAgent:
 
         mind_template = """
         **Current game situation**:
-        You can see things within 2 steps from you. Your surrounding look like this (in Markdown table format): 
+        You can see things within 2 steps from you.
 
         {surroundings}
 
@@ -99,7 +102,7 @@ class ExplorerAgent:
 
         YOUR RESPONSE:
         """
-        
+
         return ChatPromptTemplate(
             messages=[
                 HumanMessagePromptTemplate.from_template(mind_template)
@@ -121,65 +124,88 @@ class ExplorerAgent:
             input_variables=["action", "error_message"]
         )
         
-    def get_self_formatted_surroundings(self, world) -> str:
+    def get_self_formatted_surroundings(self, world, surrounding_mode='bullet_text') -> str:
         """
         This function returns the world context surrounding for the agent, in a specified format.
         """
-        lst = world.get_surroundings(self.name)
-        n = len(lst)
-        m = len(lst[0])
-        yourself_pos = (0, 0)
+        if surrounding_mode == 'bullet_text':
+            lst = world.get_surroundings(self.name)
+            n = len(lst)
+            m = len(lst[0])
+            yourself_pos = (0, 0)
 
-        # Find the position of "Yourself"
-        for i in range(n):
-            for j in range(m):
-                if isinstance(lst[i][j], tuple) and lst[i][j][0] == 'Yourself':
-                    yourself_pos = (i, j)
-                    break
-        
-        # Iterate over the list of lists and format each element
-        result = []
-        for i in range(n):
-            for j in range(m):
-                v_diff = i - yourself_pos[0]
-                h_diff = j - yourself_pos[1]
-                if lst[i][j] == 0:
-                    continue
-                # elif (i, j) == yourself_pos:
-                #     continue
-                elif isinstance(lst[i][j], int):
-                    # if it's wealth
-                    result.append(
-                        "{v_diff} step{v_plural} {v_direction} and {h_diff} step{h_plural} {h_direction}: {content} wealth".format(
-                            v_diff=abs(v_diff),
-                            v_plural='' if abs(v_diff) == 1 else 's',
-                            v_direction='up' if v_diff < 0 else 'down',
-                            h_diff=abs(h_diff),
-                            h_plural='' if abs(h_diff) == 1 else 's',
-                            h_direction='left' if h_diff < 0 else 'right',
-                            content=lst[i][j]))
-                else:
-                    # if it's explorer & wealth format it as "explorer, wealth"
-                    if (i, j) == yourself_pos:
+            # Find the position of "Yourself"
+            for i in range(n):
+                for j in range(m):
+                    if isinstance(lst[i][j], tuple) and lst[i][j][0] == 'Yourself':
+                        yourself_pos = (i, j)
+                        break
+
+            # Iterate over the list of lists and format each element
+            result = []
+            for i in range(n):
+                for j in range(m):
+                    v_diff = i - yourself_pos[0]
+                    h_diff = j - yourself_pos[1]
+                    if lst[i][j] == 0:
+                        continue
+                    # elif (i, j) == yourself_pos:
+                    #     continue
+                    elif isinstance(lst[i][j], int):
+                        # if it's wealth
                         result.append(
-                            "Your current location: {content} wealth".format(content=lst[i][j][1]))
+                            "{v_diff} step{v_plural} {v_direction} and {h_diff} step{h_plural} {h_direction}: {content} wealth".format(
+                                v_diff=abs(v_diff),
+                                v_plural='' if abs(v_diff) == 1 else 's',
+                                v_direction='up' if v_diff < 0 else 'down',
+                                h_diff=abs(h_diff),
+                                h_plural='' if abs(h_diff) == 1 else 's',
+                                h_direction='left' if h_diff < 0 else 'right',
+                                content=lst[i][j]))
                     else:
-                        result_str = "{v_diff} step{v_plural} {v_direction} and {h_diff} step{h_plural} {h_direction}: {content}".format(
-                            v_diff=abs(v_diff),
-                            v_plural='' if abs(v_diff) == 1 else 's',
-                            v_direction='up' if v_diff < 0 else 'down',
-                            h_diff=abs(h_diff),
-                            h_plural='' if abs(h_diff) == 1 else 's',
-                            h_direction='left' if h_diff < 0 else 'right',
-                            content=lst[i][j][0])
-                        if lst[i][j][1] > 0:
-                            result_str += f", and {lst[i][j][1]} wealth"
-                        result.append(result_str)
-        if len(result) > 0:
-            result = ["- " + x for x in result]
-            return '\n'.join(result)
-        else:
-            return ''
+                        # if it's explorer & wealth format it as "explorer, wealth"
+                        if (i, j) == yourself_pos:
+                            result.append(
+                                "Your current location: {content} wealth".format(content=lst[i][j][1]))
+                        else:
+                            result_str = "{v_diff} step{v_plural} {v_direction} and {h_diff} step{h_plural} {h_direction}: {content}".format(
+                                v_diff=abs(v_diff),
+                                v_plural='' if abs(v_diff) == 1 else 's',
+                                v_direction='up' if v_diff < 0 else 'down',
+                                h_diff=abs(h_diff),
+                                h_plural='' if abs(h_diff) == 1 else 's',
+                                h_direction='left' if h_diff < 0 else 'right',
+                                content=lst[i][j][0])
+                            if lst[i][j][1] > 0:
+                                result_str += f", and {lst[i][j][1]} wealth"
+                            result.append(result_str)
+            if len(result) > 0:
+                result = ["- " + x for x in result]
+                return '\n'.join(result)
+            else:
+                return ''
+        elif surrounding_mode == 'markdown_table':
+            data = world.get_surroundings(self.name)
+            data = [[0, 0, 1, 0],
+                    [0, ('Yourself', 1), 1, ('Charlie', 0)],
+                    [0, 0, 1, 0],
+                    [1, 1, 0, 1]]
+
+            def list_to_str(l):
+                if isinstance(l, list) or isinstance(l, tuple):
+                    return ', '.join(list_to_str(i) for i in l)
+                else:
+                    return str(l)
+
+            # markdown_table = '| ' + ' | '.join(['Column {}'.format(i + 1) for i in range(len(data[0]))]) + ' |\n'
+            # markdown_table = '|-' + '-|-'.join(['--' for _ in range(len(data[0]))]) + '-|\n'
+            # markdown_table = '|-' + '-|-'.join(['--' for _ in range(len(data[0]))]) + '-|\n'
+            markdown_table = 'Format guide: `| 0 |` means there is no wealth on that cell. `| Jack, 0 |` means explorer Jack and 1 wealth at that cell.\nHere is your surroundings:\n\n'
+            for row in data:
+                markdown_table += '| ' + ' | '.join([list_to_str(cell) for cell in row]) + ' |\n'
+
+            print(markdown_table)
+            return markdown_table
 
     def check_response_format(self, response):
         try:
@@ -207,15 +233,18 @@ class ExplorerAgent:
                 raise e
     
     def _act(self, world):
-        surroundings = self.get_self_formatted_surroundings(world)
+        surroundings = self.get_self_formatted_surroundings(world, surrounding_mode=self.surrounding_mode)
         stamina, wealth = world.explorers[self.name]["stamina"], world.explorers[self.name]["wealth"]
         _input = self.instruction.format_prompt(
             surroundings=surroundings, stamina=stamina, wealth=wealth)
         self.message_history.extend(_input.to_messages())
+
+        # for m in self.message_history:
+        #     print(m.content)
         
         _output = self.chat_model(self.message_history)
         json_string = _output.content.split("```json")[-1].strip().replace('```', '')
-        output = json.loads(json_string)
+        output = json.loads(json_string) # TODO: check if the json format is correct, if not, retry
         self.check_response_format(output)
         
         return output
@@ -265,13 +294,13 @@ if __name__ == "__main__":
     random.seed(123)
     world_size = 7
     world = ew.ExplorerWorld(world_size)
-    world.random_initialize_map(wealth_density=0.6)
+    world.random_initialize_map(wealth_density=0.3)
 
-    a1 = ExplorerAgent(world=world, name="Alice",
+    a1 = ExplorerAgent(world=world, name="Alice", surrounding_mode="bullet_text",
                        principles='You are a belligerent person that wants to maximize your wealth by attacking and defeating other explorers. You are not afraid of death.')
-    a2 = ExplorerAgent(world=world, name="Bob",
+    a2 = ExplorerAgent(world=world, name="Bob", surrounding_mode="bullet_text",
                        principles='You are a peaceful person that wants to maximize your wealth by gathering resources. You are afraid of death.')
-    a3 = ExplorerAgent(world=world, name="Charlie",
+    a3 = ExplorerAgent(world=world, name="Charlie", surrounding_mode="bullet_text",
                        principles='You are a weird person that does not want to attack or defense. You are afraid of death.')
 
     agent_dict = {"Alice": a1, "Bob": a2, "Charlie": a3}
