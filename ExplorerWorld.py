@@ -39,7 +39,7 @@ class ExplorerWorld:
         :param stamina:
         :return:
         """
-        if x and y:
+        if x != None and y != None:
             assert x < self.map_size and y < self.map_size
         else:
             x = random.randint(0, self.map_size - 1)
@@ -51,6 +51,7 @@ class ExplorerWorld:
             # check this (x,y) position is not occupied by other explorers, by checking world.explorer dictionary
             for other_explorer in self.explorers.keys():
                 if self.explorers[other_explorer]["x"] == x and self.explorers[other_explorer]["y"] == y:
+                    print('in')
                     retry = True
                     x = random.randint(0, self.map_size - 1)
                     y = random.randint(0, self.map_size - 1)
@@ -89,9 +90,9 @@ class ExplorerWorld:
         if explorer is None:
             raise WorldError("Explorer does not exist")
         x, y = explorer["x"], explorer["y"]
-        if self.map[x][y] > 0:
-            explorer["wealth"] += self.map[x][y]
-            self.map[x][y] = 0
+        if self.map[y][x] > 0:
+            explorer["wealth"] += self.map[y][x]
+            self.map[y][x] = 0
             explorer["stamina"] -= 1
         else:
             raise WorldError("Gather failed: No wealth to gather at your current location.")
@@ -134,16 +135,16 @@ class ExplorerWorld:
         x, y = explorer["x"], explorer["y"]
         min_x, max_x = max(0, x - self.scope_size), min(self.map_size, x + self.scope_size + 1)
         min_y, max_y = max(0, y - self.scope_size), min(self.map_size, y + self.scope_size + 1)
-        surroundings = [[self.map[_x][_y] for _x in range(min_x, max_x)] for _y in range(min_y, max_y)]
+        surroundings = [[self.map[_y][_x] for _x in range(min_x, max_x)] for _y in range(min_y, max_y)]
         out_surroundings = copy.deepcopy(surroundings) # create a deep copy of surroundings
         for other_name, other_explorer in self.explorers.items():
             other_x, other_y = other_explorer["x"], other_explorer["y"]
             if other_x >= min_x and other_x < max_x and other_y >= min_y and other_y < max_y:
                 if other_name == name:
-                    out_surroundings[max_y - other_y - 1][other_x - min_x] = ('Yourself', surroundings[max_y - other_y - 1][other_y - min_y])
+                    out_surroundings[other_y - min_y][other_x - min_x] = ('Yourself', surroundings[other_y - min_y][other_x - min_x])
                 else:
-                    out_surroundings[max_y - other_y - 1][other_x - min_x] = (other_name, surroundings[max_y - other_y - 1][other_y - min_y])
-        return out_surroundings
+                    out_surroundings[other_y - min_y][other_x - min_x] = (other_name, surroundings[other_y - min_y][other_x - min_x])
+        return out_surroundings[::-1]
 
     def print_surroundings(self, name):
         s = self.get_surroundings(name)
@@ -183,11 +184,11 @@ class ExplorerWorld:
                 found = False
                 for name, explorer in self.explorers.items():
                     if explorer["x"] == i and explorer["y"] == j:
-                        row.append(name + '(' + str(self.map[i][j]) + ')')
+                        row.append(name + '(' + str(self.map[j][i]) + ')')
                         found = True
                         break
                 if not found:
-                    row.append('(' + str(self.map[i][j]) + ')')
+                    row.append('(' + str(self.map[j][i]) + ')')
             world_state.append(row)
         return transpose_lol(world_state)
 
@@ -213,6 +214,7 @@ if __name__ == "__main__":
     # Create a new ExplorerWorld instance with a map size of 5
     world = ExplorerWorld(10)
     # Add two explorers to the world
+    
     world.add_explorer("Alice", 0, 0)
     world.add_explorer("Bob", 4, 4)
 

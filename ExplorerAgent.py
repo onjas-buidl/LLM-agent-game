@@ -133,10 +133,10 @@ class ExplorerAgent:
         # Find the position of "Yourself"
         for i in range(n):
             for j in range(m):
-                if lst[i][j] == ('Yourself', 0):
+                if isinstance(lst[i][j], tuple) and lst[i][j][0] == 'Yourself':
                     yourself_pos = (i, j)
                     break
-
+        
         # Iterate over the list of lists and format each element
         result = []
         for i in range(n):
@@ -148,33 +148,33 @@ class ExplorerAgent:
                 # elif (i, j) == yourself_pos:
                 #     continue
                 elif isinstance(lst[i][j], int):
-                    if (i, j) == yourself_pos:
-                        result.append(
-                            "Your current location: {content} wealth".format(content=lst[i][j]))
-                    else:
-                        # if it's wealth
-                        result.append(
-                            "{v_diff} step{v_plural} {v_direction} and {h_diff} step{h_plural} {h_direction}: {content} wealth".format(
-                                v_diff=abs(v_diff),
-                                v_plural='' if abs(v_diff) == 1 else 's',
-                                v_direction='up' if v_diff < 0 else 'down',
-                                h_diff=abs(h_diff),
-                                h_plural='' if abs(h_diff) == 1 else 's',
-                                h_direction='left' if h_diff < 0 else 'right',
-                                content=lst[i][j]))
+                    # if it's wealth
+                    result.append(
+                        "{v_diff} step{v_plural} {v_direction} and {h_diff} step{h_plural} {h_direction}: {content} wealth".format(
+                            v_diff=abs(v_diff),
+                            v_plural='' if abs(v_diff) == 1 else 's',
+                            v_direction='up' if v_diff < 0 else 'down',
+                            h_diff=abs(h_diff),
+                            h_plural='' if abs(h_diff) == 1 else 's',
+                            h_direction='left' if h_diff < 0 else 'right',
+                            content=lst[i][j]))
                 else:
                     # if it's explorer & wealth format it as "explorer, wealth"
-                    result_str = "{v_diff} step{v_plural} {v_direction} and {h_diff} step{h_plural} {h_direction}: {content}".format(
-                        v_diff=abs(v_diff),
-                        v_plural='' if abs(v_diff) == 1 else 's',
-                        v_direction='up' if v_diff < 0 else 'down',
-                        h_diff=abs(h_diff),
-                        h_plural='' if abs(h_diff) == 1 else 's',
-                        h_direction='left' if h_diff < 0 else 'right',
-                        content=lst[i][j][0])
-                    if lst[i][j][1] > 0:
-                        result_str += f", and {lst[i][j][1]} wealth"
-                    result.append(result_str)
+                    if (i, j) == yourself_pos:
+                        result.append(
+                            "Your current location: {content} wealth".format(content=lst[i][j][1]))
+                    else:
+                        result_str = "{v_diff} step{v_plural} {v_direction} and {h_diff} step{h_plural} {h_direction}: {content}".format(
+                            v_diff=abs(v_diff),
+                            v_plural='' if abs(v_diff) == 1 else 's',
+                            v_direction='up' if v_diff < 0 else 'down',
+                            h_diff=abs(h_diff),
+                            h_plural='' if abs(h_diff) == 1 else 's',
+                            h_direction='left' if h_diff < 0 else 'right',
+                            content=lst[i][j][0])
+                        if lst[i][j][1] > 0:
+                            result_str += f", and {lst[i][j][1]} wealth"
+                        result.append(result_str)
         if len(result) > 0:
             result = ["- " + x for x in result]
             return '\n'.join(result)
