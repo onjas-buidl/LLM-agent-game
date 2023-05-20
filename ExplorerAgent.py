@@ -10,6 +10,7 @@ from langchain.schema import SystemMessage, HumanMessage
 from langchain.chat_models import ChatOpenAI
 import ExplorerWorld as ew
 
+
 # # get the absolute path to the current directory
 # current_directory = os.path.abspath(os.path.dirname(__file__))
 
@@ -38,7 +39,7 @@ import ExplorerWorld as ew
 class ExplorerAgent:
     def __init__(self, world, name, principles, x=None, y=None, stamina=None, max_retry_times=5, chat_model='GPT3.5'):
         world.add_explorer(name, x, y, stamina)
-        
+
         self.name = name
         self.principles = principles
         self.docs = self.get_docs()
@@ -52,7 +53,8 @@ class ExplorerAgent:
         elif chat_model == 'GPT4':
             print(os.environ.get("OPENAI_API_KEY"))
             self.chat_model = ChatOpenAI(
-                temperature=0, openai_api_key=os.environ.get("OPENAI_API_KEY"), max_tokens=1500, request_timeout=120, model_name="gpt-4")
+                temperature=0, openai_api_key=os.environ.get("OPENAI_API_KEY"), max_tokens=1500, request_timeout=120,
+                model_name="gpt-4")
         elif chat_model == 'Claude':
             from langchain.chat_models import ChatAnthropic
             from langchain.prompts.chat import (
@@ -79,7 +81,7 @@ class ExplorerAgent:
             SystemMessage(content=self.docs),
         ]
         self.retry_times = self.max_retry_times
-        
+
     def get_docs(self):
         return """
         You are an explorer roaming in a 2D grid-based world. Based on the principles, the game rules, and the current game state, strictly output one action and a short comment each round in the specified format.
@@ -92,6 +94,7 @@ class ExplorerAgent:
             2.4 Attack: you can choose to attack other explorer. Whoever has a higher stamina wins, and gets all wealth of the loser. The loser dies.  
         3. You should follow your current principles to decide your action.
         """
+
     def get_instruction(self):
         response_schemas = [
             ResponseSchema(name="Motivation",
@@ -124,7 +127,7 @@ class ExplorerAgent:
 
         YOUR RESPONSE:
         """
-        
+
         return ChatPromptTemplate(
             messages=[
                 HumanMessagePromptTemplate.from_template(mind_template)
@@ -133,19 +136,19 @@ class ExplorerAgent:
             partial_variables={
                 "format_instructions": format_instructions, "principle": self.principles}
         )
-    
+
     def get_error_message(self):
         error_template = """
                         Unable to perform action {action} because {error_message}.
                         """
-        
+
         return ChatPromptTemplate(
             messages=[
                 HumanMessagePromptTemplate.from_template(error_template)
             ],
             input_variables=["action", "error_message"]
         )
-        
+
     def get_self_formatted_surroundings(self, world) -> str:
         """
         This function returns the world context surrounding for the agent, in a specified format.
@@ -161,7 +164,7 @@ class ExplorerAgent:
                 if isinstance(lst[i][j], tuple) and lst[i][j][0] == 'Yourself':
                     yourself_pos = (i, j)
                     break
-        
+
         # Iterate over the list of lists and format each element
         result = []
         for i in range(n):
@@ -217,36 +220,39 @@ class ExplorerAgent:
             else:
                 print("The response format is wrong, and retry times reached {}. HALT.".format(self.retry_times))
                 raise e
-        
+
         try:
             action_in_category = [x in response['Action'] for x in ["move up", "move down", "move left", "move right",
-                                    "gather", "rest", "attack up", "attack down", "attack left", "attack right"]]
+                                                                    "gather", "rest", "attack up", "attack down",
+                                                                    "attack left", "attack right"]]
             assert any(action_in_category)
         except AssertionError as e:
             if self.retry_times > 0:
                 self.retry_times -= 1
-                self.message_history.append(HumanMessage(content="The action result is not one of the following action: move up, move down, move left, move right, gather, rest, attack up, attack down, attack left, attack right. Please try again."))
+                self.message_history.append(HumanMessage(
+                    content="The action result is not one of the following action: move up, move down, move left, move right, gather, rest, attack up, attack down, attack left, attack right. Please try again."))
                 self.take_action(world)
             else:
-                print("The action is not in pre-design categorys, and retry times reached {}. HALT.".format(self.retry_times))
+                print("The action is not in pre-design categorys, and retry times reached {}. HALT.".format(
+                    self.retry_times))
                 raise e
-    
+
     def _act(self, world):
         surroundings = self.get_self_formatted_surroundings(world)
         allowed_actions = world.get_allowed_actions(self.name)
-        
+
         stamina, wealth = world.explorers[self.name]["stamina"], world.explorers[self.name]["wealth"]
         _input = self.instruction.format_prompt(
             surroundings=surroundings, stamina=stamina, wealth=wealth, allowed_actions=allowed_actions)
         self.message_history.extend(_input.to_messages())
-        
+
         _output = self.chat_model(self.message_history)
         json_string = _output.content.split("```json")[-1].strip().replace('```', '')
         output = json.loads(json_string)
         self.check_response_format(output)
-        
+
         return output
-            
+
     def take_action(self, world, print_all=True):
         output = self._act(world)
         action_parts = output['Action']
@@ -287,6 +293,7 @@ class ExplorerAgent:
             else:
                 print("HALT due to retry times reached {}.".format(self.retry_times))
                 raise e
+
 
 if __name__ == "__main__":
     random.seed(123)
