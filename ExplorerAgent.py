@@ -36,7 +36,7 @@ import ExplorerWorld as ew
 
 
 class ExplorerAgent:
-    def __init__(self, world, name, principles, x=None, y=None, stamina=None, max_retry_times=5):
+    def __init__(self, world, name, principles, x=None, y=None, stamina=None, max_retry_times=5, chat_model='GPT3.5'):
         world.add_explorer(name, x, y, stamina)
         
         self.name = name
@@ -46,8 +46,27 @@ class ExplorerAgent:
         self.max_retry_times = max_retry_times
         self.retry_times = max_retry_times
         self.reset()
-        self.chat_model = ChatOpenAI(
-            temperature=0, openai_api_key=os.environ.get("OPENAI_API_KEY"), max_tokens=1500, request_timeout=120)
+        if chat_model == 'GPT3.5':
+            self.chat_model = ChatOpenAI(
+                temperature=0, openai_api_key=os.environ.get("OPENAI_API_KEY"), max_tokens=1500, request_timeout=120)
+        elif chat_model == 'Claude':
+            from langchain.chat_models import ChatAnthropic
+            from langchain.prompts.chat import (
+                ChatPromptTemplate,
+                SystemMessagePromptTemplate,
+                AIMessagePromptTemplate,
+                HumanMessagePromptTemplate,
+            )
+            from langchain.schema import (
+                AIMessage,
+                HumanMessage,
+                SystemMessage
+            )
+            from keys import ANTHROPIC_API_KEY
+            self.chat_model = ChatAnthropic(temperature=0, anthropic_api_key=ANTHROPIC_API_KEY)
+        else:
+            raise NotImplementedError(
+                f"Chat model {chat_model} not implemented.")
         self.instruction = self.get_instruction()
         self.error_message = self.get_error_message()
 
