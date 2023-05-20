@@ -1,6 +1,6 @@
 Smart contract architecture + intended interactions with back-end and LLM.
 
-![image info](./Smart Contract/John/images/LLM GAme.jpg)
+![image info](images/LLMGameInfra.jpg)
 
 Open Tasks:
 1. Automatically generate a grid map with random object placement based on tile rarity.
