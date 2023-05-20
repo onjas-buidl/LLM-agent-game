@@ -49,6 +49,10 @@ class ExplorerAgent:
         if chat_model == 'GPT3.5':
             self.chat_model = ChatOpenAI(
                 temperature=0, openai_api_key=os.environ.get("OPENAI_API_KEY"), max_tokens=1500, request_timeout=120)
+        elif chat_model == 'GPT4':
+            print(os.environ.get("OPENAI_API_KEY"))
+            self.chat_model = ChatOpenAI(
+                temperature=0, openai_api_key=os.environ.get("OPENAI_API_KEY"), max_tokens=1500, request_timeout=120, model_name="gpt-4")
         elif chat_model == 'Claude':
             from langchain.chat_models import ChatAnthropic
             from langchain.prompts.chat import (
@@ -62,8 +66,8 @@ class ExplorerAgent:
                 HumanMessage,
                 SystemMessage
             )
-            from keys import ANTHROPIC_API_KEY
-            self.chat_model = ChatAnthropic(temperature=0, anthropic_api_key=ANTHROPIC_API_KEY)
+            # os.environ.get("ANTHROPIC_API_KEY")
+            self.chat_model = ChatAnthropic(temperature=0, anthropic_api_key=os.environ.get("ANTHROPIC_API_KEY"))
         else:
             raise NotImplementedError(
                 f"Chat model {chat_model} not implemented.")
