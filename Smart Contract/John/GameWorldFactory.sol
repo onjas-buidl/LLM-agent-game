@@ -2,31 +2,37 @@ pragma solidity ^0.8.4;
 
 import "./GameMap.sol";
 
-contract WorldBuildingContract {
+contract GameWorldFactory {
     
     struct GameWorld {
         address gameMap;
-        string description;
+        string worldDescription;
     }
+    // gameWorlds mapping: Maps a gameMap address to a GameWorld
+    mapping(address => GameWorld) public gameWorlds;
 
-    GameWorld[] public gameWorlds;
+    // list of gameMap addresses to keep track of all game worlds
+    address[] public gameMapAddresses;
 
-    function createGameWorld(string memory description, uint mapSize, uint agentCount) public returns (address) {
+    event GameWorldCreated(string worldDescription);
+
+    function createGameWorld(string memory worldDescription, uint mapSize, uint agentCount) public returns (address) {
         GameMap newMap = new GameMap(mapSize, agentCount);
-        gameWorlds.push(GameWorld(address(newMap), description));
+        gameWorlds[address(newMap)] = GameWorld(address(newMap), worldDescription);
+        gameMapAddresses.push(address(newMap));
         return address(newMap);
+        emit GameWorldCreated(worldDescription);
     }
 
     function getGameWorlds() public view returns (GameWorld[] memory) {
-        return gameWorlds;
+        GameWorld[] memory worlds = new GameWorld[](gameMapAddresses.length);
+        for (uint i = 0; i < gameMapAddresses.length; i++) {
+            worlds[i] = gameWorlds[gameMapAddresses[i]];
+        }
+        return worlds;
     }
 
     function getWorldDescription(address gameMap) public view returns (string memory) {
-        for (uint i = 0; i < gameWorlds.length; i++) {
-            if (gameWorlds[i].gameMap == gameMap) {
-                return gameWorlds[i].description;
-            }
-        }
-        return "";
+        return gameWorlds[gameMap].worldDescription;
     }
 }

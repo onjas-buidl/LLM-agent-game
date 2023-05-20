@@ -16,10 +16,17 @@ contract GameMap {
     mapping(string => GameObject) public gameObjects;
 
     event GameStarted(address gameInstanceAddress);
+    event GameObjectInitialized(string prompt);
     
     constructor(uint _mapSize, uint _agentCount) {
         mapSize = _mapSize;
         agentCount = _agentCount;
+    }
+
+    function initializeObject(string memory prompt) public {
+        // This function can be used to receive a prompt from a player
+        // for creating a new GameObject
+        emit GameObjectInitialized(prompt);
     }
 
     function createObject(string memory name, string memory functionality, uint rarity) public {
@@ -38,7 +45,7 @@ contract GameMap {
         }
 
         // Create a new instance of GameInstance contract
-        GameInstance newGame = new GameInstance(gameObjectsArray, _mapSize, agentCount);
+        GameInstance newGame = new GameInstance(GameObject[] memory, _mapSize, agentCount);
         
         emit GameStarted(address(newGame));
     }
