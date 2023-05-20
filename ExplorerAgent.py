@@ -211,7 +211,7 @@ class ExplorerAgent:
     def _act(self, world):
         surroundings = self.get_self_formatted_surroundings(world)
         allowed_actions = world.get_allowed_actions(self.name)
-        print("Allowed actions: ", allowed_actions)
+        
         stamina, wealth = world.explorers[self.name]["stamina"], world.explorers[self.name]["wealth"]
         _input = self.instruction.format_prompt(
             surroundings=surroundings, stamina=stamina, wealth=wealth, allowed_actions=allowed_actions)
