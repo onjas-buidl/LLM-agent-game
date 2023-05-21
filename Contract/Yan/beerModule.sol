@@ -10,9 +10,9 @@ contract BeerModule is BaseModule {
         BaseModule(gameContract, _name, _description)
     {}
 
-    // TODO: make chain decrease 1 stamina for 3 blocks once every block (10 second effect)
-    function trigger(string memory agentName) public override {
-        // game.setStamina(agentName, game.getAgent(agentName).stamina - 1);
+    // TODO: make chain decrease 1 stamina for 3 blocks once every block (10 second effect) using Curio ticker
+    function trigger(string memory agentName, uint size) public override {
+        game.setStamina(agentName, game.getAgent(agentName).stamina - 1);
     }
 }
 

@@ -9,16 +9,8 @@ contract TeleportModule is BaseModule {
         public
         BaseModule(gameContract, _name, _description)
     {}
-
-    function getName() public view returns (string memory) {
-        return name;
-    }
-
-    function getDescription() public view returns (string memory) {
-        return description;
-    }
-
-    function trigger(string memory agentName, uint memory size) public override {
+    
+    function trigger(string memory agentName, uint size) public override {
         // Generate random grid coordinates for teleportation
         uint256 x = randomCoordinate(size);
         uint256 y = randomCoordinate(size);

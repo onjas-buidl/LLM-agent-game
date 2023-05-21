@@ -7,15 +7,23 @@ contract BaseModule {
     GamePlay game;
 
     string public name;
-    string public destription;
+    string public description;
 
     constructor(address _gameContract, string memory _name, string memory _description) public {
         game = GamePlay(_gameContract);
         name = _name;
-        destription = _description;
+        description = _description;
     }
 
-    function trigger(string memory agentName) public {
+    function getName() public view returns (string memory) {
+        return name;
+    }
+
+    function getDescription() public view returns (string memory) {
+        return description;
+    }
+
+    function trigger(string memory agentName, uint size) public virtual {
         // Generate random grid coordinates for teleportation
         // ...
         // return (x, y);

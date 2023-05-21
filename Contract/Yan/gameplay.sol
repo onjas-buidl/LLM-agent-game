@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.16;
 import "./Igameplay.sol";
+import {BaseModule} from "./BaseModule.sol";
 
 contract GamePlay is IGameplayContract {
     address public contractOwner;
@@ -29,14 +30,6 @@ contract GamePlay is IGameplayContract {
         uint256 y;
         uint256 stamina;
         uint256 wealth;
-    }
-
-    struct Module {
-        string name;
-        string description;
-        uint256 x;
-        uint256 y;
-        address contractAddress;
     }
 
     string[][] private worldMap;
@@ -79,25 +72,27 @@ contract GamePlay is IGameplayContract {
 
     // deploy UGC contract
     function deployContracts(
-        address[] memory contractAddressList,
-        uint256[] memory numList
+        Module[] memory moduleList
     ) external onlyOwner {
-        for (uint256 i = 0; i < contractAddressList.length; i++) {
-            for (uint256 j = 0; j < numList.length; j++) {
-                address contractAddress = contractAddressList[i];
-                // Check if address exists
-                require(isContract(contractAddress), "Invalid contract address");
+        for (uint256 i = 0; i < moduleList.length; i++) {
+            address contractAddress = moduleList[i].contractAddress;
+            // Check if address exists
+            require(isContract(contractAddress), "Invalid contract address");
 
-                uint256 x = randomCoordinate(worldMap.length);
-                uint256 y = randomCoordinate(worldMap.length);
-                // Check if the provided position is within the map boundaries
-                require(x < worldMap.length && y < worldMap.length, "Invalid x coordinate");
-                // require(ugcContract[x][y], "Cell already occupied");
-                require(compareStrings(worldMap[y][x], "null"), "Cell already occupied");
-                
-                // Deploy the contract
-                ugcContract[y][x] = contractAddress;
-            }
+            uint256 x = moduleList[i].x;
+            uint256 y = moduleList[i].y;
+            // Check if the provided position is within the map boundaries
+            require(x < worldMap.length && y < worldMap.length, "Invalid x coordinate");
+            // require(ugcContract[x][y], "Cell already occupied");
+            require(compareStrings(worldMap[y][x], "null"), "Cell already occupied");
+            
+            // Set up the module contract
+            ugcContract[y][x] = contractAddress;
+
+            string memory name = moduleList[i].name;
+            // string memory description = moduleList[i].description; TODO: how to feed the description into LLM
+            // Update the worldMap
+            worldMap[y][x] = name;
         }
     }
 
@@ -162,7 +157,9 @@ contract GamePlay is IGameplayContract {
 
         // If step on module - trigger
         if (ugcContract[y][x] != address(0)) {
-
+            // call the module contract to trigger function
+            BaseModule module = BaseModule(ugcContract[uint256(y)][uint256(x)]);
+            module.trigger(name, worldMap.length);
         }
     }
 
@@ -240,8 +237,19 @@ contract GamePlay is IGameplayContract {
                 
                 // Check if the map coordinates are within bounds
                 if (mapX >= 0 && mapX < int256(size) && mapY >= 0 && mapY < int256(size)) {
-                    string memory cellValue = worldMap[uint256(mapX)][uint256(mapY)];
-                    surroundings[i][j] = cellValue;
+                    // If has modules nearby, give the module description
+                    if (ugcContract[uint256(mapX)][uint256(mapY)] != address(0)) {
+                        // call the module contract to get the description
+                        BaseModule module = BaseModule(ugcContract[uint256(mapX)][uint256(mapY)]);
+                        // string memory moduleName = module.getName();
+                        string memory moduleDescription = module.getDescription();
+                        surroundings[i][j] = moduleDescription;
+                    }
+                    else {
+                        // If no modules nearby, give the world map value
+                        string memory cellValue = worldMap[uint256(mapX)][uint256(mapY)];
+                        surroundings[i][j] = cellValue;
+                    }
                 } else {
                     surroundings[i][j] = "null"; // Agents can't see outside the map
                 }
