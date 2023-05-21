@@ -2,6 +2,8 @@ version: '3'
 services:
   backend:
     build: ./backend/
+    env_file:
+      - ./conf/local.env
     volumes:
       - ./backend:/app
     ports:
