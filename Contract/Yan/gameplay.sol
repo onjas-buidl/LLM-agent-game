@@ -33,7 +33,6 @@ contract GamePlay is IGameplayContract {
 
     string[][] private worldMap;
     string[][] private agentMap;
-    string[][] private ugcMap;
     mapping(string => Explorer) public explorers;
     uint explorersCount = 0;
     Explorer[] public explorersList;
@@ -68,8 +67,6 @@ contract GamePlay is IGameplayContract {
                 count++;
             }
         }
-
-        // TODO: How to make it composable? eg. set certain cells teleport module
     }
 
     // deploy UGC contract
@@ -81,11 +78,12 @@ contract GamePlay is IGameplayContract {
         // Check if the provided position is within the map boundaries
         require(x < worldMap.length && y < worldMap.length, "Invalid x coordinate");
         // require(ugcContract[x][y], "Cell already occupied");
-
+        require(compareStrings(worldMap[y][x], "null"), "Cell already occupied");
+        
         // TODO: check if address exists
 
         // Deploy the contract
-        ugcContract[x][y] = contractAddress;
+        ugcContract[y][x] = contractAddress;
     }
 
     function addExplorer(
@@ -103,14 +101,14 @@ contract GamePlay is IGameplayContract {
 
         // Check if the provided position is not occupied by another explorer
         require(
-            compareStrings(worldMap[x][y], "null") ||
-                compareStrings(worldMap[x][y], "W"),
+            compareStrings(worldMap[y][x], "null") ||
+                compareStrings(worldMap[y][x], "W"),
             "Position occupied"
         );
 
         // Set the cell value to the agent's name
-        worldMap[x][y] = name;
-        agentMap[x][y] = name;
+        worldMap[y][x] = name;
+        agentMap[y][x] = name;
         explorersList.push(explorers[name]);
         explorersCount += 1;
     }
@@ -147,8 +145,9 @@ contract GamePlay is IGameplayContract {
         uint stamina = explorers[name].stamina;
         explorers[name].stamina = stamina - 1;
 
-        // Update agentMap
-        agentMap[explorers[name].x][explorers[name].y] = name;
+        // Update worldMap, agentMap
+        worldMap[explorers[name].y][explorers[name].x] = name;
+        agentMap[explorers[name].y][explorers[name].x] = name;
     }
 
     function gatherWealth(string memory name) external onlyOwner {
@@ -169,7 +168,7 @@ contract GamePlay is IGameplayContract {
         explorers[name].stamina = stamina - 1;
 
         // Set the cell value back to "null"
-        worldMap[x][y] = "null";
+        worldMap[y][x] = "null";
     }
 
     function rest(string memory name) external onlyOwner {
@@ -254,16 +253,16 @@ contract GamePlay is IGameplayContract {
         uint256 mapSize = worldMap.length;
         
         for (uint256 i = 0; i < dirs.length; i++) {
-            if (compareStrings(dirs[i], "up") && y > 0 && compareStrings(agentMap[x][y - 1],"null")) {
+            if (compareStrings(dirs[i], "up") && y > 0 && compareStrings(agentMap[y - 1][x],"null")) {
                 allowedActions = appendToArray(allowedActions, "move up");
             }
-            if (compareStrings(dirs[i], "down") && y < mapSize - 1 && compareStrings(agentMap[x][y + 1],"null")) {
+            if (compareStrings(dirs[i], "down") && y < mapSize - 1 && compareStrings(agentMap[y + 1][x],"null")) {
                 allowedActions = appendToArray(allowedActions, "move down");
             }
-            if (compareStrings(dirs[i], "left") && x > 0 && compareStrings(agentMap[x-1][y],"null")) {
+            if (compareStrings(dirs[i], "left") && x > 0 && compareStrings(agentMap[y][x - 1],"null")) {
                 allowedActions = appendToArray(allowedActions, "move left");
             }
-            if (compareStrings(dirs[i], "right") && x < mapSize - 1 && compareStrings(agentMap[x+1][y],"null")) {
+            if (compareStrings(dirs[i], "right") && x < mapSize - 1 && compareStrings(agentMap[y][x + 1],"null")) {
                 allowedActions = appendToArray(allowedActions, "move right");
             }
         }
@@ -281,14 +280,14 @@ contract GamePlay is IGameplayContract {
             if (explorers[name].x - explorers[others].x == 1 && explorers[name].y == explorers[others].y) {
                 allowedActions = appendToArray(allowedActions, "attack left");
             }
-            if (explorers[name].x - explorers[others].x == type(uint256).max && explorers[name].y == explorers[others].y) {
+            if (int256(explorers[name].x) - int256(explorers[others].x) == -1 && explorers[name].y == explorers[others].y) {
                 allowedActions = appendToArray(allowedActions, "attack right");
             }
             if (explorers[name].y - explorers[others].y == 1 && explorers[name].x == explorers[others].x) {
-                allowedActions = appendToArray(allowedActions, "attack down");
-            }
-            if (explorers[name].y - explorers[others].y == type(uint256).max && explorers[name].x == explorers[others].x) {
                 allowedActions = appendToArray(allowedActions, "attack up");
+            }
+            if (int256(explorers[name].y) - int256(explorers[others].y) == -1 && explorers[name].x == explorers[others].x) {
+                allowedActions = appendToArray(allowedActions, "attack down");
             }
         }
         
@@ -352,8 +351,8 @@ contract GamePlay is IGameplayContract {
         require(x < worldMap.length && y < worldMap.length, "Invalid position");
         // Check if the provided position is not occupied by another explorer
         require(
-            compareStrings(worldMap[x][y], "null") ||
-                compareStrings(worldMap[x][y], "W"),
+            compareStrings(worldMap[y][x], "null") ||
+                compareStrings(worldMap[y][x], "W"),
             "Position occupied"
         );
 
