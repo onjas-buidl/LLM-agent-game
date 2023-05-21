@@ -165,8 +165,6 @@ cython_debug/
 #.idea/
 langchain_try.py
 
-
-
 .bash_history
 conf/local.env
 */local.env
