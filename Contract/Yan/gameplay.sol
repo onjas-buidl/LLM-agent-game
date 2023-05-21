@@ -32,7 +32,11 @@ contract GamePlay is IGameplayContract {
     }
 
     string[][] private worldMap;
+    string[][] private agentMap;
+    string[][] private ugcMap;
     mapping(string => Explorer) public explorers;
+    uint explorersCount = 0;
+    Explorer[] public explorersList;
 
     mapping(uint256 => mapping(uint256 => address)) public ugcContract;
 
@@ -40,12 +44,15 @@ contract GamePlay is IGameplayContract {
         external
         onlyOwner
     {
-        // Initialize the world map with "null" values
+        // Initialize the worldMap and agentMap with "null" values
         worldMap = new string[][](size);
+        agentMap = new string[][](size);
         for (uint256 i = 0; i < size; i++) {
             worldMap[i] = new string[](size);
+            agentMap[i] = new string[](size);
             for (uint256 j = 0; j < size; j++) {
                 worldMap[i][j] = "null";
+                agentMap[i][j] = "null";
             }
         }
 
@@ -103,6 +110,9 @@ contract GamePlay is IGameplayContract {
 
         // Set the cell value to the agent's name
         worldMap[x][y] = name;
+        agentMap[x][y] = name;
+        explorersList.push(explorers[name]);
+        explorersCount += 1;
     }
 
     function move(string memory name, string memory direction) 
@@ -136,6 +146,9 @@ contract GamePlay is IGameplayContract {
         // Decrease stamina by 1
         uint stamina = explorers[name].stamina;
         explorers[name].stamina = stamina - 1;
+
+        // Update agentMap
+        agentMap[explorers[name].x][explorers[name].y] = name;
     }
 
     function gatherWealth(string memory name) external onlyOwner {
@@ -169,20 +182,12 @@ contract GamePlay is IGameplayContract {
         external
         onlyOwner
     {
-        require(bytes(explorers[attackerName].name).length != 0, "Explorer not found");
-        require(explorers[attackerName].stamina > 0, "Explorer died");
-        require(bytes(explorers[defenderName].name).length != 0, "Explorer not found");
-        require(explorers[defenderName].stamina > 0, "Explorer died");
-
-        // Check if the attack valid - problem what if there are two players you can attack?
         require(bytes(explorers[attackerName].name).length != 0, "Attacker not found");
-        require(bytes(explorers[defenderName].name).length != 0, "Defender not found");
+        require(explorers[attackerName].stamina > 0, "Attacker died");
+        require(bytes(explorers[defenderName].name).length != 0, "Deffender not found");
+        require(explorers[defenderName].stamina > 0, "Defender already died");
 
-        // Calculate the attack success chance (50% chance)
-        uint256 random = uint256(keccak256(abi.encodePacked(block.timestamp, msg.sender))) % 100;
-        bool attackSuccessful = random < 50;
-
-        if (attackSuccessful) {
+        if (explorers[attackerName].stamina > explorers[defenderName].stamina) {
             // Attacker successfully defeats the defender and gains their wealth
             explorers[attackerName].wealth += explorers[defenderName].wealth;
             explorers[defenderName].wealth = 0;
@@ -223,7 +228,7 @@ contract GamePlay is IGameplayContract {
                     string memory cellValue = worldMap[uint256(mapX)][uint256(mapY)];
                     surroundings[i][j] = cellValue;
                 } else {
-                    surroundings[i][j] = ""; // Agents can't see outside the map
+                    surroundings[i][j] = "null"; // Agents can't see outside the map
                 }
             }
         }
@@ -249,16 +254,16 @@ contract GamePlay is IGameplayContract {
         uint256 mapSize = worldMap.length;
         
         for (uint256 i = 0; i < dirs.length; i++) {
-            if (compareStrings(dirs[i], "up") && y > 0) { //Problem is how I know if that grid has some composable elements
+            if (compareStrings(dirs[i], "up") && y > 0 && compareStrings(agentMap[x][y - 1],"null")) {
                 allowedActions = appendToArray(allowedActions, "move up");
             }
-            if (compareStrings(dirs[i], "down") && y < mapSize - 1) {
+            if (compareStrings(dirs[i], "down") && y < mapSize - 1 && compareStrings(agentMap[x][y + 1],"null")) {
                 allowedActions = appendToArray(allowedActions, "move down");
             }
-            if (compareStrings(dirs[i], "left") && x > 0) {
+            if (compareStrings(dirs[i], "left") && x > 0 && compareStrings(agentMap[x-1][y],"null")) {
                 allowedActions = appendToArray(allowedActions, "move left");
             }
-            if (compareStrings(dirs[i], "right") && x < mapSize - 1) {
+            if (compareStrings(dirs[i], "right") && x < mapSize - 1 && compareStrings(agentMap[x+1][y],"null")) {
                 allowedActions = appendToArray(allowedActions, "move right");
             }
         }
@@ -267,8 +272,8 @@ contract GamePlay is IGameplayContract {
             allowedActions = appendToArray(allowedActions, "gather");
         }
         
-        for (uint256 i = 0; i < explorers.length; i++) {
-            string memory others = explorers[i].name;
+        for (uint256 i = 0; i < explorersCount; i++) {
+            string memory others = explorersList[i].name;
             if (compareStrings(others, name)) {
                 continue;
             }
@@ -276,13 +281,13 @@ contract GamePlay is IGameplayContract {
             if (explorers[name].x - explorers[others].x == 1 && explorers[name].y == explorers[others].y) {
                 allowedActions = appendToArray(allowedActions, "attack left");
             }
-            if (explorers[name].x - explorers[others].x == -1 && explorers[name].y == explorers[others].y) {
+            if (explorers[name].x - explorers[others].x == type(uint256).max && explorers[name].y == explorers[others].y) {
                 allowedActions = appendToArray(allowedActions, "attack right");
             }
             if (explorers[name].y - explorers[others].y == 1 && explorers[name].x == explorers[others].x) {
                 allowedActions = appendToArray(allowedActions, "attack down");
             }
-            if (explorers[name].y - explorers[others].y == -1 && explorers[name].x == explorers[others].x) {
+            if (explorers[name].y - explorers[others].y == type(uint256).max && explorers[name].x == explorers[others].x) {
                 allowedActions = appendToArray(allowedActions, "attack up");
             }
         }
