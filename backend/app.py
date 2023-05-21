@@ -18,7 +18,7 @@ class SetOwner(Resource):
     def post(self):
         body = request.json
 
-        ret = web3Game.set_owner(new_owner)
+        ret = web3Game.set_owner(body.new_owner)
         return {
             "hash": ret,
         }
