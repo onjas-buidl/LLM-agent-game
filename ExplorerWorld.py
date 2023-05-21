@@ -150,16 +150,6 @@ class ExplorerWorld:
 
     def get_allowed_actions(self, name):
         allowed_actions = ['rest']
-        dirs = ['up', 'down', 'left', 'right']
-        for dir in dirs:
-            if dir == "up" and self.explorers[name]['y'] < self.map_size - 1:
-                allowed_actions.append("move up")
-            if dir == "down" and self.explorers[name]['y'] > 0:
-                allowed_actions.append("move down")
-            if dir == "left" and self.explorers[name]['x'] > 0:
-                allowed_actions.append("move left")
-            if dir == "right" and self.explorers[name]['x'] < self.map_size - 1:
-                allowed_actions.append("move right")
         
         if self.map[self.explorers[name]['y']][self.explorers[name]['x']] > 0:
             allowed_actions.append("gather")
@@ -174,6 +164,17 @@ class ExplorerWorld:
                     allowed_actions.append("attack down")
                 if self.explorers[name]['y'] - self.explorers[others]['y'] == -1 and self.explorers[name]['x'] == self.explorers[others]['x']:
                     allowed_actions.append("attack up")
+
+        dirs = ['up', 'down', 'left', 'right']
+        for dir in dirs:
+            if dir == "up" and self.explorers[name]['y'] < self.map_size - 1 and "attack up" not in allowed_actions:
+                allowed_actions.append("move up")
+            if dir == "down" and self.explorers[name]['y'] > 0 and "attack down" not in allowed_actions:
+                allowed_actions.append("move down")
+            if dir == "left" and self.explorers[name]['x'] > 0 and "attack left" not in allowed_actions:
+                allowed_actions.append("move left")
+            if dir == "right" and self.explorers[name]['x'] < self.map_size - 1 and "attack right" not in allowed_actions:
+                allowed_actions.append("move right")
                     
         return allowed_actions
                 

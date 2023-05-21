@@ -1,0 +1,13 @@
+version: '3'
+services:
+  backend:
+    build: .
+    volumes:
+      - ./:/app
+    command: python app.py
+    ports:
+      - "5000:5000"
+      - "9000:8080"
+    tty: true
+    # env_file:
+    #   - ./conf/local.env
