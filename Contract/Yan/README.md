@@ -10,8 +10,6 @@ Factory Contract:
 
 
 Gameplay Contract:
-The gameplay contract is the main contract that players will interact with to change the game states. 
-
 1. Game state management: Define the necessary data structures and variables to manage the game state. This can include player scores, game progress, component interactions, and any other relevant information.
 
 2. Interactions with components: Implement functions that allow players to interact with the gaming components. These functions should update the game state based on the actions taken by the players.

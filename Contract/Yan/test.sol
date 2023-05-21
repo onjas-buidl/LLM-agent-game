@@ -1,84 +1,69 @@
-// SPDX-License-Identifier: MIT 
 pragma solidity ^0.8.16;
 
-contract ExplorerWorld is IGameplay{
-    uint public mapSize;
-    uint public scopeSize;
-    uint public maxWealth;
-    uint public maxStamina;
-    
-    uint[][] public map;
-    mapping(string => mapping(string => uint)) public explorers;
-    
-    constructor(uint _mapSize) {
-        mapSize = _mapSize;
-        scopeSize = 2;
-        maxWealth = 10;
-        maxStamina = 10;
-        
-        map = new uint[][](mapSize);
-        for (uint i = 0; i < mapSize; i++) {
-            map[i] = new uint[](mapSize);
-        }
+contract GamePlay {
+    string[][] private worldMap;
+    mapping(string => Explorer) public explorers;
+
+    struct Explorer {
+        string name;
+        uint256 x;
+        uint256 y;
+        uint256 stamina;
     }
-    
-    function randomInitializeMap(uint wealthDensity) external {
-        for (uint i = 0; i < mapSize; i++) {
-            for (uint j = 0; j < mapSize; j++) {
-                if (uint256(keccak256(abi.encodePacked(block.timestamp, i, j))) % 100 < wealthDensity) {
-                    map[i][j] = 1;
-                }
+
+    function randomInitializeMap(uint256 size, uint256 numWealth) external {
+        // Generate random positions for wealth
+        uint256[] memory wealthPositions = generateRandomPositions(size, numWealth);
+
+        // Initialize the world map with "null" values
+        worldMap = new string[][](size);
+        for (uint256 i = 0; i < size; i++) {
+            worldMap[i] = new string[](size);
+            for (uint256 j = 0; j < size; j++) {
+                worldMap[i][j] = "null";
             }
         }
-    }
-    
-    function addExplorer(string memory name, uint x, uint y, uint stamina) external {
-        require(x < mapSize && y < mapSize, "Invalid position");
-        
-        if (x == 0 && y == 0) {
-            explorers[name] = 0;
-        } else {
-            require(explorers[name] == 0, "Explorer name already exists");
+
+        // Place "W" on the randomly chosen wealth positions
+        for (uint256 k = 0; k < numWealth; k++) {
+            uint256 x = wealthPositions[k] / size;
+            uint256 y = wealthPositions[k] % size;
+            worldMap[x][y] = "W";
         }
-        
-        explorers[name] = uint256(uint16(x) << 128 | uint16(y) << 112 | maxStamina << 96 | stamina);
     }
-    
-    function move(string memory name, string memory direction) external {
-        require(explorers[name] != 0, "Explorer does not exist");
-        
-        uint x = getX(explorers[name]);
-        uint y = getY(explorers[name]);
-        
-        if (keccak256(bytes(direction)) == keccak256(bytes("down"))) {
-            y = y > 0 ? y - 1 : y;
-        } else if (keccak256(bytes(direction)) == keccak256(bytes("up"))) {
-            y = y < mapSize - 1 ? y + 1 : y;
-        } else if (keccak256(bytes(direction)) == keccak256(bytes("left"))) {
-            x = x > 0 ? x - 1 : x;
-        } else if (keccak256(bytes(direction)) == keccak256(bytes("right"))) {
-            x = x < mapSize - 1 ? x + 1 : x;
-        } else {
-            revert("Invalid direction");
+
+    function addExplorer(
+        string memory name,
+        uint256 x,
+        uint256 y,
+        uint256 stamina
+    ) external {
+        explorers[name] = Explorer(name, x, y, stamina);
+        worldMap[x][y] = name;
+    }
+
+    function generateRandomPositions(uint256 size, uint256 numPositions)
+        private
+        view
+        returns (uint256[] memory)
+    {
+        require(numPositions <= size * size, "Invalid number of positions");
+        uint256[] memory positions = new uint256[](size * size);
+        for (uint256 i = 0; i < size * size; i++) {
+            positions[i] = i;
         }
-        
-        explorers[name] = updatePosition(explorers[name], x, y);
-    }
-    
-    // Implement other functions similarly
-    
-    // Helper functions
-    
-    function getX(uint256 position) internal pure returns (uint) {
-        return uint16(position >> 128);
-    }
-    
-    function getY(uint256 position) internal pure returns (uint) {
-        return uint16(position >> 112);
-    }
-    
-    function getMaxStamina
-    (uint256 position) internal pure returns (uint) {
-        return uint16(position >> 96);
+        // Shuffle the positions using Fisher-Yates algorithm
+        for (uint256 i = size * size - 1; i > 0; i--) {
+            uint256 j = (uint256(keccak256(abi.encodePacked(block.timestamp, msg.sender))) % (i + 1));
+            uint256 temp = positions[i];
+            positions[i] = positions[j];
+            positions[j] = temp;
+        }
+        // Select the first numPositions from the shuffled array
+        uint256[] memory selectedPositions = new uint256[](numPositions);
+        for (uint256 i = 0; i < numPositions; i++) {
+            selectedPositions[i] = positions[i];
+        }
+        return selectedPositions;
     }
 }
