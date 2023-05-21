@@ -17,3 +17,15 @@ Gameplay Contract:
 3. Game logic and rules: Define the rules and logic of the game within the contract. This can include win conditions, turn-based mechanics, and any other game-specific functionality.
 
 4. Only owner can call the write functions
+
+
+## deploy contract to local
+```bash
+yarn install
+yarn dev-node
+```
+
+open another terminal
+```bash
+yarn deploy:local
+```
