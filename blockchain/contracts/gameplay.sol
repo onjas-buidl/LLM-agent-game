@@ -44,28 +44,41 @@ contract GamePlay is IGameplayContract {
         external
         onlyOwner
     {
+        require(size * size >= wealthCount, "Too much wealth for such a small map!");
+
         // Initialize the worldMap and agentMap with "null" values
         worldMap = new string[][](size);
         agentMap = new string[][](size);
+
+        // Flatten and randomize a list of coordinates
+        uint256 totalCells = size * size;
+        uint256[] memory order = new uint256[](totalCells);
+        for (uint256 i = 0; i < totalCells; i++) {
+            order[i] = i;
+        }
+
+        // Fisher-Yates shuffle to randomize the order array
+        for (uint256 i = totalCells - 1; i > 0; i--) {
+            uint256 j = randomCoordinate(i + 1);
+            (order[i], order[j]) = (order[j], order[i]);
+        }
+
+        // Fill the maps
+        uint256 wealthDistributed = 0;
         for (uint256 i = 0; i < size; i++) {
             worldMap[i] = new string[](size);
             agentMap[i] = new string[](size);
+
             for (uint256 j = 0; j < size; j++) {
-                worldMap[i][j] = "null";
                 agentMap[i][j] = "null";
-            }
-        }
 
-        // Randomly distribute wealth
-        uint256 count = 0;
-        while (count < wealthCount) {
-            uint256 x = randomCoordinate(size);
-            uint256 y = randomCoordinate(size);
-
-            // Check if the cell is already assigned a wealth
-            if (compareStrings(worldMap[x][y], "null")) {
-                worldMap[x][y] = "W";
-                count++;
+                uint256 index = order[i * size + j];
+                if (index < wealthCount) {
+                    worldMap[i][j] = "W";
+                    wealthDistributed++;
+                } else {
+                    worldMap[i][j] = "null";
+                }
             }
         }
     }
