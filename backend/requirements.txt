@@ -1,3 +1,5 @@
-flask==1.1.2
-flask_restx==0.2.0
+flask==2.1.0
+flask_restx==1.1.0
 jinja2>=2.11.3
+web3=6.4.0
+eth-account=0.8.0
