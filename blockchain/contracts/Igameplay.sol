@@ -18,6 +18,7 @@ interface IGameplayContract {
     function gatherWealth(string memory name) external;
     function rest(string memory name) external;
     function attack(string memory attackerName, string memory defenderName) external;
+    function getExplorerByDirection(string memory name, string memory direction) external view returns (string memory);
     function getSurroundings(string memory name) external view returns (string[][] memory);
     function getAllowedActions(string memory name) external view returns (string[] memory);
     function getWorldState() external view returns (string[][] memory);

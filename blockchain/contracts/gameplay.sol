@@ -86,7 +86,7 @@ contract GamePlay is IGameplayContract {
     // deploy UGC contract
     function deployContracts(
         Module[] memory moduleList
-    ) external onlyOwner {
+    ) external {
         for (uint256 i = 0; i < moduleList.length; i++) {
             address contractAddress = moduleList[i].contractAddress;
             // Check if address exists
@@ -105,6 +105,7 @@ contract GamePlay is IGameplayContract {
             string memory name = moduleList[i].name;
             // string memory description = moduleList[i].description; TODO: how to feed the description into LLM
             // Update the worldMap
+            require(compareStrings(worldMap[y][x], "null") && compareStrings(agentMap[y][x], "null"), "Cell already occupied");
             worldMap[y][x] = name;
         }
     }
@@ -115,7 +116,7 @@ contract GamePlay is IGameplayContract {
         uint256 y,
         uint256 stamina,
         uint256 wealth
-    ) external onlyOwner {
+    ) external {
         // Add the explorer to the explorers mapping
         explorers[name] = Explorer(name, x, y, stamina, wealth);
 
@@ -130,21 +131,22 @@ contract GamePlay is IGameplayContract {
         );
 
         // Set the cell value to the agent's name
-        worldMap[y][x] = name;
+        // worldMap[y][x] = name;
         agentMap[y][x] = name;
         explorersList.push(explorers[name]);
         explorersCount += 1;
     }
 
     function move(string memory name, string memory direction) 
-        external 
-        onlyOwner 
-    {
+        external
+    {   
         require(bytes(explorers[name].name).length != 0, "Explorer not found");
-        require(explorers[name].stamina > 0, "Explorer died");
+        require(explorers[name].stamina > 0, "Explorer already dead");
         
         uint256 x = explorers[name].x;
         uint256 y = explorers[name].y;
+        uint256 oldX = x;
+        uint256 oldY = y;
         
         // Calculate the new position based on the specified direction
         if (compareStrings(direction, "up")) {
@@ -162,11 +164,17 @@ contract GamePlay is IGameplayContract {
         } else {
             revert("Invalid direction");
         }
+        worldMap[oldX][oldY] = "null";
+        agentMap[oldX][oldY] = "null";
         setLocation(name, x, y);
 
         // Decrease stamina by 1
         uint stamina = explorers[name].stamina;
         explorers[name].stamina = stamina - 1;
+        // if stamina is 0, dead
+        if (explorers[name].stamina == 0) {
+            dead(name);
+        }
 
         // If step on module - trigger
         if (ugcContract[y][x] != address(0)) {
@@ -176,9 +184,11 @@ contract GamePlay is IGameplayContract {
         }
     }
 
-    function gatherWealth(string memory name) external onlyOwner {
+    function gatherWealth(string memory name) 
+        external 
+    {
         require(bytes(explorers[name].name).length != 0, "Explorer not found");
-        require(explorers[name].stamina > 0, "Explorer died");
+        require(explorers[name].stamina > 0, "Explorer already dead");
 
         uint256 x = explorers[name].x;
         uint256 y = explorers[name].y;
@@ -197,33 +207,43 @@ contract GamePlay is IGameplayContract {
         worldMap[y][x] = "null";
     }
 
-    function rest(string memory name) external onlyOwner {
+    function rest(string memory name) 
+        external
+    {
         require(bytes(explorers[name].name).length != 0, "Explorer not found");
-        require(explorers[name].stamina > 0, "Explorer died");
+        require(explorers[name].stamina > 0, "Explorer already dead");
         explorers[name].stamina += 3;
     }
 
     function attack(string memory attackerName, string memory defenderName)
         external
-        onlyOwner
     {
         require(bytes(explorers[attackerName].name).length != 0, "Attacker not found");
-        require(explorers[attackerName].stamina > 0, "Attacker died");
+        require(explorers[attackerName].stamina > 0, "Attacker already dead");
         require(bytes(explorers[defenderName].name).length != 0, "Deffender not found");
-        require(explorers[defenderName].stamina > 0, "Defender already died");
+        require(explorers[defenderName].stamina > 0, "Defender already dead");
 
         if (explorers[attackerName].stamina > explorers[defenderName].stamina) {
             // Attacker successfully defeats the defender and gains their wealth
             explorers[attackerName].wealth += explorers[defenderName].wealth;
+            explorers[attackerName].stamina -= 1;
             explorers[defenderName].wealth = 0;
             explorers[defenderName].stamina = 0;
+            dead(defenderName);
         }
         else {
             // Attacker fails, lose all wealth, and die
             explorers[defenderName].wealth += explorers[attackerName].wealth;
             explorers[attackerName].stamina = 0;
             explorers[attackerName].wealth = 0;
+            dead(attackerName);
         }
+    }
+
+    // ---------------------
+    // getter funcs
+    function getExplorerByDirection(string memory name, string memory direction) external view returns (string memory){
+        return name;
     }
 
     function getSurroundings(string memory name) external view returns (string[][] memory) {
@@ -242,7 +262,7 @@ contract GamePlay is IGameplayContract {
             surroundings[i] = new string[](surroundingsSize);
         }
         
-        // Fill the surroundings array with the values from the world map
+        // Fill the surroundings array with the values from the world map and agent map
         for (uint256 i = 0; i < surroundingsSize; i++) {
             for (uint256 j = 0; j < surroundingsSize; j++) {
                 int256 mapX = int256(x) - 1 + int256(i); // Convert to int to avoid underflow
@@ -256,15 +276,28 @@ contract GamePlay is IGameplayContract {
                         BaseModule module = BaseModule(ugcContract[uint256(mapX)][uint256(mapY)]);
                         // string memory moduleName = module.getName();
                         string memory moduleDescription = module.getDescription();
-                        surroundings[i][j] = moduleDescription;
+                        surroundings[j][i] = moduleDescription;
                     }
                     else {
-                        // If no modules nearby, give the world map value
+                        // If no modules nearby, give the world map value and agent map value
                         string memory cellValue = worldMap[uint256(mapX)][uint256(mapY)];
-                        surroundings[i][j] = cellValue;
+                        string memory agentValue = agentMap[uint256(mapX)][uint256(mapY)];
+                        if( compareStrings(cellValue, "null") && compareStrings(agentValue, "null")) {
+                            surroundings[j][i] = "null";
+                        }
+                        else if (compareStrings(cellValue, "null")) {
+                            surroundings[j][i] = agentValue;
+                        }
+                        else if (compareStrings(agentValue, "null")) {
+                            surroundings[j][i] = cellValue;
+                        }
+                        else{// Both has value, Concatenate the cell values using AND
+                            string memory combinedValue = string(abi.encodePacked(cellValue, " & ", agentValue));
+                            surroundings[j][i] = combinedValue;
+                        }
                     }
                 } else {
-                    surroundings[i][j] = "null"; // Agents can't see outside the map
+                    surroundings[j][i] = "OUT"; // Agents can't see outside the map
                 }
             }
         }
@@ -274,7 +307,7 @@ contract GamePlay is IGameplayContract {
 
     function getAllowedActions(string memory name) external view returns (string[] memory) {
         require(bytes(explorers[name].name).length != 0, "Explorer not found");
-        require(explorers[name].stamina > 0, "Explorer died");
+        require(explorers[name].stamina > 0, "Explorer already dead");
         
         string[] memory allowedActions = new string[](1);
         allowedActions[0] = "rest";
@@ -340,16 +373,33 @@ contract GamePlay is IGameplayContract {
         return newArray;
     }
 
-
-    // getter func for worldMap
+    // getter func that aggregates worldMap and agentMap - may overlap and concatenate into one string
     function getWorldState() external view returns (string[][] memory) {
         uint256 size = worldMap.length;
         string[][] memory state = new string[][](size);
 
         for (uint256 i = 0; i < size; i++) {
+            state[i] = new string[](size); // Initialize the inner array
+
             for (uint256 j = 0; j < size; j++) {
-                string memory cellValue = worldMap[uint256(i)][uint256(j)];
-                state[i][j] = cellValue;
+                string memory cellValue = worldMap[i][j];
+                string memory agentValue = agentMap[i][j];
+                if( compareStrings(cellValue, "null") && compareStrings(agentValue, "null")) {
+                    state[i][j] = "null";
+                    continue;
+                }
+                else if (compareStrings(cellValue, "null")) {
+                    state[i][j] = agentValue;
+                    continue;
+                }
+                else if (compareStrings(agentValue, "null")) {
+                    state[i][j] = cellValue;
+                    continue;
+                }
+                else{// Both has value, Concatenate the cell values using AND
+                string memory combinedValue = string(abi.encodePacked(cellValue, " & ", agentValue));
+                state[i][j] = combinedValue;
+                }
             }
         }
         return state;
@@ -383,6 +433,17 @@ contract GamePlay is IGameplayContract {
             size := extcodesize(addr)
         }
         return size > 0;
+    }
+
+    // R.I.P
+    function dead(string memory name) internal {
+        require(bytes(explorers[name].name).length != 0, "Explorer not found");
+        explorers[name].stamina = 0;
+        explorers[name].wealth = 0;
+        worldMap[explorers[name].y][explorers[name].x] = "null";
+        agentMap[explorers[name].y][explorers[name].x] = "null";
+        explorers[name].x = 0;
+        explorers[name].y = 0;
     }
 
     // ---------------------
