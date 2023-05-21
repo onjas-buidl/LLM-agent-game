@@ -25,32 +25,6 @@ Why we need this?
 2. Create a folder named `logs` in the root directory. (otherwise the code will throw an error)
 3. Run the `ExplorerAgent.py` file. Feel free to change world_size, change the agent principles, and play with other parameters.
 
-# Build Guide
-
-1. Setup OpenAI API key
-
-- Get your key [here](https://platform.openai.com/account/api-keys).
-- copy envfile
-
-```
-$ cp conf/sample.env conf/local.env
-```
-
-- override as your APIkey
-
-2. build and start container
-
-```
-$ make build
-$ make up
-```
-
-3. Exec bash on backend
-
-```
-$ make backend
-```
-
 **Warning**
 
 Currently, the LLM agent is very dumb, so you will see it is performing not as expected. We are working hard to change this.
