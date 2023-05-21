@@ -31,6 +31,14 @@ contract GamePlay is IGameplayContract {
         uint256 wealth;
     }
 
+    struct Module {
+        string name;
+        string description;
+        uint256 x;
+        uint256 y;
+        address contractAddress;
+    }
+
     string[][] private worldMap;
     string[][] private agentMap;
     mapping(string => Explorer) public explorers;
@@ -70,28 +78,35 @@ contract GamePlay is IGameplayContract {
     }
 
     // deploy UGC contract
-    function deployContract(
-        uint256 x,
-        uint256 y,
-        address contractAddress
+    function deployContracts(
+        address[] memory contractAddressList,
+        uint256[] memory numList
     ) external onlyOwner {
-        // Check if the provided position is within the map boundaries
-        require(x < worldMap.length && y < worldMap.length, "Invalid x coordinate");
-        // require(ugcContract[x][y], "Cell already occupied");
-        require(compareStrings(worldMap[y][x], "null"), "Cell already occupied");
-        
-        // TODO: check if address exists
+        for (uint256 i = 0; i < contractAddressList.length; i++) {
+            for (uint256 j = 0; j < numList.length; j++) {
+                address contractAddress = contractAddressList[i];
+                // Check if address exists
+                require(isContract(contractAddress), "Invalid contract address");
 
-        // Deploy the contract
-        ugcContract[y][x] = contractAddress;
+                uint256 x = randomCoordinate(worldMap.length);
+                uint256 y = randomCoordinate(worldMap.length);
+                // Check if the provided position is within the map boundaries
+                require(x < worldMap.length && y < worldMap.length, "Invalid x coordinate");
+                // require(ugcContract[x][y], "Cell already occupied");
+                require(compareStrings(worldMap[y][x], "null"), "Cell already occupied");
+                
+                // Deploy the contract
+                ugcContract[y][x] = contractAddress;
+            }
+        }
     }
 
     function addExplorer(
         string memory name,
-        uint16 x,
-        uint16 y,
-        uint16 stamina,
-        uint16 wealth
+        uint256 x,
+        uint256 y,
+        uint256 stamina,
+        uint256 wealth
     ) external onlyOwner {
         // Add the explorer to the explorers mapping
         explorers[name] = Explorer(name, x, y, stamina, wealth);
@@ -145,9 +160,10 @@ contract GamePlay is IGameplayContract {
         uint stamina = explorers[name].stamina;
         explorers[name].stamina = stamina - 1;
 
-        // Update worldMap, agentMap
-        worldMap[explorers[name].y][explorers[name].x] = name;
-        agentMap[explorers[name].y][explorers[name].x] = name;
+        // If step on module - trigger
+        if (ugcContract[y][x] != address(0)) {
+
+        }
     }
 
     function gatherWealth(string memory name) external onlyOwner {
@@ -339,6 +355,15 @@ contract GamePlay is IGameplayContract {
         return keccak256(abi.encodePacked(a)) == keccak256(abi.encodePacked(b));
     }
 
+    // Check if the given address is a contract
+    function isContract(address addr) private view returns (bool) {
+        uint256 size;
+        assembly {
+            size := extcodesize(addr)
+        }
+        return size > 0;
+    }
+
     // ---------------------
     // private setters
 
@@ -358,6 +383,10 @@ contract GamePlay is IGameplayContract {
 
         explorers[agentName].x = x;
         explorers[agentName].y = y;
+
+        // Update worldMap, agentMap
+        worldMap[explorers[agentName].y][explorers[agentName].x] = agentName;
+        agentMap[explorers[agentName].y][explorers[agentName].x] = agentName;
     }
 
     function setStamina(string memory agentName, uint256 stamina) public {

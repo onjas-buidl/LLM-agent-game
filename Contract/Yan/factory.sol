@@ -27,7 +27,8 @@ contract FactoryContract is IFactoryContract{
             uint256 x = agentList[i].x;
             uint256 y = agentList[i].y;
             uint256 stamina = agentList[i].stamina;
-            gamePlay.addExplorer(name, x, y, stamina);
+            uint256 wealth = agentList[i].wealth;
+            gamePlay.addExplorer(name, x, y, stamina, wealth);
         }
 
         // Set the owner of the game play contract as the message sender
