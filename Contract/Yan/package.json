@@ -4,7 +4,10 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
-    "compile": "hardhat compile"
+    "compile": "hardhat compile",
+    "deploy": "hardhat deploy",
+    "deploy:local": "hardhat deploy --network localhost",
+    "dev-node": "hardhat node"
   },
   "devDependencies": {
     "@ethersproject/abi": "^5.4.7",
@@ -22,6 +25,7 @@
     "chai": "^4.2.0",
     "ethers": "^5.4.7",
     "hardhat": "^2.14.0",
+    "hardhat-deploy": "^0.11.29",
     "hardhat-gas-reporter": "^1.0.8",
     "solidity-coverage": "^0.8.0",
     "ts-node": ">=8.0.0",
