@@ -4,3 +4,4 @@ jinja2>=2.11.3
 web3==6.4.0
 eth-account==0.8.0
 flask-cors
+langchain

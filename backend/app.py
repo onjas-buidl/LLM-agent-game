@@ -1,17 +1,43 @@
+from dotenv import load_dotenv
+
+load_dotenv('./conf/local.env', verbose=True)
+
 import os
 import random
 import json
-from flask import Flask, jsonify
+from flask import Flask, request, jsonify
 from flask_restx import Api, Resource
 from web3game import Web3Game
 from flask_cors import CORS
 
+
 app = Flask(__name__)
 CORS(app)
 api = Api(app)
-web3Game = Web3Game("0x2e501612840d420598Ee8463907C924A63E9Ff8b",
-                    "0x2e501612840d420598Ee8463907C924A63E9Ff8b")
+web3Game = Web3Game("0xAEdbF8bBcf26CE2F25DB396f0fB7daAa10e1c7A4")
 
+# startGame
+@api.route('/start_game/')
+class StartGame(Resource):
+    def post(self):
+        body = request.json
+
+        ret = web3Game.start_game(body['size'], body['num_wealth'], body['agent_count'], body['agent_list'])
+        return {
+            "hash": ret,
+        }
+
+
+# start_llm
+@api.route('/start_llm/')
+class StartGame(Resource):
+    def post(self):
+        # body = request.json
+
+        ret = web3Game.start_llm()
+        return {
+            "hash": ret,
+        }
 
 # transfer ownership of the gameplay contract
 # onlyOwner
@@ -21,7 +47,7 @@ class SetOwner(Resource):
     def post(self):
         body = request.json
 
-        ret = web3Game.set_owner(body.new_owner)
+        ret = web3Game.set_owner(body['new_owner'])
         return {
             "hash": ret,
         }
@@ -36,7 +62,7 @@ class RandomInitializeMap(Resource):
     def post(self):
         body = request.json
 
-        ret = web3Game.random_initialize_map(body.size, body.num_wealth)
+        ret = web3Game.random_initialize_map(body['size'], body['num_wealth'])
         return {
             "hash": ret,
         }
@@ -48,7 +74,7 @@ class DeployContracts(Resource):
     def post(self):
         body = request.json
 
-        ret = web3Game.deploy_contracts(body.module_list)
+        ret = web3Game.deploy_contracts(body['module_list'])
         return {
             "hash": ret,
         }
@@ -61,13 +87,14 @@ class DeployContracts(Resource):
 # y: uint256
 # stamina: uint256
 # wealth: uint256
+# principles: string
 @api.route('/add_explorer/')
 class AddExplorer(Resource):
     def post(self):
         body = request.json
 
         ret = web3Game.add_explorer(
-            body.name, body.x, body.y, body.stamina, body.wealth)
+            body['name'], body['x'], body['y'], body['stamina'], body['wealth'], body['principles'])
         return {
             "hash": ret,
         }
@@ -83,7 +110,7 @@ class Move(Resource):
         body = request.json
 
         ret = web3Game.move(
-            body.name, body.direction)
+            body['name'], body['direction'])
         return {
             "hash": ret,
         }
@@ -98,7 +125,7 @@ class GatherWealth(Resource):
         body = request.json
 
         ret = web3Game.gather_wealth(
-            body.name)
+            body['name'])
         return {
             "hash": ret,
         }
@@ -113,7 +140,7 @@ class Rest(Resource):
         body = request.json
 
         ret = web3Game.rest(
-            body.name)
+            body['name'])
         return {
             "hash": ret,
         }
@@ -129,7 +156,7 @@ class Attack(Resource):
         body = request.json
 
         ret = web3Game.attack(
-            body.attacker_name, body.defender_name)
+            body['attacker_name'], body['defender_name'])
         return {
             "hash": ret,
         }
@@ -145,7 +172,7 @@ class SetLocation(Resource):
         body = request.json
 
         ret = web3Game.set_location(
-            body.name, body.x, body.y)
+            body['name'], body['x'], body['y'])
         return {
             "hash": ret,
         }
@@ -160,7 +187,7 @@ class SetStamina(Resource):
         body = request.json
 
         ret = web3Game.set_stamina(
-            body.name, body.stamina)
+            body['name'], body['stamina'])
         return {
             "hash": ret,
         }
@@ -206,6 +233,16 @@ class GetWorldState(Resource):
         ret = web3Game.get_world_state()
         return {
             "ret": ret,
+        }
+
+# faucet
+# address: string
+@api.route('/faucet/<string:address>')
+class Faucet(Resource):
+    def get(self, address):
+        web3Game.faucet(address)
+        return {
+            "ret": "ok",
         }
 
 

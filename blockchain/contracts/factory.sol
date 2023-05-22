@@ -6,11 +6,17 @@ import "./gameplay.sol";
 contract FactoryContract is IFactoryContract{
     mapping(address => address) public gamePlayContracts;
 
+    // define event gameplay address
+    event NewGame(address gamePlayAddress);
+
     function startGame(uint256 size, uint256 wealthCount, uint256 agentCount, Agent[] calldata agentList) external returns (address) {
         // Input validation
         require(size > 0, "Map size should be greater than 0");
         require(wealthCount > 0, "Number of wealth should be greater than 0");
-        require(agentCount > 0, "Agent count should be greater than 0");
+
+        // NOTE: Agents must be added with addExplorer to initialize Agent class.
+        // It seems that PRINCIPLES was not managed on-chain either.
+        // require(agentCount > 0, "Agent count should be greater than 0");
         
         GamePlay gamePlay = new GamePlay();
 
@@ -33,6 +39,7 @@ contract FactoryContract is IFactoryContract{
 
         // Set the owner of the game play contract as the message sender
         gamePlay.setOwner(msg.sender);
+        emit NewGame(gamePlayAddress);
 
         return gamePlayAddress;
     }

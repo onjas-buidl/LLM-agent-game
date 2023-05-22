@@ -1,5 +1,18 @@
 [
   {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "gamePlayAddress",
+        "type": "address"
+      }
+    ],
+    "name": "NewGame",
+    "type": "event"
+  },
+  {
     "inputs": [
       {
         "internalType": "address",
