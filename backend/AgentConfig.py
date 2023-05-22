@@ -124,14 +124,7 @@ class Agent:
         lst = "Done" #TODO:get from blockchain
         n = len(lst)
         m = len(lst[0])
-        yourself_pos = (0, 0)
-
-        # Find the position of "Yourself"
-        for i in range(n):
-            for j in range(m):
-                if isinstance(lst[i][j], tuple) and lst[i][j][0] == 'Yourself':
-                    yourself_pos = (i, j)
-                    break
+        yourself_pos = (n // 2, m // 2)
 
         # Iterate over the list of lists and format each element
         result = []
@@ -143,7 +136,7 @@ class Agent:
                     continue
                 # elif (i, j) == yourself_pos:
                 #     continue
-                elif isinstance(lst[i][j], int):
+                if lst[i][j] == "W":
                     # if it's wealth
                     result.append(
                         "{v_diff} step{v_plural} {v_direction} and {h_diff} step{h_plural} {h_direction}: {content} wealth".format(
@@ -154,7 +147,7 @@ class Agent:
                             h_plural='' if abs(h_diff) == 1 else 's',
                             h_direction='left' if h_diff < 0 else 'right',
                             content=lst[i][j]))
-                else:
+                elif ":" not in lst[i][j]:
                     # if it's explorer & wealth format it as "explorer, wealth"
                     if (i, j) == yourself_pos:
                         result.append(
@@ -171,6 +164,20 @@ class Agent:
                         if lst[i][j][1] > 0:
                             result_str += f", and {lst[i][j][1]} wealth"
                         result.append(result_str)
+                else:
+                    module = lst[i][j].split(":")[0]
+                    result.append(
+                        "{v_diff} step{v_plural} {v_direction} and {h_diff} step{h_plural} {h_direction}: {module_name}({module_description})".format(
+                            v_diff=abs(v_diff),
+                            v_plural='' if abs(v_diff) == 1 else 's',
+                            v_direction='up' if v_diff < 0 else 'down',
+                            h_diff=abs(h_diff),
+                            h_plural='' if abs(h_diff) == 1 else 's',
+                            h_direction='left' if h_diff < 0 else 'right',
+                            module_name=module,
+                            module_description=lst[i][j]))
+
+
         if len(result) > 0:
             result = ["- " + x for x in result]
             return '\n'.join(result)
