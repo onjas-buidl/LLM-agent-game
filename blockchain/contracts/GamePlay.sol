@@ -171,8 +171,8 @@ contract GamePlay is IGameplayContract {
         } else {
             revert("Invalid direction");
         }
-        worldMap[oldX][oldY] = "null";
-        agentMap[oldX][oldY] = "null";
+        worldMap[oldY][oldX] = "null";
+        agentMap[oldY][oldX] = "null";
         setLocation(agentId, x, y);
 
         // Decrease stamina by 1
@@ -201,7 +201,7 @@ contract GamePlay is IGameplayContract {
         uint256 y = explorers[agentId].y;
 
         // Check if the explorer is on a cell with wealth
-        require(compareStrings(worldMap[x][y], "W"), "No wealth at current position");
+        require(compareStrings(worldMap[y][x], "W"), "No wealth at current position");
 
         // Increment the explorer's wealth
         explorers[agentId].wealth++;
@@ -513,6 +513,18 @@ contract GamePlay is IGameplayContract {
             string memory combinedValue = string(abi.encodePacked(cellValue, " & ", agentValue));
             return combinedValue;
         }
+    }
+
+    function getWorldMap() public view returns (string[][] memory) {
+        return worldMap;
+    }
+
+    function getAgentMap() public view returns (string[][] memory) {
+        return agentMap;
+    }
+
+    function getExplorersCount() public view returns (uint) {
+        return explorersCount;
     }
 
     function isOccupied(uint x, uint y) public view returns (bool) {
