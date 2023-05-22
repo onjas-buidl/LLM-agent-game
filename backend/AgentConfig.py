@@ -200,7 +200,7 @@ class Agent:
         try:
             action_in_category = [x in response['Action'].strip() for x in ["move up", "move down", "move left", "move right",
                                                                     "gather", "rest", "attack up", "attack down",
-                                                                    "attack left", "attack right"]]
+                                                                    "attack left", "attack right", "attack"]]
             assert any(action_in_category)
         except AssertionError as e:
             if self.retry_times > 0:
@@ -214,6 +214,7 @@ class Agent:
                 raise e
 
     def take_action(self, surroundings, allowed_actions, stamina, wealth):
+        print(f"allowed_actions: {allowed_actions}")
         _input = self.instruction.format_prompt(
             surroundings=surroundings, stamina=stamina, wealth=wealth, allowed_actions=allowed_actions)
         self.message_history.extend(_input.to_messages())
@@ -229,6 +230,7 @@ class Agent:
 
         try:
             print(self.name, "choose to: `", action_parts, "`")
+            print(f"action_parts: `{action_parts}`")
             print("Motivation: ", output['Motivation'])
             if action_parts not in allowed_actions:
                 raise Exception("Action not in allowed list")

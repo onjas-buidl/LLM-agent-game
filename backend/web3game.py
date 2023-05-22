@@ -108,13 +108,20 @@ class Web3Game:
                 agent_name = agent['name']
                 surroundings = self.get_surroundings(agent_name)
                 allowed_actions = self.get_allowed_actions(agent_name)
+                if allowed_actions is None:
+                    # maybe dead
+                    continue
                 explorer = self.get_agent(agent_name)
                 print(self.agent_list)
                 print(self.agent_list[agent_name])
 
                 action = self.agent_list[agent_name].take_action(surroundings, allowed_actions, explorer['stamina'], explorer['wealth'])
-                print(f"action: {action} ###################")
-                if 'move' in action:
+                print(f"action: {action}")
+                if action is None:
+                    # I don't know why, but I'm handling it because it sometimes turns out to be none.
+                    # Better than falling off.
+                    continue
+                elif 'move' in action:
                     _, direction = action.split(" ")
                     self.move(agent_name, direction)
                 elif 'gather' in action:
@@ -167,42 +174,58 @@ class Web3Game:
     # name: string
     # direction: string(up | down | left | right)
     def move(self, name, direction):
-        tx = self.gameplay_contract.functions.move(name, direction).transact({
-            "gasPrice": self.web3.eth.gas_price
-        })
-        print(f"move(): {tx.hex()}")
-        return tx.hex()
+        try:
+            tx = self.gameplay_contract.functions.move(name, direction).transact({
+                "gasPrice": self.web3.eth.gas_price
+            })
+            print(f"move(): {tx.hex()}")
+            return tx.hex()
+        except Exception as e:
+            print(e)
+            return None
 
     # gather wealth
     # onlyOwner
     # name: string
     def gather_wealth(self, name):
-        tx = self.gameplay_contract.functions.gatherWealth(name).transact({
-            "gasPrice": self.web3.eth.gas_price
-        })
-        print(f"gather_wealth(): {tx.hex()}")
-        return tx.hex()
+        try:
+            tx = self.gameplay_contract.functions.gatherWealth(name).transact({
+                "gasPrice": self.web3.eth.gas_price
+            })
+            print(f"gather_wealth(): {tx.hex()}")
+            return tx.hex()
+        except Exception as e:
+            print(e)
+            return None
 
     # rest
     # onlyOwner
     # name: string
     def rest(self, name):
-        tx = self.gameplay_contract.functions.rest(name).transact({
-            "gasPrice": self.web3.eth.gas_price
-        })
-        print(f"rest(): {tx.hex()}")
-        return tx.hex()
+        try:
+            tx = self.gameplay_contract.functions.rest(name).transact({
+                "gasPrice": self.web3.eth.gas_price
+            })
+            print(f"rest(): {tx.hex()}")
+            return tx.hex()
+        except Exception as e:
+            print(e)
+            return None
 
     # attack
     # onlyOwner
     # attackerName: string
     # defenderName: string
     def attack(self, attacker_name, defender_name):
-        tx = self.gameplay_contract.functions.attack(attacker_name, defender_name).transact({
-            "gasPrice": self.web3.eth.gas_price
-        })
-        print(f"attack(): {tx.hex()}")
-        return tx.hex()
+        try:
+            tx = self.gameplay_contract.functions.attack(attacker_name, defender_name).transact({
+                "gasPrice": self.web3.eth.gas_price
+            })
+            print(f"attack(): {tx.hex()}")
+            return tx.hex()
+        except Exception as e:
+            print(e)
+            return None
 
     # get surroundings
     # name: string
@@ -212,7 +235,11 @@ class Web3Game:
     # get allowed actions
     # name: string
     def get_allowed_actions(self, name):
-        return self.gameplay_contract.functions.getAllowedActions(name).call()
+        try:
+            return self.gameplay_contract.functions.getAllowedActions(name).call()
+        except Exception as e:
+            print(e)
+            return None
 
     # get world state
     def get_world_state(self):
