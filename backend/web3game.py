@@ -54,16 +54,16 @@ class Web3Game:
 
     # add explorer
     # onlyOwner
-    # name: string
+    # agent_id: uint256
     # x: uint256
     # y: uint256
     # stamina: uint256
     # wealth: uint256
-    def add_explorer(self, name, x, y, stamina, wealth, principles):
-        tx = self.gameplay_contract.functions.addExplorer(name, x, y, stamina, wealth).transact({
+    def add_explorer(self, agent_id, agent_name, x, y, stamina, wealth, principles):
+        tx = self.gameplay_contract.functions.addExplorer(agent_id, agent_name, x, y, stamina, wealth).transact({
             "gasPrice": self.web3.eth.gas_price
         })
-        self.agent_list[name] = Agent(name, principles)
+        self.agent_list[agent_id] = Agent(id=agent_id, name=agent_name, principles=principles)
         print(f"add_explorer(): {tx.hex()}")
         return tx.hex()
 
@@ -73,6 +73,7 @@ class Web3Game:
     # agentCount: uint256
     # agentList: Agent[]
     # struct Agent {
+    # uint256 id;    
     # string name;
     # uint256 x;
     # uint256 y;
@@ -80,7 +81,7 @@ class Web3Game:
     # uint256 wealth;
     # }
     def start_game(self, size, num_wealth, agent_count, agent_list):
-        _agent_list = [ [a['name'], a['x'], a['y'], a['stamina'], a['wealth']] for a in agent_list]
+        _agent_list = [[a['id'],a['name'], a['x'], a['y'], a['stamina'], a['wealth']] for a in agent_list]
 
         tx = self.factory_contract.functions.startGame(size, num_wealth, agent_count, _agent_list).transact({
             "gasPrice": self.web3.eth.gas_price
@@ -105,17 +106,17 @@ class Web3Game:
             agent_list = self.get_explorer_list()
             for agent in agent_list:
                 print(agent)
-                agent_name = agent['name']
-                surroundings = self.get_surroundings(agent_name)
-                allowed_actions = self.get_allowed_actions(agent_name)
+                agent_id = agent['id']
+                surroundings = self.get_surroundings(agent_id)
+                allowed_actions = self.get_allowed_actions(agent_id)
                 if allowed_actions is None:
                     # maybe dead
                     continue
-                explorer = self.get_agent(agent_name)
+                explorer = self.get_agent(agent_id)
                 print(self.agent_list)
-                print(self.agent_list[agent_name])
+                print(self.agent_list[agent_id])
 
-                action = self.agent_list[agent_name].take_action(surroundings, allowed_actions, explorer['stamina'], explorer['wealth'])
+                action = self.agent_list[agent_id].take_action(surroundings, allowed_actions, explorer['stamina'], explorer['wealth'])
                 print(f"action: {action}")
                 if action is None:
                     # I don't know why, but I'm handling it because it sometimes turns out to be none.
@@ -123,35 +124,35 @@ class Web3Game:
                     continue
                 elif 'move' in action:
                     _, direction = action.split(" ")
-                    self.move(agent_name, direction)
+                    self.move(agent_id, direction)
                 elif 'gather' in action:
-                    self.gather_wealth(agent_name)
+                    self.gather_wealth(agent_id)
                 elif 'rest' in action:
-                    self.rest(agent_name)
+                    self.rest(agent_id)
                 elif 'attack' in action:
                     _, t = action.split(" ")
                     if t in ['up', 'down', 'left', 'right']:
-                        target_name = self.get_explorer_name_by_direction(self_name=agent_name, self_pos=None, direction=t)
-                        self.attack(agent_name, target_name)
+                        target_id = self.get_explorer_id_by_direction(self_id=agent_id, self_pos=None, direction=t)
+                        self.attack(agent_id, target_id)
                     else:
-                        self.attack(agent_name, t)
+                        self.attack(agent_id, t)
 
 
-    def get_explorer_name_by_direction(self, self_name, self_pos, direction) -> str:
+    def get_explorer_id_by_direction(self, self_id, self_pos, direction) -> str:
         direction = direction.lower()
         assert direction in ["up", "down", "left", "right"], WorldError("Invalid direction")
 
         explorers = {}
         explorers_onchain = self.get_explorer_list()
         for e in explorers_onchain:
-            explorers[e["name"]] = e
+            explorers[e["id"]] = e
 
         if self_pos:
             x, y = self_pos
-        elif self_name:
-            x, y = explorers[self_name]['x'], explorers[self_name]['y']
+        elif self_id:
+            x, y = explorers[self_id]['x'], explorers[self_id]['y']
         else:
-            raise Exception("Either self_pos or self_name must be provided")
+            raise Exception("Either self_pos or self_id must be provided")
 
         if direction == "down":
             x_, y_ = x, y - 1
@@ -162,20 +163,20 @@ class Web3Game:
         elif direction == "right":
             x_, y_ = x + 1, y
 
-        for explor_name in explorers.keys():
-            if explorers[explor_name]['x'] == x_ and explorers[explor_name]['y'] == y_:
-                return explor_name
+        for explor_id in explorers.keys():
+            if explorers[explor_id]['x'] == x_ and explorers[explor_id]['y'] == y_:
+                return explor_id
 
         raise WorldError("There is no explorer at the given direction: {}".format(direction))
 
 
     # move explorer
     # onlyOwner
-    # name: string
+    # agent_id: uint256
     # direction: string(up | down | left | right)
-    def move(self, name, direction):
+    def move(self, agent_id, direction):
         try:
-            tx = self.gameplay_contract.functions.move(name, direction).transact({
+            tx = self.gameplay_contract.functions.move(agent_id, direction).transact({
                 "gasPrice": self.web3.eth.gas_price
             })
             print(f"move(): {tx.hex()}")
@@ -186,10 +187,10 @@ class Web3Game:
 
     # gather wealth
     # onlyOwner
-    # name: string
-    def gather_wealth(self, name):
+    # agent_id: uint256
+    def gather_wealth(self, agent_id):
         try:
-            tx = self.gameplay_contract.functions.gatherWealth(name).transact({
+            tx = self.gameplay_contract.functions.gatherWealth(agent_id).transact({
                 "gasPrice": self.web3.eth.gas_price
             })
             print(f"gather_wealth(): {tx.hex()}")
@@ -200,10 +201,10 @@ class Web3Game:
 
     # rest
     # onlyOwner
-    # name: string
-    def rest(self, name):
+    # agent_id: uint256
+    def rest(self, agent_id):
         try:
-            tx = self.gameplay_contract.functions.rest(name).transact({
+            tx = self.gameplay_contract.functions.rest(agent_id).transact({
                 "gasPrice": self.web3.eth.gas_price
             })
             print(f"rest(): {tx.hex()}")
@@ -214,11 +215,11 @@ class Web3Game:
 
     # attack
     # onlyOwner
-    # attackerName: string
-    # defenderName: string
-    def attack(self, attacker_name, defender_name):
+    # attacker_id: int
+    # defender_id: int
+    def attack(self, attacker_id, defender_id):
         try:
-            tx = self.gameplay_contract.functions.attack(attacker_name, defender_name).transact({
+            tx = self.gameplay_contract.functions.attack(attacker_id, defender_id).transact({
                 "gasPrice": self.web3.eth.gas_price
             })
             print(f"attack(): {tx.hex()}")
@@ -228,15 +229,15 @@ class Web3Game:
             return None
 
     # get surroundings
-    # name: string
-    def get_surroundings(self, name):
-        return self.gameplay_contract.functions.getSurroundings(name).call()
+    # agent_id: uint256
+    def get_surroundings(self, agent_id):
+        return self.gameplay_contract.functions.getSurroundings(agent_id).call()
 
     # get allowed actions
-    # name: string
-    def get_allowed_actions(self, name):
+    # agent_id: uint256
+    def get_allowed_actions(self, agent_id):
         try:
-            return self.gameplay_contract.functions.getAllowedActions(name).call()
+            return self.gameplay_contract.functions.getAllowedActions(agent_id).call()
         except Exception as e:
             print(e)
             return None
@@ -246,38 +247,38 @@ class Web3Game:
         return self.gameplay_contract.functions.getWorldState().call()
 
     # setLocation
-    # name: string
+    # agent_id: uint256
     # x: uint256
     # y: uint256
-    def set_location(self, name, x, y):
-        tx = self.gameplay_contract.functions.setLocation(name, x, y).transact({
+    def set_location(self, agent_id, x, y):
+        tx = self.gameplay_contract.functions.setLocation(agent_id, x, y).transact({
             "gasPrice": self.web3.eth.gas_price
         })
         print(f"set_location(): {tx.hex()}")
         return tx.hex()
 
     # set stamina
-    # name: string
+    # agent_id: uint256
     # stamina: uint256
-    def set_stamina(self, name, stamina):
-        tx = self.gameplay_contract.functions.setStamina(name, stamina).transact({
+    def set_stamina(self, agent_id, stamina):
+        tx = self.gameplay_contract.functions.setStamina(agent_id, stamina).transact({
             "gasPrice": self.web3.eth.gas_price
         })
         print(f"set_stamina(): {tx.hex()}")
         return tx.hex()
 
     # get agent
-    # name: string
-    def get_agent(self, name):
-        r = self.gameplay_contract.functions.getAgent(name).call()
-        result = {"name": r[0], "x": r[1], "y": r[2], "stamina": r[3], "wealth": r[4]}
+    # agent_id: uint256
+    def get_agent(self, agent_id):
+        r = self.gameplay_contract.functions.getAgent(agent_id).call()
+        result = {"id": r[0], "name": r[1], "x": r[2], "y": r[3], "stamina": r[4], "wealth": r[5]}
 
         return result
     
     # getExplorerList
     def get_explorer_list(self):
         res = self.gameplay_contract.functions.getExplorerList().call()
-        result = [ {"name": r[0], "x": r[1], "y": r[2], "stamina": r[3], "wealth": r[4]} for r in res]
+        result = [{"id": r[0], "name": r[1], "x": r[2], "y": r[3], "stamina": r[4], "wealth": r[5]} for r in res]
         return result
 
     

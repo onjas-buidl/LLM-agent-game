@@ -7,7 +7,8 @@ from langchain.schema import SystemMessage, HumanMessage
 from langchain.chat_models import ChatOpenAI
 
 class Agent:
-    def __init__(self, name, principles, max_retry_times=5, chat_model='GPT3.5'):
+    def __init__(self, id, name, principles, max_retry_times=5, chat_model='GPT3.5'):
+        self.id = id
         self.name = name
         self.principles = principles
         self.docs = self.get_docs()
