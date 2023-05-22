@@ -118,72 +118,70 @@ class Agent:
         )
 
     # I'm probably not using it, so I'll comment it out.
-    # def get_self_formatted_surroundings(self) -> str:
-    #     """
-    #     This function returns the world context surrounding for the agent, in a specified format.
-    #     """
-    #     lst = "Done"
-    #     n = len(lst)
-    #     m = len(lst[0])
-    #     yourself_pos = (n // 2, m // 2)
+    def get_self_formatted_surroundings(self, surroundings) -> str:
+        """
+        This function returns the world context surrounding for the agent, in a specified format.
+        """
+        lst = surroundings
+        n = len(lst)
+        m = len(lst[0])
+        yourself_pos = (n // 2, m // 2)
 
-    #     # Iterate over the list of lists and format each element
-    #     result = []
-    #     for i in range(n):
-    #         for j in range(m):
-    #             v_diff = i - yourself_pos[0]
-    #             h_diff = j - yourself_pos[1]
-    #             if lst[i][j] == 0:
-    #                 continue
-    #             # elif (i, j) == yourself_pos:
-    #             #     continue
-    #             if lst[i][j] == "W":
-    #                 # if it's wealth
-    #                 result.append(
-    #                     "{v_diff} step{v_plural} {v_direction} and {h_diff} step{h_plural} {h_direction}: {content} wealth".format(
-    #                         v_diff=abs(v_diff),
-    #                         v_plural='' if abs(v_diff) == 1 else 's',
-    #                         v_direction='up' if v_diff < 0 else 'down',
-    #                         h_diff=abs(h_diff),
-    #                         h_plural='' if abs(h_diff) == 1 else 's',
-    #                         h_direction='left' if h_diff < 0 else 'right',
-    #                         content=lst[i][j]))
-    #             elif ":" not in lst[i][j]:
-    #                 # if it's explorer & wealth format it as "explorer, wealth"
-    #                 if (i, j) == yourself_pos:
-    #                     result.append(
-    #                         "Your current location: {content} wealth".format(content=lst[i][j][1]))
-    #                 else:
-    #                     result_str = "{v_diff} step{v_plural} {v_direction} and {h_diff} step{h_plural} {h_direction}: {content}".format(
-    #                         v_diff=abs(v_diff),
-    #                         v_plural='' if abs(v_diff) == 1 else 's',
-    #                         v_direction='up' if v_diff < 0 else 'down',
-    #                         h_diff=abs(h_diff),
-    #                         h_plural='' if abs(h_diff) == 1 else 's',
-    #                         h_direction='left' if h_diff < 0 else 'right',
-    #                         content=lst[i][j][0])
-    #                     if lst[i][j][1] > 0:
-    #                         result_str += f", and {lst[i][j][1]} wealth"
-    #                     result.append(result_str)
-    #             else:
-    #                 module = lst[i][j].split(":")[0]
-    #                 result.append(
-    #                     "{v_diff} step{v_plural} {v_direction} and {h_diff} step{h_plural} {h_direction}: {module_name}({module_description})".format(
-    #                         v_diff=abs(v_diff),
-    #                         v_plural='' if abs(v_diff) == 1 else 's',
-    #                         v_direction='up' if v_diff < 0 else 'down',
-    #                         h_diff=abs(h_diff),
-    #                         h_plural='' if abs(h_diff) == 1 else 's',
-    #                         h_direction='left' if h_diff < 0 else 'right',
-    #                         module_name=module,
-    #                         module_description=lst[i][j]))
+        # Iterate over the list of lists and format each element
+        result = []
+        for i in range(n):
+            for j in range(m):
+                v_diff = i - yourself_pos[0]
+                h_diff = j - yourself_pos[1]
+                if lst[i][j] == 0:
+                    continue
+                if lst[i][j] == "W":
+                    # if it's wealth
+                    result.append(
+                        "{v_diff} step{v_plural} {v_direction} and {h_diff} step{h_plural} {h_direction}: {content} wealth".format(
+                            v_diff=abs(v_diff),
+                            v_plural='' if abs(v_diff) == 1 else 's',
+                            v_direction='up' if v_diff < 0 else 'down',
+                            h_diff=abs(h_diff),
+                            h_plural='' if abs(h_diff) == 1 else 's',
+                            h_direction='left' if h_diff < 0 else 'right',
+                            content=lst[i][j]))
+                elif ":" in lst[i][j]:
+                    module = lst[i][j].split(":")[0]
+                    result.append(
+                        "{v_diff} step{v_plural} {v_direction} and {h_diff} step{h_plural} {h_direction}: {module_name}({module_description})".format(
+                            v_diff=abs(v_diff),
+                            v_plural='' if abs(v_diff) == 1 else 's',
+                            v_direction='up' if v_diff < 0 else 'down',
+                            h_diff=abs(h_diff),
+                            h_plural='' if abs(h_diff) == 1 else 's',
+                            h_direction='left' if h_diff < 0 else 'right',
+                            module_name=module,
+                            module_description=lst[i][j]))
+                elif lst[i][j] != "OUT":
+                    # if it's explorer & wealth format it as "explorer, wealth"
+                    if (i, j) == yourself_pos:
+                        result.append(
+                            "Your current location: {content} wealth".format(content=lst[i][j][1]))
+                    else:
+                        result_str = "{v_diff} step{v_plural} {v_direction} and {h_diff} step{h_plural} {h_direction}: {content}".format(
+                            v_diff=abs(v_diff),
+                            v_plural='' if abs(v_diff) == 1 else 's',
+                            v_direction='up' if v_diff < 0 else 'down',
+                            h_diff=abs(h_diff),
+                            h_plural='' if abs(h_diff) == 1 else 's',
+                            h_direction='left' if h_diff < 0 else 'right',
+                            content=lst[i][j][0])
+                        if lst[i][j][1] > 0:
+                            result_str += f", and {lst[i][j][1]} wealth"
+                        result.append(result_str)
 
 
-    #     if len(result) > 0:
-    #         result = ["- " + x for x in result]
-    #         return '\n'.join(result)
-    #     else:
-    #         return ''
+        if len(result) > 0:
+            result = ["- " + x for x in result]
+            return '\n'.join(result)
+        else:
+            return ''
 
     def check_response_format(self, response, surroundings, allowed_actions, stamina, wealth):
         try:
@@ -215,8 +213,9 @@ class Agent:
 
     def take_action(self, surroundings, allowed_actions, stamina, wealth):
         print(f"allowed_actions: {allowed_actions}")
+        formmatted_surroundings = self.get_self_formatted_surroundings(surroundings)
         _input = self.instruction.format_prompt(
-            surroundings=surroundings, stamina=stamina, wealth=wealth, allowed_actions=allowed_actions)
+            surroundings=formmatted_surroundings, stamina=stamina, wealth=wealth, allowed_actions=allowed_actions)
         self.message_history.extend(_input.to_messages())
 
         _output = self.chat_model(self.message_history)
