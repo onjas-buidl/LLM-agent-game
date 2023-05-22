@@ -23,7 +23,7 @@ contract BaseModule {
         return description;
     }
 
-    function trigger(string memory agentName, uint size) public virtual {
+    function trigger(string memory agentId, uint size) public virtual {
         // Generate random grid coordinates for teleportation
         // ...
         // return (x, y);

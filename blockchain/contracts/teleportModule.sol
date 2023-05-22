@@ -10,7 +10,7 @@ contract TeleportModule is BaseModule {
         BaseModule(gameContract, _name, _description)
     {}
     
-    function trigger(string memory agentName, uint size) public override {
+    function trigger(string memory agentId, uint size) public override {
         // Generate random grid coordinates for teleportation
         uint256 x = randomCoordinate(size);
         uint256 y = randomCoordinate(size);
@@ -19,7 +19,7 @@ contract TeleportModule is BaseModule {
             x = randomCoordinate(size);
             y = randomCoordinate(size);
         }
-        game.setLocation(agentName, x, y);
+        game.setLocation(agentId, x, y);
     }
 
     //-------------------- Helpers --------------------

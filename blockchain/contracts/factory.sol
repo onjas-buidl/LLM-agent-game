@@ -29,7 +29,8 @@ contract FactoryContract is IFactoryContract{
 
         // Iterate over the agentList and call addExplorer to add agents to the map
         for (uint256 i = 0; i < agentCount; i++) {
-            string memory name = agentList[i].name;
+            uint256 agentId = agentList[i].agentId;
+            string memory agentName = agentList[i].agentName;
             uint256 x = agentList[i].x;
             uint256 y = agentList[i].y;
             uint256 stamina = agentList[i].stamina;
