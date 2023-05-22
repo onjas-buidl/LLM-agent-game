@@ -44,6 +44,8 @@ curl --location 'localhost:8080/start_game' \
 }'
 ```
 
+NOTE: **name must be lower case**
+
 
 add explorer 1
 ```bash
@@ -78,7 +80,7 @@ add explorer 3
 curl --location 'localhost:8080/add_explorer' \
 --header 'Content-Type: application/json' \
 --data '{
-    "name": "Charlie",
+    "name": "charlie",
     "x": 2,
     "y": 3,
     "stamina": 10,
