@@ -36,3 +36,36 @@
     transform: rotate(360deg);
   }
 }
+
+
+.app {
+  font-family: 'Courier New', Courier, monospace;
+  color: #ffffff;
+  background-color: #000000;
+}
+
+.app input,
+.app button {
+  margin: 10px;
+  padding: 10px;
+}
+
+.app button {
+  cursor: pointer;
+  background-color: #ffffff;
+  border: none;
+}
+
+.app div {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.app form {
+  display: flex;
+  flex-direction: column;
+}
+
+.app form label {
+  margin-bottom: 10px;
+}
