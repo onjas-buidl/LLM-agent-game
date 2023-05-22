@@ -118,6 +118,7 @@ contract GamePlay is IGameplayContract {
         uint256 stamina,
         uint256 wealth
     ) external {
+        // agentId should start from 1
         require(agentId > explorersCount, "agentId already exists");
         // Add the explorer to the explorers mapping
         explorers[agentId] = Explorer(agentId, agentName, x, y, stamina, wealth);
@@ -344,7 +345,7 @@ contract GamePlay is IGameplayContract {
             if (compareStrings(dirs[i], "down") && y < mapSize - 1 && compareStrings(agentMap[y + 1][x],"null")) {
                 allowedActions = appendToArray(allowedActions, "move down");
             }
-            else if (compareStrings(dirs[i], "down") && y > 0 && !compareStrings(agentMap[y + 1][x],"null")){
+            else if (compareStrings(dirs[i], "down") && y < mapSize - 1 && !compareStrings(agentMap[y + 1][x],"null")){
                 string memory defenderId = agentMap[y + 1][x];
                 string memory action = string(abi.encodePacked("attack ", defenderId));
                 allowedActions = appendToArray(allowedActions, action);
@@ -362,7 +363,7 @@ contract GamePlay is IGameplayContract {
             if (compareStrings(dirs[i], "right") && x < mapSize - 1 && compareStrings(agentMap[y][x + 1],"null")) {
                 allowedActions = appendToArray(allowedActions, "move right");
             }
-            else if (compareStrings(dirs[i], "right") && x > 0 && !compareStrings(agentMap[y][x + 1],"null")){
+            else if (compareStrings(dirs[i], "right") && x < mapSize - 1 && !compareStrings(agentMap[y][x + 1],"null")){
                 string memory defenderId = agentMap[y][x + 1];
                 string memory action = string(abi.encodePacked("attack ", defenderId));
                 allowedActions = appendToArray(allowedActions, action);
