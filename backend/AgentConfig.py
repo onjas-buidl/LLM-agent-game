@@ -121,7 +121,7 @@ class Agent:
         """
         This function returns the world context surrounding for the agent, in a specified format.
         """
-        lst = "Done" #get from blockchain
+        lst = "Done" #TODO:get from blockchain
         n = len(lst)
         m = len(lst[0])
         yourself_pos = (0, 0)
@@ -207,9 +207,9 @@ class Agent:
 
     def take_action(self):
         surroundings = self.get_self_formatted_surroundings()
-        allowed_actions = "Done" # get from blockchain
+        allowed_actions = "Done" #TODO: get from blockchain
 
-        stamina, wealth =  "Done"# get from blockchain
+        stamina, wealth = "Done"#TODO: get from blockchain
         _input = self.instruction.format_prompt(
             surroundings=surroundings, stamina=stamina, wealth=wealth, allowed_actions=allowed_actions)
         self.message_history.extend(_input.to_messages())
