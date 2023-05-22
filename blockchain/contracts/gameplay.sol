@@ -326,7 +326,7 @@ contract GamePlay is IGameplayContract {
             if (compareStrings(dirs[i], "up") && y > 0 && compareStrings(agentMap[y - 1][x],"null")) {
                 allowedActions = appendToArray(allowedActions, "move up");
             }
-            else{
+            else if (compareStrings(dirs[i], "up") && y > 0 && !compareStrings(agentMap[y - 1][x],"null")){
                 string memory defenderName = agentMap[y - 1][x];
                 string memory action = string(abi.encodePacked("attack ", defenderName));
                 allowedActions = appendToArray(allowedActions, action);
@@ -335,7 +335,7 @@ contract GamePlay is IGameplayContract {
             if (compareStrings(dirs[i], "down") && y < mapSize - 1 && compareStrings(agentMap[y + 1][x],"null")) {
                 allowedActions = appendToArray(allowedActions, "move down");
             }
-            else{
+            else if (compareStrings(dirs[i], "down") && y > 0 && !compareStrings(agentMap[y + 1][x],"null")){
                 string memory defenderName = agentMap[y + 1][x];
                 string memory action = string(abi.encodePacked("attack ", defenderName));
                 allowedActions = appendToArray(allowedActions, action);
@@ -344,7 +344,7 @@ contract GamePlay is IGameplayContract {
             if (compareStrings(dirs[i], "left") && x > 0 && compareStrings(agentMap[y][x - 1],"null")) {
                 allowedActions = appendToArray(allowedActions, "move left");
             }
-            else{
+            else if (compareStrings(dirs[i], "left") && x > 0 && !compareStrings(agentMap[y][x - 1],"null")){
                 string memory defenderName = agentMap[y][x - 1];
                 string memory action = string(abi.encodePacked("attack ", defenderName));
                 allowedActions = appendToArray(allowedActions, action);
@@ -353,7 +353,7 @@ contract GamePlay is IGameplayContract {
             if (compareStrings(dirs[i], "right") && x < mapSize - 1 && compareStrings(agentMap[y][x + 1],"null")) {
                 allowedActions = appendToArray(allowedActions, "move right");
             }
-            else{
+            else if (compareStrings(dirs[i], "right") && x > 0 && !compareStrings(agentMap[y][x + 1],"null")){
                 string memory defenderName = agentMap[y][x + 1];
                 string memory action = string(abi.encodePacked("attack ", defenderName));
                 allowedActions = appendToArray(allowedActions, action);
