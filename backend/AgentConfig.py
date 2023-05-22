@@ -117,87 +117,88 @@ class Agent:
             input_variables=["action"]
         )
 
-    def get_self_formatted_surroundings(self) -> str:
-        """
-        This function returns the world context surrounding for the agent, in a specified format.
-        """
-        lst = "Done" #TODO:get from blockchain
-        n = len(lst)
-        m = len(lst[0])
-        yourself_pos = (n // 2, m // 2)
+    # I'm probably not using it, so I'll comment it out.
+    # def get_self_formatted_surroundings(self) -> str:
+    #     """
+    #     This function returns the world context surrounding for the agent, in a specified format.
+    #     """
+    #     lst = "Done"
+    #     n = len(lst)
+    #     m = len(lst[0])
+    #     yourself_pos = (n // 2, m // 2)
 
-        # Iterate over the list of lists and format each element
-        result = []
-        for i in range(n):
-            for j in range(m):
-                v_diff = i - yourself_pos[0]
-                h_diff = j - yourself_pos[1]
-                if lst[i][j] == 0:
-                    continue
-                # elif (i, j) == yourself_pos:
-                #     continue
-                if lst[i][j] == "W":
-                    # if it's wealth
-                    result.append(
-                        "{v_diff} step{v_plural} {v_direction} and {h_diff} step{h_plural} {h_direction}: {content} wealth".format(
-                            v_diff=abs(v_diff),
-                            v_plural='' if abs(v_diff) == 1 else 's',
-                            v_direction='up' if v_diff < 0 else 'down',
-                            h_diff=abs(h_diff),
-                            h_plural='' if abs(h_diff) == 1 else 's',
-                            h_direction='left' if h_diff < 0 else 'right',
-                            content=lst[i][j]))
-                elif ":" not in lst[i][j]:
-                    # if it's explorer & wealth format it as "explorer, wealth"
-                    if (i, j) == yourself_pos:
-                        result.append(
-                            "Your current location: {content} wealth".format(content=lst[i][j][1]))
-                    else:
-                        result_str = "{v_diff} step{v_plural} {v_direction} and {h_diff} step{h_plural} {h_direction}: {content}".format(
-                            v_diff=abs(v_diff),
-                            v_plural='' if abs(v_diff) == 1 else 's',
-                            v_direction='up' if v_diff < 0 else 'down',
-                            h_diff=abs(h_diff),
-                            h_plural='' if abs(h_diff) == 1 else 's',
-                            h_direction='left' if h_diff < 0 else 'right',
-                            content=lst[i][j][0])
-                        if lst[i][j][1] > 0:
-                            result_str += f", and {lst[i][j][1]} wealth"
-                        result.append(result_str)
-                else:
-                    module = lst[i][j].split(":")[0]
-                    result.append(
-                        "{v_diff} step{v_plural} {v_direction} and {h_diff} step{h_plural} {h_direction}: {module_name}({module_description})".format(
-                            v_diff=abs(v_diff),
-                            v_plural='' if abs(v_diff) == 1 else 's',
-                            v_direction='up' if v_diff < 0 else 'down',
-                            h_diff=abs(h_diff),
-                            h_plural='' if abs(h_diff) == 1 else 's',
-                            h_direction='left' if h_diff < 0 else 'right',
-                            module_name=module,
-                            module_description=lst[i][j]))
+    #     # Iterate over the list of lists and format each element
+    #     result = []
+    #     for i in range(n):
+    #         for j in range(m):
+    #             v_diff = i - yourself_pos[0]
+    #             h_diff = j - yourself_pos[1]
+    #             if lst[i][j] == 0:
+    #                 continue
+    #             # elif (i, j) == yourself_pos:
+    #             #     continue
+    #             if lst[i][j] == "W":
+    #                 # if it's wealth
+    #                 result.append(
+    #                     "{v_diff} step{v_plural} {v_direction} and {h_diff} step{h_plural} {h_direction}: {content} wealth".format(
+    #                         v_diff=abs(v_diff),
+    #                         v_plural='' if abs(v_diff) == 1 else 's',
+    #                         v_direction='up' if v_diff < 0 else 'down',
+    #                         h_diff=abs(h_diff),
+    #                         h_plural='' if abs(h_diff) == 1 else 's',
+    #                         h_direction='left' if h_diff < 0 else 'right',
+    #                         content=lst[i][j]))
+    #             elif ":" not in lst[i][j]:
+    #                 # if it's explorer & wealth format it as "explorer, wealth"
+    #                 if (i, j) == yourself_pos:
+    #                     result.append(
+    #                         "Your current location: {content} wealth".format(content=lst[i][j][1]))
+    #                 else:
+    #                     result_str = "{v_diff} step{v_plural} {v_direction} and {h_diff} step{h_plural} {h_direction}: {content}".format(
+    #                         v_diff=abs(v_diff),
+    #                         v_plural='' if abs(v_diff) == 1 else 's',
+    #                         v_direction='up' if v_diff < 0 else 'down',
+    #                         h_diff=abs(h_diff),
+    #                         h_plural='' if abs(h_diff) == 1 else 's',
+    #                         h_direction='left' if h_diff < 0 else 'right',
+    #                         content=lst[i][j][0])
+    #                     if lst[i][j][1] > 0:
+    #                         result_str += f", and {lst[i][j][1]} wealth"
+    #                     result.append(result_str)
+    #             else:
+    #                 module = lst[i][j].split(":")[0]
+    #                 result.append(
+    #                     "{v_diff} step{v_plural} {v_direction} and {h_diff} step{h_plural} {h_direction}: {module_name}({module_description})".format(
+    #                         v_diff=abs(v_diff),
+    #                         v_plural='' if abs(v_diff) == 1 else 's',
+    #                         v_direction='up' if v_diff < 0 else 'down',
+    #                         h_diff=abs(h_diff),
+    #                         h_plural='' if abs(h_diff) == 1 else 's',
+    #                         h_direction='left' if h_diff < 0 else 'right',
+    #                         module_name=module,
+    #                         module_description=lst[i][j]))
 
 
-        if len(result) > 0:
-            result = ["- " + x for x in result]
-            return '\n'.join(result)
-        else:
-            return ''
+    #     if len(result) > 0:
+    #         result = ["- " + x for x in result]
+    #         return '\n'.join(result)
+    #     else:
+    #         return ''
 
-    def check_response_format(self, response):
+    def check_response_format(self, response, surroundings, allowed_actions, stamina, wealth):
         try:
             assert 'Motivation' in response.keys() and 'Action' in response.keys(), "Output format is wrong"
         except AssertionError as e:
             if self.retry_times > 0:
                 self.retry_times -= 1
                 self.message_history.append(HumanMessage(content="The response format is wrong. Please try again."))
-                self.take_action()
+                self.take_action(surroundings, allowed_actions, stamina, wealth)
             else:
                 print("The response format is wrong, and retry times reached {}. HALT.".format(self.retry_times))
                 raise e
 
         try:
-            action_in_category = [x in response['Action'] for x in ["move up", "move down", "move left", "move right",
+            action_in_category = [x in response['Action'].strip() for x in ["move up", "move down", "move left", "move right",
                                                                     "gather", "rest", "attack up", "attack down",
                                                                     "attack left", "attack right"]]
             assert any(action_in_category)
@@ -206,31 +207,28 @@ class Agent:
                 self.retry_times -= 1
                 self.message_history.append(HumanMessage(
                     content="The action result is not one of the following action: move up, move down, move left, move right, gather, rest, attack up, attack down, attack left, attack right. Please try again."))
-                self.take_action()
+                self.take_action(surroundings, allowed_actions, stamina, wealth)
             else:
                 print("The action is not in pre-design categorys, and retry times reached {}. HALT.".format(
                     self.retry_times))
                 raise e
 
-    def take_action(self):
-        surroundings = self.get_self_formatted_surroundings()
-        allowed_actions = "Done" #TODO: get from blockchain
-
-        stamina, wealth = "Done"#TODO: get from blockchain
+    def take_action(self, surroundings, allowed_actions, stamina, wealth):
         _input = self.instruction.format_prompt(
             surroundings=surroundings, stamina=stamina, wealth=wealth, allowed_actions=allowed_actions)
         self.message_history.extend(_input.to_messages())
 
         _output = self.chat_model(self.message_history)
         json_string = _output.content.split("```json")[-1].strip().replace('```', '')
+        print(f"json_string: {json_string}")
         output = json.loads(json_string)
-        self.check_response_format(output)
+        self.check_response_format(output, surroundings, allowed_actions, stamina, wealth)
 
         action_parts = output['Action']
-        action_parts = action_parts.lower().strip().replace(".", "")
+        action_parts = action_parts.lower().strip().replace(".", "").strip()
 
         try:
-            print(self.name, "choose to: ", action_parts)
+            print(self.name, "choose to: `", action_parts, "`")
             print("Motivation: ", output['Motivation'])
             if action_parts not in allowed_actions:
                 raise Exception("Action not in allowed list")
@@ -247,7 +245,7 @@ class Agent:
                 self.retry_times -= 1
                 _error_message = self.error_message.format_prompt(action=action_parts)
                 self.message_history.extend(_error_message.to_messages())
-                self.take_action()
+                self.take_action(surroundings, allowed_actions, stamina, wealth)
             else:
                 print("HALT due to retry times reached {}.".format(self.retry_times))
                 raise e
