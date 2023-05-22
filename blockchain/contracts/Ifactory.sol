@@ -3,7 +3,8 @@ pragma solidity ^0.8.16;
 
 interface IFactoryContract {
     struct Agent {
-        string name;
+        uint256 agentId;
+        string agentName;
         uint256 x;
         uint256 y;
         uint256 stamina;
