@@ -1,95 +1,100 @@
 [
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "gamePlayAddress",
-        "type": "address"
-      }
-    ],
-    "name": "NewGame",
-    "type": "event"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "name": "gamePlayContracts",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "size",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "wealthCount",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "agentCount",
-        "type": "uint256"
-      },
-      {
-        "components": [
-          {
-            "internalType": "string",
-            "name": "name",
-            "type": "string"
-          },
-          {
-            "internalType": "uint256",
-            "name": "x",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "y",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "stamina",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "wealth",
-            "type": "uint256"
-          }
-        ],
-        "internalType": "struct IFactoryContract.Agent[]",
-        "name": "agentList",
-        "type": "tuple[]"
-      }
-    ],
-    "name": "startGame",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  }
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"internalType": "address",
+				"name": "gamePlayAddress",
+				"type": "address"
+			}
+		],
+		"name": "NewGame",
+		"type": "event"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"name": "gamePlayContracts",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "size",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "wealthCount",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "agentCount",
+				"type": "uint256"
+			},
+			{
+				"components": [
+					{
+						"internalType": "uint256",
+						"name": "agentId",
+						"type": "uint256"
+					},
+					{
+						"internalType": "string",
+						"name": "agentName",
+						"type": "string"
+					},
+					{
+						"internalType": "uint256",
+						"name": "x",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "y",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "stamina",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "wealth",
+						"type": "uint256"
+					}
+				],
+				"internalType": "struct IFactoryContract.Agent[]",
+				"name": "agentList",
+				"type": "tuple[]"
+			}
+		],
+		"name": "startGame",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	}
 ]

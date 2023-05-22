@@ -170,3 +170,5 @@ conf/local.env
 */local.env
 
 .vscode
+
+backend/conf/local.env
