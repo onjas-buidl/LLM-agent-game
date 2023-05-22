@@ -246,32 +246,6 @@ contract GamePlay is IGameplayContract {
         return explorersList;
     }
 
-    function getExplorerByDirection(string memory name, string memory direction) external view returns (string memory) {
-        require(bytes(explorers[name].name).length != 0, "Explorer not found");
-        uint256 x = explorers[name].x;
-        uint256 y = explorers[name].y;
-
-        // Calculate the new position based on the specified direction
-        if (compareStrings(direction, "up")) {
-            require(y > 0, "Invalid move");
-            y--;
-        } else if (compareStrings(direction, "down")) {
-            require(y < worldMap.length - 1, "Invalid move");
-            y++;
-        } else if (compareStrings(direction, "left")) {
-            require(x > 0, "Invalid move");
-            x--;
-        } else if (compareStrings(direction, "right")) {
-            require(x < worldMap.length - 1, "Invalid move");
-            x++;
-        } else {
-            revert("Invalid direction");
-        }
-
-        string memory agentValue = agentMap[y][x];
-        return agentValue;
-    }
-
     function getSurroundings(string memory name) external view returns (string[][] memory) {
         require(bytes(explorers[name].name).length != 0, "Explorer not found");
         
@@ -296,34 +270,34 @@ contract GamePlay is IGameplayContract {
                 
                 // Check if the map coordinates are within bounds
                 if (mapX >= 0 && mapX < int256(size) && mapY >= 0 && mapY < int256(size)) {
-                    // If has modules nearby, give the module description
-                    if (ugcContract[uint256(mapX)][uint256(mapY)] != address(0)) {
+                    // If cell is a module, give the module description
+                    if (ugcContract[uint256(mapY)][uint256(mapX)] != address(0)) {
                         // call the module contract to get the description
-                        BaseModule module = BaseModule(ugcContract[uint256(mapX)][uint256(mapY)]);
+                        BaseModule module = BaseModule(ugcContract[uint256(mapY)][uint256(mapX)]);
                         // string memory moduleName = module.getName();
                         string memory moduleDescription = module.getDescription();
-                        surroundings[i][j] = moduleDescription;
+                        surroundings[j][i] = moduleDescription;
                     }
                     else {
                         // If no modules nearby, give the world map value and agent map value
-                        string memory cellValue = worldMap[uint256(mapX)][uint256(mapY)];
-                        string memory agentValue = agentMap[uint256(mapX)][uint256(mapY)];
+                        string memory cellValue = worldMap[uint256(mapY)][uint256(mapX)];
+                        string memory agentValue = agentMap[uint256(mapY)][uint256(mapX)];
                         if( compareStrings(cellValue, "null") && compareStrings(agentValue, "null")) {
-                            surroundings[i][j] = "null";
+                            surroundings[j][i] = "null";
                         }
                         else if (compareStrings(cellValue, "null")) {
-                            surroundings[i][j] = agentValue;
+                            surroundings[j][i] = agentValue;
                         }
                         else if (compareStrings(agentValue, "null")) {
-                            surroundings[i][j] = cellValue;
+                            surroundings[j][i] = cellValue;
                         }
                         else{// Both has value, Concatenate the cell values using AND
                             string memory combinedValue = string(abi.encodePacked(cellValue, " & ", agentValue));
-                            surroundings[i][j] = combinedValue;
+                            surroundings[j][i] = combinedValue;
                         }
                     }
                 } else {
-                    surroundings[i][j] = "OUT"; // Agents can't see outside the map
+                    surroundings[j][i] = "OUT"; // Agents can't see outside the map
                 }
             }
         }
@@ -352,39 +326,42 @@ contract GamePlay is IGameplayContract {
             if (compareStrings(dirs[i], "up") && y > 0 && compareStrings(agentMap[y - 1][x],"null")) {
                 allowedActions = appendToArray(allowedActions, "move up");
             }
+            else{
+                string memory defenderName = agentMap[y - 1][x];
+                string memory action = string(abi.encodePacked("attack ", defenderName));
+                allowedActions = appendToArray(allowedActions, action);
+            }
+
             if (compareStrings(dirs[i], "down") && y < mapSize - 1 && compareStrings(agentMap[y + 1][x],"null")) {
                 allowedActions = appendToArray(allowedActions, "move down");
             }
+            else{
+                string memory defenderName = agentMap[y + 1][x];
+                string memory action = string(abi.encodePacked("attack ", defenderName));
+                allowedActions = appendToArray(allowedActions, action);
+            }
+
             if (compareStrings(dirs[i], "left") && x > 0 && compareStrings(agentMap[y][x - 1],"null")) {
                 allowedActions = appendToArray(allowedActions, "move left");
             }
+            else{
+                string memory defenderName = agentMap[y][x - 1];
+                string memory action = string(abi.encodePacked("attack ", defenderName));
+                allowedActions = appendToArray(allowedActions, action);
+            }
+
             if (compareStrings(dirs[i], "right") && x < mapSize - 1 && compareStrings(agentMap[y][x + 1],"null")) {
                 allowedActions = appendToArray(allowedActions, "move right");
+            }
+            else{
+                string memory defenderName = agentMap[y][x + 1];
+                string memory action = string(abi.encodePacked("attack ", defenderName));
+                allowedActions = appendToArray(allowedActions, action);
             }
         }
         
         if (compareStrings(worldMap[y][x], "W")) {
             allowedActions = appendToArray(allowedActions, "gather");
-        }
-        
-        for (uint256 i = 0; i < explorersCount; i++) {
-            string memory others = explorersList[i].name;
-            if (compareStrings(others, name)) {
-                continue;
-            }
-            
-            if (explorers[name].x - explorers[others].x == 1 && explorers[name].y == explorers[others].y) {
-                allowedActions = appendToArray(allowedActions, "attack left");
-            }
-            if (int256(explorers[name].x) - int256(explorers[others].x) == -1 && explorers[name].y == explorers[others].y) {
-                allowedActions = appendToArray(allowedActions, "attack right");
-            }
-            if (explorers[name].y - explorers[others].y == 1 && explorers[name].x == explorers[others].x) {
-                allowedActions = appendToArray(allowedActions, "attack up");
-            }
-            if (int256(explorers[name].y) - int256(explorers[others].y) == -1 && explorers[name].x == explorers[others].x) {
-                allowedActions = appendToArray(allowedActions, "attack down");
-            }
         }
         
         return allowedActions;
@@ -398,6 +375,7 @@ contract GamePlay is IGameplayContract {
         newArray[array.length] = element;
         return newArray;
     }
+    
 
     // getter func that aggregates worldMap and agentMap - may overlap and concatenate into one string
     function getWorldState() external view returns (string[][] memory) {
