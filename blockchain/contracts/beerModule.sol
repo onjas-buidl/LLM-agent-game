@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.16;
 
-import {GamePlay} from "./gameplay.sol";
+import {GamePlay} from "./GamePlay.sol";
 import {BaseModule} from "./BaseModule.sol";
 
 // Prompt inject only module - not changing the game states

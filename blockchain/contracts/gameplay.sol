@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.16;
-import "./Igameplay.sol";
+import "./IGamePlay.sol";
 import {BaseModule} from "./BaseModule.sol";
 
 contract GamePlay is IGameplayContract {

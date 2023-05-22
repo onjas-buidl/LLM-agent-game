@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.16;
-import "./Ifactory.sol";
-import "./gameplay.sol";
+import "./IFactory.sol";
+import "./GamePlay.sol";
 
 contract FactoryContract is IFactoryContract{
     mapping(address => address) public gamePlayContracts;
