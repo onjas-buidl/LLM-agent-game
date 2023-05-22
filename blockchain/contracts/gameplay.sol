@@ -51,14 +51,13 @@ contract GamePlay is IGameplayContract {
         agentMap = new string[][](size);
 
         // Flatten and randomize a list of coordinates
-        uint256 totalCells = size * size;
-        uint256[] memory order = new uint256[](totalCells);
-        for (uint256 i = 0; i < totalCells; i++) {
+        uint256[] memory order = new uint256[](size * size);
+        for (uint256 i = 0; i < size * size; i++) {
             order[i] = i;
         }
 
         // Fisher-Yates shuffle to randomize the order array
-        for (uint256 i = totalCells - 1; i > 0; i--) {
+        for (uint256 i = size * size - 1; i > 0; i--) {
             uint256 j = randomCoordinate(i + 1);
             (order[i], order[j]) = (order[j], order[i]);
         }
