@@ -1,10 +1,13 @@
 import os
+import random
 import json
-from flask import Flask
+from flask import Flask, jsonify
 from flask_restx import Api, Resource
 from web3game import Web3Game
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app)
 api = Api(app)
 web3Game = Web3Game("0x2e501612840d420598Ee8463907C924A63E9Ff8b",
                     "0x2e501612840d420598Ee8463907C924A63E9Ff8b")
@@ -203,6 +206,82 @@ class GetWorldState(Resource):
         ret = web3Game.get_world_state()
         return {
             "ret": ret,
+        }
+
+
+#  mock for test
+@api.route('/get_world_state_mock/')
+class GetWorldState(Resource):
+    def get(self):
+
+        ret_list = [
+            [
+                ["null", "null", "Smith", "null", "null", "W", "null"],
+                ["John", "null", "null", "null", "Baker", "null", "null"],
+                ["null", "null", "null", "W", "null", "null", "null"],
+                ["Doe", "null", "Cooper", "null", "null", "null", "null"],
+                ["null", "null", "null", "null", "W", "null", "null"],
+                ["null", "W", "null", "null", "Suzuki", "null", "Tanaka"],
+                ["null", "null", "Sato", "null", "null", "null", "null"]
+            ],
+            [
+                ["Adams", "null", "null", "null", "null", "null", "null"],
+                ["null", "null", "W", "null", "null", "null", "Brown"],
+                ["null", "null", "null", "null", "W", "null", "Clark"],
+                ["null", "Davis", "null", "null", "null", "Anderson", "null"],
+                ["null", "null", "Garcia", "null", "W", "null", "null"],
+                ["null", "null", "null", "null", "null", "null", "Johnson"],
+                ["Lee", "null", "Lopez", "null", "null", "W", "null"]
+            ],
+            [
+                ["null", "null", "AgentSmith", "null", "null", "W", "null"],
+                ["AgentJohn", "null", "null", "null",
+                 "AgentBaker", "null", "null"],
+                ["null", "null", "null", "W", "null", "null", "null"],
+                ["AgentDoe", "null", "AgentCooper",
+                    "null", "null", "null", "null"],
+                ["null", "null", "null", "null", "W", "null", "null"],
+                ["null", "W", "null", "null", "AgentSuzuki", "null", "AgentTanaka"],
+                ["null", "null", "AgentSato", "null", "null", "null", "null"]
+            ],
+            [
+                ["null", "null", "Smith", "null", "null", "W", "null"],
+                ["John", "null", "null", "null", "Baker", "null", "null"],
+                ["null", "null", "null", "W", "null", "null", "null"],
+                ["Doe", "null", "Cooper", "null", "null", "null", "null"],
+                ["null", "null", "null", "null", "W", "null", "null"],
+                ["null", "W", "null", "null", "Suzuki", "null", "Tanaka"],
+                ["null", "null", "Sato", "null", "null", "null", "null"]
+            ],
+            [
+                ["Adams", "null", "null", "null", "null", "null", "null"],
+                ["null", "null", "W", "null", "null", "null", "Brown"],
+                ["null", "null", "null", "null", "W", "null", "Clark"],
+                ["null", "Davis", "null", "null", "null", "Anderson", "null"],
+                ["null", "null", "Garcia", "null", "W", "null", "null"],
+                ["null", "null", "null", "null", "null", "null", "Johnson"],
+                ["Lee", "null", "Lopez", "null", "null", "W", "null"]
+            ],
+            [
+                ["null", "null", "null", "W", "null", "null", "Martin"],
+                ["null", "null", "Perez", "null", "null", "null", "W"],
+                ["Reed", "null", "null", "null", "null", "null", "Smith"],
+                ["null", "null", "null", "null", "W", "null", "null"],
+                ["null", "null", "Wong", "null", "null", "null", "null"],
+                ["null", "Jones", "null", "null", "null", "null", "null"],
+                ["null", "null", "null", "null", "null", "null", "null"]
+            ],
+        ]
+
+        ret = random.choice(ret_list)
+        return jsonify(ret)
+
+
+@api.route('/start_game_mock/')
+class StartGame(Resource):
+    def post(self):
+        return {
+            "hash": "0xhljshfoiuahsfa;s",
         }
 
 
