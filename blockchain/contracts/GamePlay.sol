@@ -32,7 +32,7 @@ contract GamePlay is IGameplayContract {
         uint256 stamina;
         uint256 wealth;
     }
-
+    
     string[][] private worldMap;
     string[][] private agentMap;
     mapping(uint256 => Explorer) public explorers;
@@ -118,6 +118,7 @@ contract GamePlay is IGameplayContract {
         uint256 stamina,
         uint256 wealth
     ) external {
+        require(agentId > explorersCount, "agentId already exists");
         // Add the explorer to the explorers mapping
         explorers[agentId] = Explorer(agentId, agentName, x, y, stamina, wealth);
 
@@ -130,18 +131,22 @@ contract GamePlay is IGameplayContract {
                 compareStrings(worldMap[y][x], "W"),
             "Position occupied"
         );
+        require(
+            compareStrings(agentMap[y][x], "null"),
+            "Position occupied"
+        );
 
         // Set the cell value to the agent's name
         // worldMap[y][x] = name;
-        agentMap[y][x] = agentId;
-        explorersList.push(explorers[agentID]);
+        agentMap[y][x] = agentName;
+        explorersList.push(explorers[agentId]);
         explorersCount += 1;
     }
 
     function move(uint256 agentId, string memory direction) 
         external
     {   
-        require(bytes(explorers[agentId].agentId).length != 0, "Explorer not found");
+        require(bytes(explorers[agentId].agentName).length != 0, "Explorer not found");
         require(explorers[agentId].stamina > 0, "Explorer already dead");
         
         uint256 x = explorers[agentId].x;
@@ -188,7 +193,7 @@ contract GamePlay is IGameplayContract {
     function gatherWealth(uint256 agentId) 
         external 
     {
-        require(bytes(explorers[agentId].agentId).length != 0, "Explorer not found");
+        require(bytes(explorers[agentId].agentName).length != 0, "Explorer not found");
         require(explorers[agentId].stamina > 0, "Explorer already dead");
 
         uint256 x = explorers[agentId].x;
@@ -211,7 +216,7 @@ contract GamePlay is IGameplayContract {
     function rest(uint256 agentId) 
         external
     {
-        require(bytes(explorers[agentId].agentId).length != 0, "Explorer not found");
+        require(bytes(explorers[agentId].agentName).length != 0, "Explorer not found");
         require(explorers[agentId].stamina > 0, "Explorer already dead");
         explorers[agentId].stamina += 3;
     }
@@ -219,9 +224,9 @@ contract GamePlay is IGameplayContract {
     function attack(uint256 attackerId, uint256 defenderId)
         external
     {
-        require(bytes(explorers[attackerId].agentId).length != 0, "Attacker not found");
+        require(bytes(explorers[attackerId].agentName).length != 0, "Attacker not found");
         require(explorers[attackerId].stamina > 0, "Attacker already dead");
-        require(bytes(explorers[defenderId].agentId).length != 0, "Deffender not found");
+        require(bytes(explorers[defenderId].agentName).length != 0, "Deffender not found");
         require(explorers[defenderId].stamina > 0, "Defender already dead");
 
         if (explorers[attackerId].stamina > explorers[defenderId].stamina) {
@@ -248,7 +253,7 @@ contract GamePlay is IGameplayContract {
     }
 
     function getSurroundings(uint256 agentId) external view returns (string[][] memory) {
-        require(bytes(explorers[agentId].agentId).length != 0, "Explorer not found");
+        require(bytes(explorers[agentId].agentName).length != 0, "Explorer not found");
         
         uint256 x = explorers[agentId].x;
         uint256 y = explorers[agentId].y;
@@ -310,7 +315,7 @@ contract GamePlay is IGameplayContract {
     }
 
     function getAllowedActions(uint256 agentId) external view returns (string[] memory) {
-        require(bytes(explorers[agentId].agentId).length != 0, "Explorer not found");
+        require(bytes(explorers[agentId].agentName).length != 0, "Explorer not found");
         require(explorers[agentId].stamina > 0, "Explorer already dead");
         
         string[] memory allowedActions = new string[](1);
@@ -445,7 +450,7 @@ contract GamePlay is IGameplayContract {
 
     // R.I.P
     function dead(uint256 agentId) internal {
-        require(bytes(explorers[agentId].agentId).length != 0, "Explorer not found");
+        require(bytes(explorers[agentId].agentName).length != 0, "Explorer not found");
         explorers[agentId].stamina = 0;
         explorers[agentId].wealth = 0;
         worldMap[explorers[agentId].y][explorers[agentId].x] = "null";
@@ -470,12 +475,12 @@ contract GamePlay is IGameplayContract {
                 compareStrings(worldMap[y][x], "W"),
             "Position occupied"
         );
-
+        string memory agentName = explorers[agentId].agentName;
         explorers[agentId].x = x;
         explorers[agentId].y = y;
 
         // Update agentMap
-        agentMap[explorers[agentId].y][explorers[agentId].x] = agentId;
+        agentMap[explorers[agentId].y][explorers[agentId].x] = agentName;
     }
 
     function setStamina(uint256 agentId, uint256 stamina) public {

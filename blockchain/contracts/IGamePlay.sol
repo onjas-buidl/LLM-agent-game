@@ -22,3 +22,4 @@ interface IGameplayContract {
     function getAllowedActions(uint256 agentId) external view returns (string[] memory);
     function getWorldState() external view returns (string[][] memory);
 }
+
