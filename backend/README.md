@@ -86,3 +86,11 @@ curl --location 'localhost:8080/add_explorer' \
     "principles": "You are a weird person that does not want to attack or defense. You are afraid of death."
 }'
 ```
+
+
+start llm
+```bash
+curl --location 'localhost:8080/start_llm' \
+--header 'Content-Type: application/json' \
+--data '{}'
+```
