@@ -1,14 +1,13 @@
+from flask_cors import CORS
+from web3game import Web3Game
+from flask_restx import Api, Resource
+from flask import Flask, request, jsonify
+import json
+import random
+import os
 from dotenv import load_dotenv
 
 load_dotenv('./conf/local.env', verbose=True)
-
-import os
-import random
-import json
-from flask import Flask, request, jsonify
-from flask_restx import Api, Resource
-from web3game import Web3Game
-from flask_cors import CORS
 
 
 app = Flask(__name__)
@@ -16,13 +15,14 @@ CORS(app)
 api = Api(app)
 web3Game = Web3Game("0xAEdbF8bBcf26CE2F25DB396f0fB7daAa10e1c7A4")
 
-# startGame
+
 @api.route('/start_game/')
 class StartGame(Resource):
     def post(self):
         body = request.json
 
-        ret = web3Game.start_game(body['size'], body['num_wealth'], body['agent_count'], body['agent_list'])
+        ret = web3Game.start_game(
+            body['size'], body['num_wealth'], body['agent_count'], body['agent_list'])
         return {
             "hash": ret,
         }
@@ -38,6 +38,7 @@ class StartGame(Resource):
         return {
             "hash": ret,
         }
+
 
 # transfer ownership of the gameplay contract
 # onlyOwner
@@ -234,6 +235,7 @@ class GetWorldState(Resource):
         return {
             "ret": ret,
         }
+
 
 # faucet
 # address: string
