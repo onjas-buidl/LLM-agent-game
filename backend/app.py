@@ -1,25 +1,28 @@
+from flask_cors import CORS
+from web3game import Web3Game
+from flask_restx import Api, Resource
+from flask import Flask, request, jsonify
+import json
+import random
+import os
 from dotenv import load_dotenv
 
 load_dotenv('./conf/local.env', verbose=True)
 
-import os
-import json
-from flask import Flask, request
-from flask_restx import Api, Resource
-from web3game import Web3Game
-
 
 app = Flask(__name__)
+CORS(app)
 api = Api(app)
 web3Game = Web3Game("0xAEdbF8bBcf26CE2F25DB396f0fB7daAa10e1c7A4")
 
-# startGame
+
 @api.route('/start_game/')
 class StartGame(Resource):
     def post(self):
         body = request.json
 
-        ret = web3Game.start_game(body['size'], body['num_wealth'], body['agent_count'], body['agent_list'])
+        ret = web3Game.start_game(
+            body['size'], body['num_wealth'], body['agent_count'], body['agent_list'])
         return {
             "hash": ret,
         }
@@ -35,6 +38,7 @@ class StartGame(Resource):
         return {
             "hash": ret,
         }
+
 
 # transfer ownership of the gameplay contract
 # onlyOwner
@@ -232,6 +236,7 @@ class GetWorldState(Resource):
             "ret": ret,
         }
 
+
 # faucet
 # address: string
 @api.route('/faucet/<string:address>')
@@ -240,6 +245,82 @@ class Faucet(Resource):
         web3Game.faucet(address)
         return {
             "ret": "ok",
+        }
+
+
+#  mock for test
+@api.route('/get_world_state_mock/')
+class GetWorldState(Resource):
+    def get(self):
+
+        ret_list = [
+            [
+                ["null", "null", "Smith", "null", "null", "W", "null"],
+                ["John", "null", "null", "null", "Baker", "null", "null"],
+                ["null", "null", "null", "W", "null", "null", "null"],
+                ["Doe", "null", "Cooper", "null", "null", "null", "null"],
+                ["null", "null", "null", "null", "W", "null", "null"],
+                ["null", "W", "null", "null", "Suzuki", "null", "Tanaka"],
+                ["null", "null", "Sato", "null", "null", "null", "null"]
+            ],
+            [
+                ["Adams", "null", "null", "null", "null", "null", "null"],
+                ["null", "null", "W", "null", "null", "null", "Brown"],
+                ["null", "null", "null", "null", "W", "null", "Clark"],
+                ["null", "Davis", "null", "null", "null", "Anderson", "null"],
+                ["null", "null", "Garcia", "null", "W", "null", "null"],
+                ["null", "null", "null", "null", "null", "null", "Johnson"],
+                ["Lee", "null", "Lopez", "null", "null", "W", "null"]
+            ],
+            [
+                ["null", "null", "AgentSmith", "null", "null", "W", "null"],
+                ["AgentJohn", "null", "null", "null",
+                 "AgentBaker", "null", "null"],
+                ["null", "null", "null", "W", "null", "null", "null"],
+                ["AgentDoe", "null", "AgentCooper",
+                    "null", "null", "null", "null"],
+                ["null", "null", "null", "null", "W", "null", "null"],
+                ["null", "W", "null", "null", "AgentSuzuki", "null", "AgentTanaka"],
+                ["null", "null", "AgentSato", "null", "null", "null", "null"]
+            ],
+            [
+                ["null", "null", "Smith", "null", "null", "W", "null"],
+                ["John", "null", "null", "null", "Baker", "null", "null"],
+                ["null", "null", "null", "W", "null", "null", "null"],
+                ["Doe", "null", "Cooper", "null", "null", "null", "null"],
+                ["null", "null", "null", "null", "W", "null", "null"],
+                ["null", "W", "null", "null", "Suzuki", "null", "Tanaka"],
+                ["null", "null", "Sato", "null", "null", "null", "null"]
+            ],
+            [
+                ["Adams", "null", "null", "null", "null", "null", "null"],
+                ["null", "null", "W", "null", "null", "null", "Brown"],
+                ["null", "null", "null", "null", "W", "null", "Clark"],
+                ["null", "Davis", "null", "null", "null", "Anderson", "null"],
+                ["null", "null", "Garcia", "null", "W", "null", "null"],
+                ["null", "null", "null", "null", "null", "null", "Johnson"],
+                ["Lee", "null", "Lopez", "null", "null", "W", "null"]
+            ],
+            [
+                ["null", "null", "null", "W", "null", "null", "Martin"],
+                ["null", "null", "Perez", "null", "null", "null", "W"],
+                ["Reed", "null", "null", "null", "null", "null", "Smith"],
+                ["null", "null", "null", "null", "W", "null", "null"],
+                ["null", "null", "Wong", "null", "null", "null", "null"],
+                ["null", "Jones", "null", "null", "null", "null", "null"],
+                ["null", "null", "null", "null", "null", "null", "null"]
+            ],
+        ]
+
+        ret = random.choice(ret_list)
+        return jsonify(ret)
+
+
+@api.route('/start_game_mock/')
+class StartGame(Resource):
+    def post(self):
+        return {
+            "hash": "0xhljshfoiuahsfa;s",
         }
 
 
