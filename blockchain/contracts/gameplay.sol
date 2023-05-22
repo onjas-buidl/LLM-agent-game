@@ -103,7 +103,7 @@ contract GamePlay is IGameplayContract {
             ugcContract[y][x] = contractAddress;
 
             string memory name = moduleList[i].name;
-            // string memory description = moduleList[i].description; TODO: how to feed the description into LLM
+            // string memory description = moduleList[i].description;
             // Update the worldMap
             require(compareStrings(worldMap[y][x], "null") && compareStrings(agentMap[y][x], "null"), "Cell already occupied");
             worldMap[y][x] = name;
@@ -275,8 +275,11 @@ contract GamePlay is IGameplayContract {
                         // call the module contract to get the description
                         BaseModule module = BaseModule(ugcContract[uint256(mapY)][uint256(mapX)]);
                         // string memory moduleName = module.getName();
+                        string memory moduleName = module.getName();
                         string memory moduleDescription = module.getDescription();
-                        surroundings[j][i] = moduleDescription;
+                        // concatenate the module name and description into moduleInfo
+                        string memory moduleInfo = string(abi.encodePacked(moduleName, ": ", moduleDescription));
+                        surroundings[j][i] = moduleInfo;
                     }
                     else {
                         // If no modules nearby, give the world map value and agent map value
@@ -484,5 +487,28 @@ contract GamePlay is IGameplayContract {
         returns (Explorer memory)
     {
         return explorers[agentName];
+    }
+
+    function getCellValue(uint x, uint y) public view returns (string memory) {
+        // If no modules nearby, give the world map value and agent map value
+        string memory cellValue = worldMap[uint256(y)][uint256(x)];
+        string memory agentValue = agentMap[uint256(y)][uint256(x)];
+        if( compareStrings(cellValue, "null") && compareStrings(agentValue, "null")) {
+            return "null";
+        }
+        else if (compareStrings(cellValue, "null")) {
+            return agentValue;
+        }
+        else if (compareStrings(agentValue, "null")) {
+            return cellValue;
+        }
+        else{// Both has value, Concatenate the cell values using AND
+            string memory combinedValue = string(abi.encodePacked(cellValue, " & ", agentValue));
+            return combinedValue;
+        }
+    }
+
+    function isOccupied(uint x, uint y) public view returns (bool) {
+        return (!compareStrings(agentMap[uint256(y)][uint256(x)], "null") && !compareStrings(agentMap[uint256(y)][uint256(x)], "null"));
     }
 }

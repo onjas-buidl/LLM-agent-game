@@ -14,6 +14,11 @@ contract TeleportModule is BaseModule {
         // Generate random grid coordinates for teleportation
         uint256 x = randomCoordinate(size);
         uint256 y = randomCoordinate(size);
+        // Check if the grid is occupied
+        while (game.isOccupied(x, y)) {
+            x = randomCoordinate(size);
+            y = randomCoordinate(size);
+        }
         game.setLocation(agentName, x, y);
     }
 
