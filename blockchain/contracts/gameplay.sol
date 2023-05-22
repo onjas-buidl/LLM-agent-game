@@ -242,8 +242,34 @@ contract GamePlay is IGameplayContract {
 
     // ---------------------
     // getter funcs
-    function getExplorerByDirection(string memory name, string memory direction) external view returns (string memory){
-        return name;
+    function getExplorerList() external view returns (Explorer[] memory) {
+        return explorersList;
+    }
+
+    function getExplorerByDirection(string memory name, string memory direction) external view returns (string memory) {
+        require(bytes(explorers[name].name).length != 0, "Explorer not found");
+        uint256 x = explorers[name].x;
+        uint256 y = explorers[name].y;
+
+        // Calculate the new position based on the specified direction
+        if (compareStrings(direction, "up")) {
+            require(y > 0, "Invalid move");
+            y--;
+        } else if (compareStrings(direction, "down")) {
+            require(y < worldMap.length - 1, "Invalid move");
+            y++;
+        } else if (compareStrings(direction, "left")) {
+            require(x > 0, "Invalid move");
+            x--;
+        } else if (compareStrings(direction, "right")) {
+            require(x < worldMap.length - 1, "Invalid move");
+            x++;
+        } else {
+            revert("Invalid direction");
+        }
+
+        string memory agentValue = agentMap[y][x];
+        return agentValue;
     }
 
     function getSurroundings(string memory name) external view returns (string[][] memory) {
@@ -276,28 +302,28 @@ contract GamePlay is IGameplayContract {
                         BaseModule module = BaseModule(ugcContract[uint256(mapX)][uint256(mapY)]);
                         // string memory moduleName = module.getName();
                         string memory moduleDescription = module.getDescription();
-                        surroundings[j][i] = moduleDescription;
+                        surroundings[i][j] = moduleDescription;
                     }
                     else {
                         // If no modules nearby, give the world map value and agent map value
                         string memory cellValue = worldMap[uint256(mapX)][uint256(mapY)];
                         string memory agentValue = agentMap[uint256(mapX)][uint256(mapY)];
                         if( compareStrings(cellValue, "null") && compareStrings(agentValue, "null")) {
-                            surroundings[j][i] = "null";
+                            surroundings[i][j] = "null";
                         }
                         else if (compareStrings(cellValue, "null")) {
-                            surroundings[j][i] = agentValue;
+                            surroundings[i][j] = agentValue;
                         }
                         else if (compareStrings(agentValue, "null")) {
-                            surroundings[j][i] = cellValue;
+                            surroundings[i][j] = cellValue;
                         }
                         else{// Both has value, Concatenate the cell values using AND
                             string memory combinedValue = string(abi.encodePacked(cellValue, " & ", agentValue));
-                            surroundings[j][i] = combinedValue;
+                            surroundings[i][j] = combinedValue;
                         }
                     }
                 } else {
-                    surroundings[j][i] = "OUT"; // Agents can't see outside the map
+                    surroundings[i][j] = "OUT"; // Agents can't see outside the map
                 }
             }
         }
