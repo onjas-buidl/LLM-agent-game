@@ -121,7 +121,7 @@ contract GamePlay is IGameplayContract {
         explorers[name] = Explorer(name, x, y, stamina, wealth);
 
         // Check if the provided position is within the map boundaries
-        require(x < worldMap.length && y < worldMap.length, "Invalid x coordinate");
+        require(x < worldMap.length && y < worldMap.length, "Invalid coordinates");
 
         // Check if the provided position is not occupied by another explorer
         require(
@@ -466,8 +466,7 @@ contract GamePlay is IGameplayContract {
         explorers[agentName].x = x;
         explorers[agentName].y = y;
 
-        // Update worldMap, agentMap
-        worldMap[explorers[agentName].y][explorers[agentName].x] = agentName;
+        // Update agentMap
         agentMap[explorers[agentName].y][explorers[agentName].x] = agentName;
     }
 
