@@ -1,3 +1,8 @@
+# NOTE: First of all, need to load the environment variables
+from dotenv import load_dotenv
+load_dotenv("./conf/local.env", verbose=True)
+# DO NOT EDIT ^^^^^
+
 from flask_cors import CORS
 from web3game import Web3Game
 from flask_restx import Api, Resource
@@ -5,13 +10,9 @@ from flask import Flask, request, jsonify
 import json
 import random
 import os
-from dotenv import load_dotenv
 import logging
 log = logging.getLogger('werkzeug')
 log.setLevel(logging.ERROR)
-
-load_dotenv("./conf/local.env", verbose=True)
-
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
