@@ -7,7 +7,7 @@ from langchain.schema import SystemMessage, HumanMessage
 from langchain.chat_models import ChatOpenAI
 
 class Agent:
-    def __init__(self, id, name, principles, max_retry_times=5, chat_model='GPT3.5'):
+    def __init__(self, id, name, principles, max_retry_times=5, chat_model='GPT4'):
         self.id = id
         self.name = name
         self.principles = principles
@@ -18,10 +18,10 @@ class Agent:
         self.reset()
         if chat_model == 'GPT3.5':
             self.chat_model = ChatOpenAI(
-                temperature=0, openai_api_key=os.environ.get("OPENAI_API_KEY"), max_tokens=1500, request_timeout=120)
+                temperature=0, openai_api_key=os.environ.get("OPENAI_API_KEY"), max_tokens=1500, request_timeout=240)
         elif chat_model == 'GPT4':
             self.chat_model = ChatOpenAI(
-                temperature=0, openai_api_key=os.environ.get("OPENAI_API_KEY"), max_tokens=1500, request_timeout=120,
+                temperature=0, openai_api_key=os.environ.get("OPENAI_API_KEY"), max_tokens=1500, request_timeout=240,
                 model_name="gpt-4")
         elif chat_model == 'Claude':
             from langchain.chat_models import ChatAnthropic
@@ -214,6 +214,7 @@ class Agent:
     def take_action(self, surroundings, allowed_actions, stamina, wealth):
         # print(f"allowed_actions: {allowed_actions}")
         formmatted_surroundings = self.get_self_formatted_surroundings(surroundings)
+        print("Allowed actions: ", allowed_actions)
         _input = self.instruction.format_prompt(
             surroundings=formmatted_surroundings, stamina=stamina, wealth=wealth, allowed_actions=allowed_actions)
         self.message_history.extend(_input.to_messages())
@@ -226,10 +227,10 @@ class Agent:
 
         action_parts = output['Action']
         action_parts = action_parts.lower().strip().replace(".", "").strip()
-
         try:
             print(self.name, "choose to: `", action_parts, "`")
             print("Motivation: ", output['Motivation'])
+            print("\n")
             if action_parts not in allowed_actions:
                 raise Exception("Action not in allowed list")
             self.reset()

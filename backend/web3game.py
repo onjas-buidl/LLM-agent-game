@@ -5,7 +5,6 @@ from web3.middleware.signing import construct_sign_and_send_raw_middleware
 from eth_account import Account
 from AgentConfig import Agent
 
-
 NODE_URL = os.environ.get('NODE_URL')
 PRIVATE_KEY = os.environ.get('PRIVATE_KEY')
 
@@ -26,7 +25,6 @@ class Web3Game:
                                                   abi=load_abi_from_path('./abis/Factory.json'))
 
         self.agent_list = {}
-
     # transfer ownership of the gameplay contract
     # onlyOwner
     # new_owner: address
@@ -50,7 +48,9 @@ class Web3Game:
 
     # TODO: module system not implemented yet
     def deploy_contracts(self, module_list):
-        self.gameplay_contract.functions.deployContracts(module_list).transact()
+        self.gameplay_contract.functions.deployContracts(module_list).transact({
+            "gasPrice": self.web3.eth.gas_price
+        })
 
     # add explorer
     # onlyOwner
@@ -82,7 +82,7 @@ class Web3Game:
     # }
     def start_game(self, size, num_wealth, agent_list, module_list):
         _agent_list = [[idx + 1, a['name'], a['x'], a['y'], a['stamina'], a['wealth']] for idx, a in enumerate(agent_list)]
-        _module_list = [[m['name'], m['description'], m['x'], m['y'], m['contractAddress']] for m in module_list]
+        _module_list = [[m['name'], m['description'], m['x'], m['y']] for m in module_list]
         
         for idx, a in enumerate(agent_list):
             self.agent_list[idx+1] = Agent(id=idx+1, name=a['name'], principles=a['strategy'])
@@ -104,13 +104,21 @@ class Web3Game:
         self.gameplay_contract = self.web3.eth.contract(address=gameplay_contract_address,
                                                    abi=load_abi_from_path('./abis/GamePlay.json'))
 
-        teleport_module = self.web3.eth.contract(abi=load_abi_from_path('./abis/TeleportModule.json'),
-                                                       bytecode=load_abi_from_path('./bytecodes/TeleportModule.bytecode'))
-        tx_hash = teleport_module.constructor(gameplay_contract_address, "Teleport", "will move you to a random cell").transact()
-        tx_receipt = self.web3.eth.wait_for_transaction_receipt(tx_hash)
-        teleport_module_contract_address = tx_receipt.contractAddress
+        _module_list_new = []
+        for _module in _module_list:
+            module_contract = self.web3.eth.contract(abi=load_abi_from_path('./abis/TeleportModule.json'), #TODO: change to _module
+                                                       bytecode=load_abi_from_path('./bytecodes/TeleportModule.txt'))
+            tx_hash = module_contract.constructor(gameplay_contract_address, 
+                                                "Teleport", "will move you to a random cell").transact({
+                                                    "gasPrice": self.web3.eth.gas_price})
+            tx_receipt = self.web3.eth.wait_for_transaction_receipt(tx_hash)
+            
+            teleport_module_contract_address = tx_receipt.contractAddress
+            
+            _module_list_new.append([_module[0], _module[1], _module[2], _module[3], teleport_module_contract_address])
         
-        self.deploy_contracts(_module_list)
+        
+        self.deploy_contracts(_module_list_new)
         return tx.hex()
 
     def start_llm(self):
@@ -234,7 +242,7 @@ class Web3Game:
         except Exception as e:
             print(e)
             return None
-
+        
     # get surroundings
     # agent_id: uint256
     def get_surroundings(self, agent_id):

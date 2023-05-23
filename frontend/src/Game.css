@@ -66,6 +66,77 @@ main.setup {
   border-radius: 10px;
 }
 
+
+.modules {
+  margin-bottom: 30px;
+}
+
+.modules > * {
+  margin-bottom: 15px;
+}
+
+.modules > .module {
+  display: flex;
+  align-items: center;
+  background-color: #383d49;
+  padding: 15px;
+  border-radius: 10px;
+}
+
+.modules > .module .name {
+  width: 150px;
+  font-size: 20px;
+  outline: none;
+  border: none;
+  appearance: none;
+  background: none;
+  color: white;
+}
+
+.modules > .module .description {
+  flex: 1;
+  font-size: 20px;
+  outline: none;
+  border: none;
+  appearance: none;
+  background: none;
+  color: white;
+}
+
+.modules > .module .location {
+  margin-left: 15px;
+}
+
+.modules > .module .location label {
+  font-size: 18px;
+  margin-right: 5px;
+}
+
+.modules > .module .location input {
+  margin-right: 10px;
+  width: 50px;
+  font-size: 18px;
+  outline: none;
+  border: none;
+  appearance: none;
+  background-color: #4f5667;
+  color: white;
+  padding: 10px;
+  border-radius: 10px;
+}
+
+.modules > .module .remove {
+  font-size: 18px;
+  outline: none;
+  border: none;
+  appearance: none;
+  background-color: #823c3c;
+  color: white;
+  padding: 10px 15px;
+  border-radius: 10px;
+}
+
+
 .agents {
   margin-bottom: 30px;
 }
@@ -84,7 +155,7 @@ main.setup {
 
 .agents > .agent .name {
   width: 150px;
-  font-size: 20px;
+  font-size: 15px;
   outline: none;
   border: none;
   appearance: none;
@@ -154,12 +225,15 @@ main.game {
   height: 100vh;
   display: flex;
   flex-direction: row;
+  /* flex-wrap:wrap; */
+  /* overflow:hidden; */
   align-items: stretch;
 }
 
 .leaderboard {
   margin: 15px;
   width: 200px;
+  /* height: 30%; */
   flex-shrink: 0;
   background-color: #383d49;
   padding: 15px;
@@ -179,6 +253,25 @@ main.game {
 
 .leaderboard > .agent .wealth {
   margin-left: 10px;
+}
+
+.actions {
+  margin: 15px;
+  margin-left: 0;
+  margin-bottom: 0px;
+  width: 100%;
+  height: 200px;
+  flex-shrink: 0;
+  background-color: #383d49;
+  padding: 15px;
+}
+
+.actions > .act {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 10px;
+  font-size: 10px;
 }
 
 .present {
@@ -212,6 +305,14 @@ main.game {
   overflow: hidden;
 }
 
+.map > .teleport {
+  position: absolute;
+  margin: 10px;
+  width: 60px;
+  height: 60px;
+  overflow: hidden;
+}
+
 .map > .agent {
   position: absolute;
   transition: left 500ms, top 500ms;
@@ -226,11 +327,16 @@ main.game {
 
 .map > .agent .name {
   font-weight: bold;
-  font-size: 14px;
+  font-size: 10px;
   margin-bottom: 5px;
 }
 
-.map > .agent .stamina {
+.map > .agent .stamina-red {
   height: 5px;
-  background-color: red;
+  background-color: lightcoral;
+}
+
+.map > .agent .stamina-blue {
+  height: 5px;
+  background-color: lightblue;
 }

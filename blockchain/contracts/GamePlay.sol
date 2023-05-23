@@ -99,7 +99,7 @@ contract GamePlay is IGameplayContract {
             // require(ugcContract[x][y], "Cell already occupied");
             require(compareStrings(worldMap[y][x], "null"), "Cell already occupied");
             require(compareStrings(agentMap[y][x], "null"), "Cell already occupied");
-            
+
             // Set up the module contract
             ugcContract[y][x] = contractAddress;
 
@@ -174,7 +174,6 @@ contract GamePlay is IGameplayContract {
             revert("Invalid direction");
         }
         worldMap[oldY][oldX] = "null";
-        agentMap[oldY][oldX] = "null";
         setLocation(agentId, x, y);
 
         // Decrease stamina by 1
@@ -474,16 +473,19 @@ contract GamePlay is IGameplayContract {
         require(x < worldMap.length && y < worldMap.length, "Invalid position");
         // Check if the provided position is not occupied by another explorer
         require(
-            compareStrings(worldMap[y][x], "null") ||
+            compareStrings(agentMap[y][x], "null") ||
                 compareStrings(worldMap[y][x], "W"),
             "Position occupied"
         );
         string memory agentName = explorers[agentId].agentName;
+        uint256 origX = explorers[agentId].x;
+        uint256 origY = explorers[agentId].y;
         explorers[agentId].x = x;
         explorers[agentId].y = y;
 
         // Update agentMap
         agentMap[explorers[agentId].y][explorers[agentId].x] = agentName;
+        agentMap[origY][origX] = "null";
     }
 
     function setStamina(uint256 agentId, uint256 stamina) public {
@@ -530,6 +532,6 @@ contract GamePlay is IGameplayContract {
     }
 
     function isOccupied(uint x, uint y) public view returns (bool) {
-        return (!compareStrings(agentMap[uint256(y)][uint256(x)], "null") && !compareStrings(agentMap[uint256(y)][uint256(x)], "null"));
+        return (!compareStrings(agentMap[uint256(y)][uint256(x)], "null") || !compareStrings(worldMap[y][x], "null"));
     }
 }
