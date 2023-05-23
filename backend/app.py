@@ -7,7 +7,7 @@ import random
 import os
 from dotenv import load_dotenv
 
-load_dotenv('./conf/local.env', verbose=True)
+load_dotenv("./conf/local.env", verbose=True)
 
 
 app = Flask(__name__)
@@ -16,20 +16,21 @@ api = Api(app)
 web3Game = Web3Game("0xAEdbF8bBcf26CE2F25DB396f0fB7daAa10e1c7A4")
 
 
-@api.route('/start_game/')
+@api.route("/start_game/")
 class StartGame(Resource):
     def post(self):
         body = request.json
-        
         ret = web3Game.start_game(
-            body['size'], body['num_wealth'], body['agent_list'], body['module_list'])
+            body["size"], body["num_wealth"], body["agent_list"], body["module_list"]
+        )
+
         return {
             "hash": ret,
         }
 
 
 # start_llm
-@api.route('/start_llm/')
+@api.route("/start_llm/")
 class StartGame(Resource):
     def post(self):
         # body = request.json
@@ -43,12 +44,12 @@ class StartGame(Resource):
 # transfer ownership of the gameplay contract
 # onlyOwner
 # new_owner: address
-@api.route('/set_owner/')
+@api.route("/set_owner/")
 class SetOwner(Resource):
     def post(self):
         body = request.json
 
-        ret = web3Game.set_owner(body['new_owner'])
+        ret = web3Game.set_owner(body["new_owner"])
         return {
             "hash": ret,
         }
@@ -58,24 +59,24 @@ class SetOwner(Resource):
 # onlyOwner
 # size: uint256
 # numWealth: uint256
-@api.route('/random_initialize_map/')
+@api.route("/random_initialize_map/")
 class RandomInitializeMap(Resource):
     def post(self):
         body = request.json
 
-        ret = web3Game.random_initialize_map(body['size'], body['num_wealth'])
+        ret = web3Game.random_initialize_map(body["size"], body["num_wealth"])
         return {
             "hash": ret,
         }
 
 
 # TODO: module system not implemented yet
-@api.route('/deploy_contracts/')
+@api.route("/deploy_contracts/")
 class DeployContracts(Resource):
     def post(self):
         body = request.json
 
-        ret = web3Game.deploy_contracts(body['module_list'])
+        ret = web3Game.deploy_contracts(body["module_list"])
         return {
             "hash": ret,
         }
@@ -89,13 +90,19 @@ class DeployContracts(Resource):
 # stamina: uint256
 # wealth: uint256
 # principles: string
-@api.route('/add_explorer/')
+@api.route("/add_explorer/")
 class AddExplorer(Resource):
     def post(self):
         body = request.json
 
         ret = web3Game.add_explorer(
-            body['name'], body['x'], body['y'], body['stamina'], body['wealth'], body['principles'])
+            body["name"],
+            body["x"],
+            body["y"],
+            body["stamina"],
+            body["wealth"],
+            body["principles"],
+        )
         return {
             "hash": ret,
         }
@@ -105,13 +112,12 @@ class AddExplorer(Resource):
 # onlyOwner
 # name: string
 # direction: string(up | down | left | right)
-@api.route('/move/')
+@api.route("/move/")
 class Move(Resource):
     def post(self):
         body = request.json
 
-        ret = web3Game.move(
-            body['name'], body['direction'])
+        ret = web3Game.move(body["name"], body["direction"])
         return {
             "hash": ret,
         }
@@ -120,13 +126,12 @@ class Move(Resource):
 # gather wealth
 # onlyOwner
 # name: string
-@api.route('/gather_wealth/')
+@api.route("/gather_wealth/")
 class GatherWealth(Resource):
     def post(self):
         body = request.json
 
-        ret = web3Game.gather_wealth(
-            body['name'])
+        ret = web3Game.gather_wealth(body["name"])
         return {
             "hash": ret,
         }
@@ -135,13 +140,12 @@ class GatherWealth(Resource):
 # rest
 # onlyOwner
 # name: string
-@api.route('/rest/')
+@api.route("/rest/")
 class Rest(Resource):
     def post(self):
         body = request.json
 
-        ret = web3Game.rest(
-            body['name'])
+        ret = web3Game.rest(body["name"])
         return {
             "hash": ret,
         }
@@ -151,13 +155,12 @@ class Rest(Resource):
 # onlyOwner
 # attackerName: string
 # defenderName: string
-@api.route('/attack/')
+@api.route("/attack/")
 class Attack(Resource):
     def post(self):
         body = request.json
 
-        ret = web3Game.attack(
-            body['attacker_name'], body['defender_name'])
+        ret = web3Game.attack(body["attacker_name"], body["defender_name"])
         return {
             "hash": ret,
         }
@@ -167,13 +170,12 @@ class Attack(Resource):
 # name: string
 # x: uint256
 # y: uint256
-@api.route('/set_location/')
+@api.route("/set_location/")
 class SetLocation(Resource):
     def post(self):
         body = request.json
 
-        ret = web3Game.set_location(
-            body['name'], body['x'], body['y'])
+        ret = web3Game.set_location(body["name"], body["x"], body["y"])
         return {
             "hash": ret,
         }
@@ -182,13 +184,12 @@ class SetLocation(Resource):
 # set stamina
 # name: string
 # stamina: uint256
-@api.route('/set_stamina/')
+@api.route("/set_stamina/")
 class SetStamina(Resource):
     def post(self):
         body = request.json
 
-        ret = web3Game.set_stamina(
-            body['name'], body['stamina'])
+        ret = web3Game.set_stamina(body["name"], body["stamina"])
         return {
             "hash": ret,
         }
@@ -196,7 +197,7 @@ class SetStamina(Resource):
 
 # get surroundings
 # name: string
-@api.route('/get_surroundings/<string:name>')
+@api.route("/get_surroundings/<string:name>")
 class GetSurroundings(Resource):
     def get(self, name):
         ret = web3Game.get_surroundings(name)
@@ -207,7 +208,7 @@ class GetSurroundings(Resource):
 
 # get allowed actions
 # name: string
-@api.route('/get_allowed_actions/<string:name>')
+@api.route("/get_allowed_actions/<string:name>")
 class GetAllowedActions(Resource):
     def get(self, name):
         ret = web3Game.get_allowed_actions(name)
@@ -218,17 +219,26 @@ class GetAllowedActions(Resource):
 
 # get agent
 # name: string
-@api.route('/get_agent/<string:name>')
+@api.route("/get_agent/<int:agent_id>")
 class GetAgent(Resource):
-    def get(self, name):
-        ret = web3Game.get_agent(name)
+    def get(self, agent_id):
+        ret = web3Game.get_agent(agent_id)
+        return {
+            "ret": ret,
+        }
+
+
+@api.route("/get_explorer_list/")
+class GetExplorerList(Resource):
+    def get(self):
+        ret = web3Game.get_explorer_list()
         return {
             "ret": ret,
         }
 
 
 # get world state
-@api.route('/get_world_state/')
+@api.route("/get_world_state/")
 class GetWorldState(Resource):
     def get(self):
         ret = web3Game.get_world_state()
@@ -239,7 +249,7 @@ class GetWorldState(Resource):
 
 # faucet
 # address: string
-@api.route('/faucet/<string:address>')
+@api.route("/faucet/<string:address>")
 class Faucet(Resource):
     def get(self, address):
         web3Game.faucet(address)
@@ -249,10 +259,9 @@ class Faucet(Resource):
 
 
 #  mock for test
-@api.route('/get_world_state_mock/')
+@api.route("/get_world_state_mock/")
 class GetWorldState(Resource):
     def get(self):
-
         ret_list = [
             [
                 ["null", "null", "Smith", "null", "null", "W", "null"],
@@ -261,7 +270,7 @@ class GetWorldState(Resource):
                 ["Doe", "null", "Cooper", "null", "null", "null", "null"],
                 ["null", "null", "null", "null", "W", "null", "null"],
                 ["null", "W", "null", "null", "Suzuki", "null", "Tanaka"],
-                ["null", "null", "Sato", "null", "null", "null", "null"]
+                ["null", "null", "Sato", "null", "null", "null", "null"],
             ],
             [
                 ["Adams", "null", "null", "null", "null", "null", "null"],
@@ -270,18 +279,16 @@ class GetWorldState(Resource):
                 ["null", "Davis", "null", "null", "null", "Anderson", "null"],
                 ["null", "null", "Garcia", "null", "W", "null", "null"],
                 ["null", "null", "null", "null", "null", "null", "Johnson"],
-                ["Lee", "null", "Lopez", "null", "null", "W", "null"]
+                ["Lee", "null", "Lopez", "null", "null", "W", "null"],
             ],
             [
                 ["null", "null", "AgentSmith", "null", "null", "W", "null"],
-                ["AgentJohn", "null", "null", "null",
-                 "AgentBaker", "null", "null"],
+                ["AgentJohn", "null", "null", "null", "AgentBaker", "null", "null"],
                 ["null", "null", "null", "W", "null", "null", "null"],
-                ["AgentDoe", "null", "AgentCooper",
-                    "null", "null", "null", "null"],
+                ["AgentDoe", "null", "AgentCooper", "null", "null", "null", "null"],
                 ["null", "null", "null", "null", "W", "null", "null"],
                 ["null", "W", "null", "null", "AgentSuzuki", "null", "AgentTanaka"],
-                ["null", "null", "AgentSato", "null", "null", "null", "null"]
+                ["null", "null", "AgentSato", "null", "null", "null", "null"],
             ],
             [
                 ["null", "null", "Smith", "null", "null", "W", "null"],
@@ -290,7 +297,7 @@ class GetWorldState(Resource):
                 ["Doe", "null", "Cooper", "null", "null", "null", "null"],
                 ["null", "null", "null", "null", "W", "null", "null"],
                 ["null", "W", "null", "null", "Suzuki", "null", "Tanaka"],
-                ["null", "null", "Sato", "null", "null", "null", "null"]
+                ["null", "null", "Sato", "null", "null", "null", "null"],
             ],
             [
                 ["Adams", "null", "null", "null", "null", "null", "null"],
@@ -299,7 +306,7 @@ class GetWorldState(Resource):
                 ["null", "Davis", "null", "null", "null", "Anderson", "null"],
                 ["null", "null", "Garcia", "null", "W", "null", "null"],
                 ["null", "null", "null", "null", "null", "null", "Johnson"],
-                ["Lee", "null", "Lopez", "null", "null", "W", "null"]
+                ["Lee", "null", "Lopez", "null", "null", "W", "null"],
             ],
             [
                 ["null", "null", "null", "W", "null", "null", "Martin"],
@@ -308,7 +315,7 @@ class GetWorldState(Resource):
                 ["null", "null", "null", "null", "W", "null", "null"],
                 ["null", "null", "Wong", "null", "null", "null", "null"],
                 ["null", "Jones", "null", "null", "null", "null", "null"],
-                ["null", "null", "null", "null", "null", "null", "null"]
+                ["null", "null", "null", "null", "null", "null", "null"],
             ],
         ]
 
@@ -316,7 +323,7 @@ class GetWorldState(Resource):
         return jsonify(ret)
 
 
-@api.route('/start_game_mock/')
+@api.route("/start_game_mock/")
 class StartGame(Resource):
     def post(self):
         return {
@@ -324,7 +331,11 @@ class StartGame(Resource):
         }
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     # app.run(debug=True)
-    app.run(debug=os.environ.get('ISDEBUG', True), threaded=True, host='0.0.0.0',
-            port=int(os.environ.get('PORT', 8080)))
+    app.run(
+        debug=os.environ.get("ISDEBUG", True),
+        threaded=True,
+        host="0.0.0.0",
+        port=int(os.environ.get("PORT", 8080)),
+    )
