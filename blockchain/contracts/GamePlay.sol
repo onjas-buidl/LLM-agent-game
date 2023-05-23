@@ -98,6 +98,7 @@ contract GamePlay is IGameplayContract {
             require(x < worldMap.length && y < worldMap.length, "Invalid x coordinate");
             // require(ugcContract[x][y], "Cell already occupied");
             require(compareStrings(worldMap[y][x], "null"), "Cell already occupied");
+            require(compareStrings(agentMap[y][x], "null"), "Cell already occupied");
             
             // Set up the module contract
             ugcContract[y][x] = contractAddress;

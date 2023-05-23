@@ -22,7 +22,7 @@ class StartGame(Resource):
         body = request.json
         
         ret = web3Game.start_game(
-            body['size'], body['num_wealth'], body['agent_list'])
+            body['size'], body['num_wealth'], body['agent_list'], body['module_list'])
         return {
             "hash": ret,
         }

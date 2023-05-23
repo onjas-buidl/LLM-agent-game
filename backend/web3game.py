@@ -80,8 +80,10 @@ class Web3Game:
     # uint256 stamina;
     # uint256 wealth;
     # }
-    def start_game(self, size, num_wealth, agent_list):
+    def start_game(self, size, num_wealth, agent_list, module_list):
         _agent_list = [[idx + 1, a['name'], a['x'], a['y'], a['stamina'], a['wealth']] for idx, a in enumerate(agent_list)]
+        _module_list = [[m['name'], m['description'], m['x'], m['y'], m['contractAddress']] for m in module_list]
+        
         for idx, a in enumerate(agent_list):
             self.agent_list[idx+1] = Agent(id=idx+1, name=a['name'], principles=a['strategy'])
             
@@ -102,6 +104,13 @@ class Web3Game:
         self.gameplay_contract = self.web3.eth.contract(address=gameplay_contract_address,
                                                    abi=load_abi_from_path('./abis/GamePlay.json'))
 
+        teleport_module = self.web3.eth.contract(abi=load_abi_from_path('./abis/TeleportModule.json'),
+                                                       bytecode=load_abi_from_path('./bytecodes/TeleportModule.bytecode'))
+        tx_hash = teleport_module.constructor(gameplay_contract_address, "Teleport", "will move you to a random cell").transact()
+        tx_receipt = self.web3.eth.wait_for_transaction_receipt(tx_hash)
+        teleport_module_contract_address = tx_receipt.contractAddress
+        
+        self.deploy_contracts(_module_list)
         return tx.hex()
 
     def start_llm(self):
