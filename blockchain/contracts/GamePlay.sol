@@ -174,6 +174,7 @@ contract GamePlay is IGameplayContract {
             revert("Invalid direction");
         }
         worldMap[oldY][oldX] = "null";
+        agentMap[oldY][oldX] = "null";
         setLocation(agentId, x, y);
 
         // Decrease stamina by 1
@@ -228,7 +229,7 @@ contract GamePlay is IGameplayContract {
     {
         require(bytes(explorers[attackerId].agentName).length != 0, "Attacker not found");
         require(explorers[attackerId].stamina > 0, "Attacker already dead");
-        require(bytes(explorers[defenderId].agentName).length != 0, "Deffender not found");
+        require(bytes(explorers[defenderId].agentName).length != 0, "Defender not found");
         require(explorers[defenderId].stamina > 0, "Defender already dead");
 
         if (explorers[attackerId].stamina > explorers[defenderId].stamina) {

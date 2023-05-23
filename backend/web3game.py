@@ -146,11 +146,12 @@ class Web3Game:
                     self.rest(agent_id)
                 elif 'attack' in action:
                     _, t = action.split(" ")
-                    if t in ['up', 'down', 'left', 'right']:
-                        target_id = self.get_explorer_id_by_direction(self_id=agent_id, self_pos=None, direction=t)
-                        self.attack(agent_id, target_id)
-                    else:
-                        self.attack(agent_id, t)
+                    target_id = 0
+                    for i in self.agent_list.keys():
+                        if self.agent_list[i].name.lower() == t.lower():
+                            target_id = i
+                            break
+                    self.attack(agent_id, target_id)
 
 
     def get_explorer_id_by_direction(self, self_id, self_pos, direction) -> str:
@@ -257,7 +258,7 @@ class Web3Game:
             print(e)
             return None
 
-    # get world state
+    # get world stateagent
     def get_world_state(self):
         return self.gameplay_contract.functions.getWorldState().call()
 

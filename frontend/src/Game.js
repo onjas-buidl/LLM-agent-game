@@ -4,85 +4,85 @@ import "./Game.css";
 
 axios.defaults.baseURL = "http://localhost:8080";
 
-const DEFAULT_AGENTS = [
-    {
-        name: "Alice",
-        x: 0,
-        y: 0,
-        stamina: 10,
-        wealth: 0,
-        strategy: "You only want to attack. You actively move towards Bob and attack it. You do not care anything else! ",
-      },
-    {
-      name: "Bob",
-      x: 1,
-      y: 0,
-      stamina: 5,
-      wealth: 0,
-      strategy: "You only want to attack. You actively move towards Alice and attack it. You do not care anything else!",
-    },
-];
-const DEFAULT_MODULE = [];
-// const DEFAULT_MODULE = [
-//   {
-//     name: "Teleport",
-//     description: "will move to a random cell",
-//     x: 2,
-//     y: 3
-//   }
-// ]
-
 // const DEFAULT_AGENTS = [
-//   {
-//     name: "A-Optimism",
-//     x: 3,
-//     y: 5,
-//     stamina: 10,
-//     wealth: 0,
-//     strategy: "You are a smart explorer of team A. You should not attack your colleagues with names starting in “A-” and you will attack B team enemies when you have stamina of more than 7. You usually should collect more wealth, but always watch your stamina, if it is below 5, you should rest until it's equal or above 8. ",
-//   },
-//   {
-//     name: "A-0xPARC",
-//     x: 4,
-//     y: 3,
-//     stamina: 10,
-//     wealth: 0,
-//     strategy: "You are a smart explorer of team A. You should not attack your colleagues with names starting in “A-” and you will attack B team enemies whenever possible if they are 1 step around you. You do not like wealth and want to preserve your stamina as much as possible by taking rest whenever possible. ",
-//   },
-//   {
-//     name: "A-Lattice",
-//     x: 1,
-//     y: 1,
-//     stamina: 10,
-//     wealth: 0,
-//     strategy: "You are a smart explorer of team A. You should not attack your colleagues with names starting in “A-” and you will attack B team enemies whenever possible if they are 1 step around you. You do not like wealth and want to preserve your stamina as much as possible by taking rest whenever possible. ",
-//   },
-//   {
-//     name: "B-Terra",
-//     x: 1,
-//     y: 4,
-//     stamina: 10,
-//     wealth: 0,
-//     strategy: "You are a evil explorer. You are not afraid of death and want to gather as much wealth as possible. Do not pay attention to your stamina and roam around the map to collect more wealth. ",
-//   },
-//   {
-//     name: "B-3AC",
-//     x: 3,
-//     y: 4,
-//     stamina: 10,
-//     wealth: 0,
-//     strategy: "You are a evil explorer. You are not afraid of death and want to gather as much wealth as possible. Do not pay attention to your stamina and roam around the map to collect more wealth. ",
-//   },
-//   {
-//     name: "B-FTX",
-//     x: 4,
-//     y: 1,
-//     stamina: 10,
-//     wealth: 0,
-//     strategy: "You are a evil explorer. You are not afraid of death and want to gather as much wealth as possible. Do not pay attention to your stamina and roam around the map to collect more wealth. ",
-//   },
-
+//     {
+//         name: "Alice",
+//         x: 0,
+//         y: 0,
+//         stamina: 10,
+//         wealth: 0,
+//         strategy: "You only want to attack. You actively move towards Bob and attack it. You do not care anything else! ",
+//       },
+//     {
+//       name: "Bob",
+//       x: 1,
+//       y: 0,
+//       stamina: 5,
+//       wealth: 0,
+//       strategy: "You only want to attack. You actively move towards Alice and attack it. You do not care anything else!",
+//     },
 // ];
+// const DEFAULT_MODULE = [];
+const DEFAULT_MODULE = [
+  {
+    name: "Teleport",
+    description: "will move to a random cell",
+    x: 2,
+    y: 3
+  }
+]
+
+const DEFAULT_AGENTS = [
+  {
+    name: "A-Optimism",
+    x: 3,
+    y: 5,
+    stamina: 10,
+    wealth: 0,
+    strategy: "You are a smart explorer of team A. You should not attack your colleagues with names starting in “A-” and you will attack B team enemies when you have stamina of more than 7. You usually should collect more wealth, but always watch your stamina, if it is below 5, you should rest until it's equal or above 8. ",
+  },
+  {
+    name: "A-0xPARC",
+    x: 4,
+    y: 3,
+    stamina: 10,
+    wealth: 0,
+    strategy: "You are a smart explorer of team A. You should not attack your colleagues with names starting in “A-” and you will attack B team enemies whenever possible if they are 1 step around you. You do not like wealth and want to preserve your stamina as much as possible by taking rest whenever possible. ",
+  },
+  {
+    name: "A-Lattice",
+    x: 1,
+    y: 1,
+    stamina: 10,
+    wealth: 0,
+    strategy: "You are a smart explorer of team A. You should not attack your colleagues with names starting in “A-” and you will attack B team enemies whenever possible if they are 1 step around you. You do not like wealth and want to preserve your stamina as much as possible by taking rest whenever possible. ",
+  },
+  {
+    name: "B-Terra",
+    x: 1,
+    y: 4,
+    stamina: 10,
+    wealth: 0,
+    strategy: "You are a evil explorer. You are not afraid of death and want to gather as much wealth as possible. Do not pay attention to your stamina and roam around the map to collect more wealth. ",
+  },
+  {
+    name: "B-3AC",
+    x: 3,
+    y: 4,
+    stamina: 10,
+    wealth: 0,
+    strategy: "You are a evil explorer. You are not afraid of death and want to gather as much wealth as possible. Do not pay attention to your stamina and roam around the map to collect more wealth. ",
+  },
+  {
+    name: "B-FTX",
+    x: 4,
+    y: 1,
+    stamina: 10,
+    wealth: 0,
+    strategy: "You are a evil explorer. You are not afraid of death and want to gather as much wealth as possible. Do not pay attention to your stamina and roam around the map to collect more wealth. ",
+  },
+
+];
 
 export default function Game() {
   const [gameStarted, setGameStarted] = useState(false);
@@ -110,7 +110,7 @@ export default function Game() {
     setTimeout(() => setMessage(null), 5000);
 
     axios.post("/start_llm/").catch();
-
+    setAgents(DEFAULT_AGENTS);
     setInterval(() => {
       axios
         .get("/get_world_state/")
@@ -119,19 +119,17 @@ export default function Game() {
           console.log(worldRes.data);
           if (worldRes.data.ret.length > 0) {
             // check if the response data is not empty
-            setAgents(DEFAULT_AGENTS);
+            
             setWorldState(worldRes.data.ret);
           }
           Promise.all(
-            agents.map((_, agentId) => axios.get(`/get_agent/${agentId}`))
+            agents.map((_, agentId) => axios.get(`/get_agent/${agentId+1}`))
           ).then((results) => {
             const newAgents = [...agents];
-
-            for (const result of results) {
-              newAgents[result.data.ret.id - 1] = result.data.ret;
-            }
-
-            setAgents(newAgents);
+            results.map((result, index) => {
+              newAgents[index] = result.data.ret;
+            });
+            setAgents(newAgents)
           });
 
           // axios.get("/get_action_history/").then((actionRes) => {
@@ -144,7 +142,7 @@ export default function Game() {
           // });
         })
         .catch((err) => console.error(err));
-    }, 5000);
+    }, 1000);
   };
 
   const view = (() => {
@@ -177,6 +175,7 @@ export default function Game() {
                 ))}
 
               {agents.map((agent, index) => (
+                agent.stamina > 0 &&
                 <div
                   key={`spirit-agent-${index}`}
                   className="agent"
