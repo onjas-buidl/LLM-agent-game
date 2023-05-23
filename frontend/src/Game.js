@@ -123,7 +123,7 @@ export default function Game() {
             setWorldState(worldRes.data.ret);
           }
           Promise.all(
-            agents.map((_, agentId) => axios.get(`/get_agent/${agentId}`))
+            agents.map((_, agentId) => axios.get(`/get_agent/${agentId + 1}`))
           ).then((results) => {
             const newAgents = [...agents];
 
@@ -215,7 +215,7 @@ export default function Game() {
                     >
                       💰
                     </div>
-                  ) : ((cell == "Teleport") ? (
+                  ) : ((cell === "Teleport") ? (
                     <div
                       key={`spirit-teleport-${i}-${j}`}
                       className="teleport"
