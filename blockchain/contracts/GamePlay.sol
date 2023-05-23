@@ -148,6 +148,7 @@ contract GamePlay is IGameplayContract {
     function move(uint256 agentId, string memory direction) 
         external
     {   
+        require(compareStrings(direction, "down") || compareStrings(direction, "up") || compareStrings(direction, "left") || compareStrings(direction, "right"), "Invalid direction");
         require(bytes(explorers[agentId].agentName).length != 0, "Explorer not found");
         require(explorers[agentId].stamina > 0, "Explorer already dead");
         
