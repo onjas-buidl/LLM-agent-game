@@ -3,8 +3,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.16;
 
-import {GamePlay} from "./GamePlay.sol";
-import {BaseModule} from "./BaseModule.sol";
+import {GamePlay} from "../GamePlay.sol";
+import {BaseModule} from "../BaseModule.sol";
 
 contract StealthModule is BaseModule {
     // Define stealth duration

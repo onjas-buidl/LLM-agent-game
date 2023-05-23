@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.16;
 
-import {GamePlay} from "./GamePlay.sol";
-import {BaseModule} from "./BaseModule.sol";
+import {GamePlay} from "../GamePlay.sol";
+import {BaseModule} from "../BaseModule.sol";
 
 contract TrapModule is BaseModule {
     constructor(address gameContract, string memory _name, string memory _description)
