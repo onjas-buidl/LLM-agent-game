@@ -8,6 +8,9 @@ from AgentConfig import Agent
 NODE_URL = os.environ.get('NODE_URL')
 PRIVATE_KEY = os.environ.get('PRIVATE_KEY')
 
+if not PRIVATE_KEY:
+    raise Exception('PRIVATE_KEY is required')
+
 def load_abi_from_path(path):
     with open(path, 'r') as f:
         return f.read()

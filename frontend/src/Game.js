@@ -214,7 +214,7 @@ export default function Game() {
                     >
                       💰
                     </div>
-                  ) : ((cell == "Teleport") ? (
+                  ) : ((cell === "Teleport") ? (
                     <div
                       key={`spirit-teleport-${i}-${j}`}
                       className="teleport"
