@@ -11,7 +11,7 @@ load_dotenv('./conf/local.env', verbose=True)
 
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, resources={r"/*": {"origins": "*"}})
 api = Api(app)
 web3Game = Web3Game("0xAEdbF8bBcf26CE2F25DB396f0fB7daAa10e1c7A4")
 
@@ -20,9 +20,9 @@ web3Game = Web3Game("0xAEdbF8bBcf26CE2F25DB396f0fB7daAa10e1c7A4")
 class StartGame(Resource):
     def post(self):
         body = request.json
-
+        
         ret = web3Game.start_game(
-            body['size'], body['num_wealth'], body['agent_count'], body['agent_list'])
+            body['size'], body['num_wealth'], body['agent_list'])
         return {
             "hash": ret,
         }

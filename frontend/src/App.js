@@ -1,45 +1,59 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "./App.css";
-
+axios.defaults.baseURL = "http://localhost:8080";
 function App() {
   const [gameStarted, setGameStarted] = useState(false);
   const [message, setMessage] = useState(null);
   const [worldState, setWorldState] = useState([]);
   const [size, setSize] = useState(10);
-  const [numWealth, setNumWealth] = useState(10);
-  const [agentCount, setAgentCount] = useState(30);
+  const [numWealth, setNumWealth] = useState(30);
   const [agents, setAgents] = useState([
-    { name: "TestA", x: 1, y: 2, stamina: 10, wealth: 4 },
-    { name: "TestB", x: 10, y: 10, stamina: 10, wealth: 10 },
+    { name: "Yijia", x: 1, y: 2, stamina: 10, wealth: 0, strategy: "Please set" },
+    { name: "Kevin", x: 5, y: 8, stamina: 10, wealth: 0, strategy: "Please set" },
+    { name: "Jason", x: 8, y: 5, stamina: 10, wealth: 0, strategy: "Please set" },
+    { name: "Will", x: 4, y: 4, stamina: 10, wealth: 0, strategy: "Please set" },
+    { name: "Yan", x: 3, y: 8, stamina: 10, wealth: 0, strategy: "Please set" },
+    { name: "Harry", x: 4, y: 6, stamina: 10, wealth: 0, strategy: "Please set" },
+    { name: "Jiaqi", x: 6, y: 1, stamina: 10, wealth: 0, strategy: "Please set" },
+    { name: "Peter", x: 2, y: 4, stamina: 10, wealth: 0, strategy: "Please set" },
+    { name: "Yash", x: 4, y: 8, stamina: 10, wealth: 0, strategy: "Please set" },
+    { name: "Coco", x: 7, y: 3, stamina: 10, wealth: 0, strategy: "Please set" },
+    { name: "Modeo", x: 8, y: 6, stamina: 10, wealth: 0, strategy: "Please set" },
   ]);
 
   const startGame = () => {
     axios
-      .post("/start_game_mock", {
+      .post("/start_game/", {
         size,
         num_wealth: numWealth,
-        agent_count: agentCount,
         agent_list: agents,
       })
       .then((response) => {
-        setMessage("Success!");
+        setMessage("Successfully started the game!");
         setTimeout(() => {
           setMessage(null);
         }, 10000);
         setGameStarted(true);
+
+        axios.post("/start_llm/").then((response) => {
+          console.log("Successfully started the LLM!");
+        })
+
         // polling get world status api
         const intervalId = setInterval(() => {
           axios
-            .get("/get_world_state_mock")
+            .get("/get_world_state/")
             .then((response) => {
-              if (response.data.length > 0) {
+              console.log("Current world state:");
+              console.log(response.data);
+              if (response.data.ret.length > 0) {
                 // check if the response data is not empty
-                setWorldState(response.data);
+                setWorldState(response.data.ret);
               }
             })
             .catch((err) => console.error(err));
-        }, 2000);
+        }, 5000);
         return () => clearInterval(intervalId);
       })
       .catch((error) => {
@@ -52,7 +66,7 @@ function App() {
       {gameStarted ? null : (
         <form className="form" onSubmit={(e) => e.preventDefault()}>
           <label>
-            Size:
+            Map Size:
             <input
               type="number"
               value={size}
@@ -67,14 +81,6 @@ function App() {
               onChange={(e) => setNumWealth(+e.target.value)}
             />
           </label>
-          <label>
-            Number of Agents:
-            <input
-              type="number"
-              value={agentCount}
-              onChange={(e) => setAgentCount(+e.target.value)}
-            />
-          </label>
           {agents.map((agent, i) => (
             <div key={i}>
               <label>
@@ -85,6 +91,42 @@ function App() {
                   onChange={(e) => {
                     const newAgents = [...agents];
                     newAgents[i].name = e.target.value;
+                    setAgents(newAgents);
+                  }}
+                />
+              </label>
+              <label>
+                X:
+                <input
+                  type="text"
+                  value={agent.x}
+                  onChange={(e) => {
+                    const newAgents = [...agents];
+                    newAgents[i].x = e.target.value;
+                    setAgents(newAgents);
+                  }}
+                />
+              </label>
+              <label>
+                Y:
+                <input
+                  type="text"
+                  value={agent.y}
+                  onChange={(e) => {
+                    const newAgents = [...agents];
+                    newAgents[i].y = e.target.value;
+                    setAgents(newAgents);
+                  }}
+                />
+              </label>
+              <label>
+                Strategy:
+                <input
+                  type="text"
+                  value={agent.strategy}
+                  onChange={(e) => {
+                    const newAgents = [...agents];
+                    newAgents[i].strategy = e.target.value;
                     setAgents(newAgents);
                   }}
                 />
@@ -130,7 +172,7 @@ function App() {
                       {cell !== "W" && cell !== "null" ? (
                         <span className="agent">{cell}</span>
                       ) : (
-                        <span className="null">{}</span>
+                        <span className="null">{ }</span>
                       )}
                     </div>
                   ))}

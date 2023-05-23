@@ -49,8 +49,8 @@ class Web3Game:
         return tx.hex()
 
     # TODO: module system not implemented yet
-    # def deploy_contracts(self, module_list):
-    #     self.gameplay_contract.functions.deployContracts(module_list).transact()
+    def deploy_contracts(self, module_list):
+        self.gameplay_contract.functions.deployContracts(module_list).transact()
 
     # add explorer
     # onlyOwner
@@ -80,9 +80,12 @@ class Web3Game:
     # uint256 stamina;
     # uint256 wealth;
     # }
-    def start_game(self, size, num_wealth, agent_count, agent_list):
-        _agent_list = [[a['id'],a['name'], a['x'], a['y'], a['stamina'], a['wealth']] for a in agent_list]
-
+    def start_game(self, size, num_wealth, agent_list):
+        _agent_list = [[idx + 1, a['name'], a['x'], a['y'], a['stamina'], a['wealth']] for idx, a in enumerate(agent_list)]
+        for idx, a in enumerate(agent_list):
+            self.agent_list[idx+1] = Agent(id=idx+1, name=a['name'], principles=a['strategy'])
+            
+        agent_count = len(_agent_list)
         tx = self.factory_contract.functions.startGame(size, num_wealth, agent_count, _agent_list).transact({
             "gasPrice": self.web3.eth.gas_price
         })
@@ -105,7 +108,6 @@ class Web3Game:
         for _ in range(10): #define max number of round
             agent_list = self.get_explorer_list()
             for agent in agent_list:
-                print(agent)
                 agent_id = agent['id']
                 surroundings = self.get_surroundings(agent_id)
                 allowed_actions = self.get_allowed_actions(agent_id)
@@ -113,11 +115,7 @@ class Web3Game:
                     # maybe dead
                     continue
                 explorer = self.get_agent(agent_id)
-                print(self.agent_list)
-                print(self.agent_list[agent_id])
-
                 action = self.agent_list[agent_id].take_action(surroundings, allowed_actions, explorer['stamina'], explorer['wealth'])
-                print(f"action: {action}")
                 if action is None:
                     # I don't know why, but I'm handling it because it sometimes turns out to be none.
                     # Better than falling off.
