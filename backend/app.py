@@ -233,10 +233,10 @@ class GetAgent(Resource):
         }
 
 
-@api.route("/get_explorer_list/")
+@api.route("/get_explorers_list/")
 class GetExplorerList(Resource):
     def get(self):
-        ret = web3Game.get_explorer_list()
+        ret = web3Game.get_explorers_list()
         return {
             "ret": ret,
         }

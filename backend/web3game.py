@@ -157,39 +157,6 @@ class Web3Game:
                     target_id = int(t.split("(")[0].strip())
                     self.attack(agent_id, target_id)
 
-
-    def get_explorer_id_by_direction(self, self_id, self_pos, direction) -> str:
-        direction = direction.lower()
-        assert direction in ["up", "down", "left", "right"], WorldError("Invalid direction")
-
-        explorers = {}
-        explorers_onchain = self.get_explorer_list()
-        for e in explorers_onchain:
-            explorers[e["id"]] = e
-
-        if self_pos:
-            x, y = self_pos
-        elif self_id:
-            x, y = explorers[self_id]['x'], explorers[self_id]['y']
-        else:
-            raise Exception("Either self_pos or self_id must be provided")
-
-        if direction == "down":
-            x_, y_ = x, y - 1
-        elif direction == "up":
-            x_, y_ = x, y + 1
-        elif direction == "left":
-            x_, y_ = x - 1, y
-        elif direction == "right":
-            x_, y_ = x + 1, y
-
-        for explor_id in explorers.keys():
-            if explorers[explor_id]['x'] == x_ and explorers[explor_id]['y'] == y_:
-                return explor_id
-
-        raise WorldError("There is no explorer at the given direction: {}".format(direction))
-
-
     # move explorer
     # onlyOwner
     # agent_id: uint256
@@ -296,8 +263,8 @@ class Web3Game:
         return result
     
     # getExplorerList
-    def get_explorer_list(self):
-        res = self.gameplay_contract.functions.getExplorerList().call()
+    def get_explorers_list(self):
+        res = self.gameplay_contract.functions.getExplorersList().call()
         result = [{"id": r[0], "name": r[1], "x": r[2], "y": r[3], "stamina": r[4], "wealth": r[5]} for r in res]
         return result
 
