@@ -173,8 +173,6 @@ contract GamePlay is IGameplayContract {
         } else {
             revert("Invalid direction");
         }
-        worldMap[oldY][oldX] = "null";
-        agentMap[oldY][oldX] = "null";
         setLocation(agentId, x, y);
 
         // Decrease stamina by 1
@@ -340,7 +338,9 @@ contract GamePlay is IGameplayContract {
             }
             else if (compareStrings(dirs[i], "up") && y > 0 && !compareStrings(agentMap[y - 1][x],"null")){
                 string memory defenderId = agentMap[y - 1][x];
-                string memory action = string(abi.encodePacked("attack ", defenderId));
+                string memory defenderName = explorers[uint256(keccak256(abi.encodePacked(defenderId)))].agentName;
+                string memory combinedDefender = string(abi.encodePacked(defenderId, "(", defenderName,")"));
+                string memory action = string(abi.encodePacked("attack ", combinedDefender));
                 allowedActions = appendToArray(allowedActions, action);
             }
 
@@ -349,7 +349,9 @@ contract GamePlay is IGameplayContract {
             }
             else if (compareStrings(dirs[i], "down") && y < mapSize - 1 && !compareStrings(agentMap[y + 1][x],"null")){
                 string memory defenderId = agentMap[y + 1][x];
-                string memory action = string(abi.encodePacked("attack ", defenderId));
+                string memory defenderName = explorers[uint256(keccak256(abi.encodePacked(defenderId)))].agentName;
+                string memory combinedDefender = string(abi.encodePacked(defenderId, "(", defenderName,")"));
+                string memory action = string(abi.encodePacked("attack ", combinedDefender));
                 allowedActions = appendToArray(allowedActions, action);
             }
 
@@ -358,7 +360,9 @@ contract GamePlay is IGameplayContract {
             }
             else if (compareStrings(dirs[i], "left") && x > 0 && !compareStrings(agentMap[y][x - 1],"null")){
                 string memory defenderId = agentMap[y][x - 1];
-                string memory action = string(abi.encodePacked("attack ", defenderId));
+                string memory defenderName = explorers[uint256(keccak256(abi.encodePacked(defenderId)))].agentName;
+                string memory combinedDefender = string(abi.encodePacked(defenderId, "(", defenderName,")"));
+                string memory action = string(abi.encodePacked("attack ", combinedDefender));
                 allowedActions = appendToArray(allowedActions, action);
             }
 
@@ -367,7 +371,9 @@ contract GamePlay is IGameplayContract {
             }
             else if (compareStrings(dirs[i], "right") && x < mapSize - 1 && !compareStrings(agentMap[y][x + 1],"null")){
                 string memory defenderId = agentMap[y][x + 1];
-                string memory action = string(abi.encodePacked("attack ", defenderId));
+                string memory defenderName = explorers[uint256(keccak256(abi.encodePacked(defenderId)))].agentName;
+                string memory combinedDefender = string(abi.encodePacked(defenderId, "(", defenderName,")"));
+                string memory action = string(abi.encodePacked("attack ", combinedDefender));
                 allowedActions = appendToArray(allowedActions, action);
             }
         }
