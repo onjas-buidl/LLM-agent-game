@@ -154,7 +154,7 @@ class Web3Game:
                     #     if self.agent_list[i].name.lower() == t.lower():
                     #         target_id = i
                     #         break
-                    target_id = int(t.split("(")[0].strip())
+                    target_id = int(t.split("(")[1].replace(")", "").strip())
                     self.attack(agent_id, target_id)
 
     # move explorer
