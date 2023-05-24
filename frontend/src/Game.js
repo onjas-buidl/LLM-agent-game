@@ -1,5 +1,5 @@
 import axios from "axios";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import "./Game.css";
 
 axios.defaults.baseURL = "http://localhost:8080";
@@ -94,22 +94,35 @@ export default function Game() {
   const [modules, setModules] = useState(DEFAULT_MODULE);
   const [agents, setAgents] = useState(DEFAULT_AGENTS);
 
+  const team = useMemo(() => {
+    const queryString = window.location.search;
+
+    const params = new URLSearchParams(queryString);
+    return params.get('team')
+  }, [window.location.search])
+
   const handleStartGame = async () => {
     setMessage("Starting the game ...");
-
-    await axios.post("/start_game/", {
-      size,
-      num_wealth: numWealth,
-      agent_list: agents,
-      module_list: modules
-    });
+    if (team === 'A') {
+      await axios.post("/start_game/", {
+        size,
+        num_wealth: numWealth,
+        agent_list: agents,
+        module_list: modules
+      });
+    }
     setAgents([]);
     setMessage("Successfully started the game!");
 
     setTimeout(() => setGameStarted(true), 1000);
     setTimeout(() => setMessage(null), 5000);
 
-    axios.post("/start_llm/").catch();
+    if (team === 'A' || team === 'B') {
+      axios.post(`/start_llm/${team}`).catch();
+    } else {
+      axios.post("/start_llm/").catch();
+    }
+
     setAgents(DEFAULT_AGENTS);
     setInterval(() => {
       axios
