@@ -149,11 +149,12 @@ class Web3Game:
                     self.rest(agent_id)
                 elif 'attack' in action:
                     _, t = action.split(" ")
-                    target_id = 0
-                    for i in self.agent_list.keys():
-                        if self.agent_list[i].name.lower() == t.lower():
-                            target_id = i
-                            break
+                    # target_id = 0
+                    # for i in self.agent_list.keys():
+                    #     if self.agent_list[i].name.lower() == t.lower():
+                    #         target_id = i
+                    #         break
+                    target_id = int(t.split("(")[0].strip())
                     self.attack(agent_id, target_id)
 
 

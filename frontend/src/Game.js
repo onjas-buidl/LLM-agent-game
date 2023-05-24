@@ -122,15 +122,25 @@ export default function Game() {
             
             setWorldState(worldRes.data.ret);
           }
-          Promise.all(
-            agents.map((_, agentId) => axios.get(`/get_agent/${agentId+1}`))
-          ).then((results) => {
-            const newAgents = [...agents];
-            results.map((result, index) => {
-              newAgents[index] = result.data.ret;
-            });
-            setAgents(newAgents)
+
+          axios.get("/get_explorer_list/").then((agentRes) => {
+            console.log("Current agent list:");
+            console.log(agentRes.data.ret);
+            if (agentRes.data.ret.length > 0) {
+              // check if the response data is not empty
+              setAgents(agentRes.data.ret);
+            }
           });
+
+          // Promise.all(
+          //   agents.map((_, agentId) => axios.get(`/get_explorer_list/${agentId+1}`))
+          // ).then((results) => {
+          //   const newAgents = [...agents];
+          //   results.map((result, index) => {
+          //     newAgents[index] = result.data.ret;
+          //   });
+          //   setAgents(newAgents)
+          // });
 
           // axios.get("/get_action_history/").then((actionRes) => {
           //   console.log("Current action history:");
