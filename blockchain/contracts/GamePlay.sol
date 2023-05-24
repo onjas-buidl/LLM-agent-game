@@ -37,7 +37,6 @@ contract GamePlay is IGameplayContract {
     string[][] private agentMap;
     mapping(uint256 => Explorer) public explorers;
     uint explorersCount = 0;
-    Explorer[] public explorersList;
 
     mapping(uint256 => mapping(uint256 => address)) public ugcContract;
 
@@ -141,7 +140,6 @@ contract GamePlay is IGameplayContract {
         // Set the cell value to the agent's name
         // worldMap[y][x] = name;
         agentMap[y][x] = agentName;
-        explorersList.push(explorers[agentId]);
         explorersCount += 1;
     }
 
@@ -249,8 +247,13 @@ contract GamePlay is IGameplayContract {
 
     // ---------------------
     // getter funcs
-    function getExplorerList() external view returns (Explorer[] memory) {
-        return explorersList;
+    function getExplorersList() external view returns (Explorer[] memory) {
+        Explorer[] memory result = new Explorer[](explorersCount);
+
+        for (uint256 i = 0; i < explorersCount; i++) {
+            result[i] = explorers[i+1];
+        }
+        return result;
     }
 
     function getSurroundings(uint256 agentId) external view returns (string[][] memory) {
