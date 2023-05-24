@@ -157,6 +157,42 @@ class Web3Game:
                     target_id = int(t.split("(")[1].replace(")", "").strip())
                     self.attack(agent_id, target_id)
 
+    # _team: 'A' or 'B'
+    def start_llm_by_team(self, _team):
+        team = _team + '-'
+        for _ in range(10): #define max number of round
+            unfiltered_agent_list = self.get_explorers_list()
+            agent_list = list(filter(lambda x: team in x['name'], unfiltered_agent_list))
+            for agent in agent_list:
+                agent_id = agent['id']
+                surroundings = self.get_surroundings(agent_id)
+                allowed_actions = self.get_allowed_actions(agent_id)
+                if allowed_actions is None:
+                    # maybe dead
+                    continue
+                explorer = self.get_agent(agent_id)
+                action = self.agent_list[agent_id].take_action(surroundings, allowed_actions, explorer['stamina'], explorer['wealth'])
+                if action is None:
+                    # I don't know why, but I'm handling it because it sometimes turns out to be none.
+                    # Better than falling off.
+                    continue
+                elif 'move' in action:
+                    _, direction = action.split(" ")
+                    self.move(agent_id, direction)
+                elif 'gather' in action:
+                    self.gather_wealth(agent_id)
+                elif 'rest' in action:
+                    self.rest(agent_id)
+                elif 'attack' in action:
+                    _, t = action.split(" ")
+                    # target_id = 0
+                    # for i in self.agent_list.keys():
+                    #     if self.agent_list[i].name.lower() == t.lower():
+                    #         target_id = i
+                    #         break
+                    target_id = int(t.split("(")[1].replace(")", "").strip())
+                    self.attack(agent_id, target_id)
+
     # move explorer
     # onlyOwner
     # agent_id: uint256
