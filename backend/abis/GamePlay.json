@@ -161,50 +161,6 @@
 		"inputs": [
 			{
 				"internalType": "uint256",
-				"name": "",
-				"type": "uint256"
-			}
-		],
-		"name": "explorersList",
-		"outputs": [
-			{
-				"internalType": "uint256",
-				"name": "agentId",
-				"type": "uint256"
-			},
-			{
-				"internalType": "string",
-				"name": "agentName",
-				"type": "string"
-			},
-			{
-				"internalType": "uint256",
-				"name": "x",
-				"type": "uint256"
-			},
-			{
-				"internalType": "uint256",
-				"name": "y",
-				"type": "uint256"
-			},
-			{
-				"internalType": "uint256",
-				"name": "stamina",
-				"type": "uint256"
-			},
-			{
-				"internalType": "uint256",
-				"name": "wealth",
-				"type": "uint256"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "uint256",
 				"name": "agentId",
 				"type": "uint256"
 			}
@@ -323,7 +279,20 @@
 	},
 	{
 		"inputs": [],
-		"name": "getExplorerList",
+		"name": "getExplorersCount",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "getExplorersList",
 		"outputs": [
 			{
 				"components": [
@@ -361,19 +330,6 @@
 				"internalType": "struct GamePlay.Explorer[]",
 				"name": "",
 				"type": "tuple[]"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "getExplorersCount",
-		"outputs": [
-			{
-				"internalType": "uint256",
-				"name": "",
-				"type": "uint256"
 			}
 		],
 		"stateMutability": "view",
