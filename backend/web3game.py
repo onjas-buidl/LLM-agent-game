@@ -126,7 +126,7 @@ class Web3Game:
 
     def start_llm(self):
         for _ in range(10): #define max number of round
-            agent_list = self.get_explorer_list()
+            agent_list = self.get_explorers_list()
             for agent in agent_list:
                 agent_id = agent['id']
                 surroundings = self.get_surroundings(agent_id)

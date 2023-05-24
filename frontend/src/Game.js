@@ -123,7 +123,7 @@ export default function Game() {
             setWorldState(worldRes.data.ret);
           }
 
-          axios.get("/get_explorer_list/").then((agentRes) => {
+          axios.get("/get_explorers_list/").then((agentRes) => {
             console.log("Current agent list:");
             console.log(agentRes.data.ret);
             if (agentRes.data.ret.length > 0) {
@@ -133,7 +133,7 @@ export default function Game() {
           });
 
           // Promise.all(
-          //   agents.map((_, agentId) => axios.get(`/get_explorer_list/${agentId+1}`))
+          //   agents.map((_, agentId) => axios.get(`/get_explorers_list/${agentId+1}`))
           // ).then((results) => {
           //   const newAgents = [...agents];
           //   results.map((result, index) => {
