@@ -1,0 +1,342 @@
+body {
+  min-height: 100vh;
+  background-color: #282c34;
+  color: white;
+}
+
+main.setup {
+  padding: 15px;
+}
+
+.message {
+  position: fixed;
+  height: 100px;
+  left: 0;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  background-color: #000000a0;
+}
+
+.brand {
+  font-family: monospace;
+  font-size: 48px;
+  text-transform: uppercase;
+  margin-bottom: 30px;
+}
+
+.title {
+  font-variant: small-caps;
+  font-size: 28px;
+  margin-bottom: 15px;
+}
+
+.settings {
+  margin-bottom: 30px;
+}
+
+.settings > * {
+  margin-bottom: 15px;
+}
+
+.settings .setting {
+  background-color: #383d49;
+  padding: 10px 15px;
+  border-radius: 10px;
+}
+
+.settings .setting label {
+  font-size: 18px;
+  margin-right: 15px;
+}
+
+.settings .setting input {
+  font-size: 18px;
+  outline: none;
+  border: none;
+  appearance: none;
+  background-color: #4f5667;
+  color: white;
+  padding: 10px 15px;
+  border-radius: 10px;
+}
+
+
+.modules {
+  margin-bottom: 30px;
+}
+
+.modules > * {
+  margin-bottom: 15px;
+}
+
+.modules > .module {
+  display: flex;
+  align-items: center;
+  background-color: #383d49;
+  padding: 15px;
+  border-radius: 10px;
+}
+
+.modules > .module .name {
+  width: 150px;
+  font-size: 20px;
+  outline: none;
+  border: none;
+  appearance: none;
+  background: none;
+  color: white;
+}
+
+.modules > .module .description {
+  flex: 1;
+  font-size: 20px;
+  outline: none;
+  border: none;
+  appearance: none;
+  background: none;
+  color: white;
+}
+
+.modules > .module .location {
+  margin-left: 15px;
+}
+
+.modules > .module .location label {
+  font-size: 18px;
+  margin-right: 5px;
+}
+
+.modules > .module .location input {
+  margin-right: 10px;
+  width: 50px;
+  font-size: 18px;
+  outline: none;
+  border: none;
+  appearance: none;
+  background-color: #4f5667;
+  color: white;
+  padding: 10px;
+  border-radius: 10px;
+}
+
+.modules > .module .remove {
+  font-size: 18px;
+  outline: none;
+  border: none;
+  appearance: none;
+  background-color: #823c3c;
+  color: white;
+  padding: 10px 15px;
+  border-radius: 10px;
+}
+
+
+.agents {
+  margin-bottom: 30px;
+}
+
+.agents > * {
+  margin-bottom: 15px;
+}
+
+.agents > .agent {
+  display: flex;
+  align-items: center;
+  background-color: #383d49;
+  padding: 15px;
+  border-radius: 10px;
+}
+
+.agents > .agent .name {
+  width: 150px;
+  font-size: 15px;
+  outline: none;
+  border: none;
+  appearance: none;
+  background: none;
+  color: white;
+}
+
+.agents > .agent .strategy {
+  flex: 1;
+  font-size: 20px;
+  outline: none;
+  border: none;
+  appearance: none;
+  background: none;
+  color: white;
+}
+
+.agents > .agent .location {
+  margin-left: 15px;
+}
+
+.agents > .agent .location label {
+  font-size: 18px;
+  margin-right: 5px;
+}
+
+.agents > .agent .location input {
+  margin-right: 10px;
+  width: 50px;
+  font-size: 18px;
+  outline: none;
+  border: none;
+  appearance: none;
+  background-color: #4f5667;
+  color: white;
+  padding: 10px;
+  border-radius: 10px;
+}
+
+.agents > .agent .remove {
+  font-size: 18px;
+  outline: none;
+  border: none;
+  appearance: none;
+  background-color: #823c3c;
+  color: white;
+  padding: 10px 15px;
+  border-radius: 10px;
+}
+
+.buttons > * {
+  margin-right: 15px;
+}
+
+.buttons button {
+  font-size: 20px;
+  outline: none;
+  border: none;
+  appearance: none;
+  background-color: #836cb5;
+  color: white;
+  padding: 10px 15px;
+  border-radius: 10px;
+}
+
+main.game {
+  height: 100vh;
+  display: flex;
+  flex-direction: row;
+  /* flex-wrap:wrap; */
+  /* overflow:hidden; */
+  align-items: stretch;
+}
+
+.leaderboard {
+  margin: 15px;
+  width: 200px;
+  /* height: 30%; */
+  flex-shrink: 0;
+  background-color: #383d49;
+  padding: 15px;
+}
+
+.leaderboard > .agent {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-bottom: 10px;
+  font-size: 18px;
+}
+
+.leaderboard > .agent .name {
+  flex: 1;
+}
+
+.leaderboard > .agent .wealth {
+  margin-left: 10px;
+}
+
+.actions {
+  margin: 15px;
+  margin-left: 0;
+  margin-bottom: 0px;
+  width: 100%;
+  height: 200px;
+  flex-shrink: 0;
+  background-color: #383d49;
+  padding: 15px;
+}
+
+.actions > .act {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 10px;
+  font-size: 10px;
+}
+
+.present {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
+.map {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  position: relative;
+}
+
+.map > .grid {
+  background-color: #5e4a3a;
+  width: 80px;
+  height: 80px;
+  box-shadow: 0px 0px 1px #000000;
+}
+
+.map > .gold {
+  position: absolute;
+  margin: 10px;
+  width: 60px;
+  height: 60px;
+  overflow: hidden;
+}
+
+.map > .teleport {
+  position: absolute;
+  margin: 10px;
+  width: 60px;
+  height: 60px;
+  overflow: hidden;
+}
+
+.map > .agent {
+  position: absolute;
+  transition: left 500ms, top 500ms;
+  margin: 10px;
+  width: 60px;
+  height: 60px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+.map > .agent .name {
+  font-weight: bold;
+  font-size: 10px;
+  margin-bottom: 5px;
+}
+
+.map > .agent .stamina-red {
+  height: 5px;
+  background-color: lightcoral;
+}
+
+.map > .agent .stamina-blue {
+  height: 5px;
+  background-color: lightblue;
+}

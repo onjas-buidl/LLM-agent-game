@@ -97,7 +97,8 @@ contract GamePlay is IGameplayContract {
             require(x < worldMap.length && y < worldMap.length, "Invalid x coordinate");
             // require(ugcContract[x][y], "Cell already occupied");
             require(compareStrings(worldMap[y][x], "null"), "Cell already occupied");
-            
+            require(compareStrings(agentMap[y][x], "null"), "Cell already occupied");
+
             // Set up the module contract
             ugcContract[y][x] = contractAddress;
 
@@ -139,13 +140,14 @@ contract GamePlay is IGameplayContract {
         // Set the cell value to the agent's name
         // worldMap[y][x] = name;
         agentMap[y][x] = agentName;
-        // TODO: explorersList.push(explorers[agentId]);
+
         explorersCount += 1;
     }
 
     function move(uint256 agentId, string memory direction) 
         external
     {   
+        require(compareStrings(direction, "down") || compareStrings(direction, "up") || compareStrings(direction, "left") || compareStrings(direction, "right"), "Invalid direction");
         require(bytes(explorers[agentId].agentName).length != 0, "Explorer not found");
         require(explorers[agentId].stamina > 0, "Explorer already dead");
         
@@ -170,8 +172,6 @@ contract GamePlay is IGameplayContract {
         } else {
             revert("Invalid direction");
         }
-        worldMap[oldY][oldX] = "null";
-        agentMap[oldY][oldX] = "null";
         setLocation(agentId, x, y);
 
         // Decrease stamina by 1
@@ -226,7 +226,7 @@ contract GamePlay is IGameplayContract {
     {
         require(bytes(explorers[attackerId].agentName).length != 0, "Attacker not found");
         require(explorers[attackerId].stamina > 0, "Attacker already dead");
-        require(bytes(explorers[defenderId].agentName).length != 0, "Deffender not found");
+        require(bytes(explorers[defenderId].agentName).length != 0, "Defender not found");
         require(explorers[defenderId].stamina > 0, "Defender already dead");
 
         if (explorers[attackerId].stamina > explorers[defenderId].stamina) {
@@ -344,7 +344,9 @@ contract GamePlay is IGameplayContract {
             }
             else if (compareStrings(dirs[i], "up") && y > 0 && !compareStrings(agentMap[y - 1][x],"null")){
                 string memory defenderId = agentMap[y - 1][x];
-                string memory action = string(abi.encodePacked("attack ", defenderId));
+                string memory defenderName = explorers[uint256(keccak256(abi.encodePacked(defenderId)))].agentName;
+                string memory combinedDefender = string(abi.encodePacked(defenderId, "(", defenderName,")"));
+                string memory action = string(abi.encodePacked("attack ", combinedDefender));
                 allowedActions = appendToArray(allowedActions, action);
             }
 
@@ -353,7 +355,9 @@ contract GamePlay is IGameplayContract {
             }
             else if (compareStrings(dirs[i], "down") && y < mapSize - 1 && !compareStrings(agentMap[y + 1][x],"null")){
                 string memory defenderId = agentMap[y + 1][x];
-                string memory action = string(abi.encodePacked("attack ", defenderId));
+                string memory defenderName = explorers[uint256(keccak256(abi.encodePacked(defenderId)))].agentName;
+                string memory combinedDefender = string(abi.encodePacked(defenderId, "(", defenderName,")"));
+                string memory action = string(abi.encodePacked("attack ", combinedDefender));
                 allowedActions = appendToArray(allowedActions, action);
             }
 
@@ -362,7 +366,9 @@ contract GamePlay is IGameplayContract {
             }
             else if (compareStrings(dirs[i], "left") && x > 0 && !compareStrings(agentMap[y][x - 1],"null")){
                 string memory defenderId = agentMap[y][x - 1];
-                string memory action = string(abi.encodePacked("attack ", defenderId));
+                string memory defenderName = explorers[uint256(keccak256(abi.encodePacked(defenderId)))].agentName;
+                string memory combinedDefender = string(abi.encodePacked(defenderId, "(", defenderName,")"));
+                string memory action = string(abi.encodePacked("attack ", combinedDefender));
                 allowedActions = appendToArray(allowedActions, action);
             }
 
@@ -371,7 +377,9 @@ contract GamePlay is IGameplayContract {
             }
             else if (compareStrings(dirs[i], "right") && x < mapSize - 1 && !compareStrings(agentMap[y][x + 1],"null")){
                 string memory defenderId = agentMap[y][x + 1];
-                string memory action = string(abi.encodePacked("attack ", defenderId));
+                string memory defenderName = explorers[uint256(keccak256(abi.encodePacked(defenderId)))].agentName;
+                string memory combinedDefender = string(abi.encodePacked(defenderId, "(", defenderName,")"));
+                string memory action = string(abi.encodePacked("attack ", combinedDefender));
                 allowedActions = appendToArray(allowedActions, action);
             }
         }
@@ -478,16 +486,19 @@ contract GamePlay is IGameplayContract {
         require(x < worldMap.length && y < worldMap.length, "Invalid position");
         // Check if the provided position is not occupied by another explorer
         require(
-            compareStrings(worldMap[y][x], "null") ||
+            compareStrings(agentMap[y][x], "null") ||
                 compareStrings(worldMap[y][x], "W"),
             "Position occupied"
         );
         string memory agentName = explorers[agentId].agentName;
+        uint256 origX = explorers[agentId].x;
+        uint256 origY = explorers[agentId].y;
         explorers[agentId].x = x;
         explorers[agentId].y = y;
 
         // Update agentMap
         agentMap[explorers[agentId].y][explorers[agentId].x] = agentName;
+        agentMap[origY][origX] = "null";
     }
 
     function setStamina(uint256 agentId, uint256 stamina) public {
@@ -534,6 +545,6 @@ contract GamePlay is IGameplayContract {
     }
 
     function isOccupied(uint x, uint y) public view returns (bool) {
-        return (!compareStrings(agentMap[uint256(y)][uint256(x)], "null") && !compareStrings(agentMap[uint256(y)][uint256(x)], "null"));
+        return (!compareStrings(agentMap[uint256(y)][uint256(x)], "null") || !compareStrings(worldMap[y][x], "null"));
     }
 }

@@ -5,9 +5,11 @@ from web3.middleware.signing import construct_sign_and_send_raw_middleware
 from eth_account import Account
 from AgentConfig import Agent
 
-
 NODE_URL = os.environ.get('NODE_URL')
 PRIVATE_KEY = os.environ.get('PRIVATE_KEY')
+
+if not PRIVATE_KEY:
+    raise Exception('PRIVATE_KEY is required')
 
 def load_abi_from_path(path):
     with open(path, 'r') as f:
@@ -26,7 +28,6 @@ class Web3Game:
                                                   abi=load_abi_from_path('./abis/factory.json'))
 
         self.agent_list = {}
-
     # transfer ownership of the gameplay contract
     # onlyOwner
     # new_owner: address
@@ -49,8 +50,10 @@ class Web3Game:
         return tx.hex()
 
     # TODO: module system not implemented yet
-    # def deploy_contracts(self, module_list):
-    #     self.gameplay_contract.functions.deployContracts(module_list).transact()
+    def deploy_contracts(self, module_list):
+        self.gameplay_contract.functions.deployContracts(module_list).transact({
+            "gasPrice": self.web3.eth.gas_price
+        })
 
     # add explorer
     # onlyOwner
@@ -80,9 +83,14 @@ class Web3Game:
     # uint256 stamina;
     # uint256 wealth;
     # }
-    def start_game(self, size, num_wealth, agent_count, agent_list):
-        _agent_list = [[a['id'],a['name'], a['x'], a['y'], a['stamina'], a['wealth']] for a in agent_list]
-
+    def start_game(self, size, num_wealth, agent_list, module_list):
+        _agent_list = [[idx + 1, a['name'], a['x'], a['y'], a['stamina'], a['wealth']] for idx, a in enumerate(agent_list)]
+        _module_list = [[m['name'], m['description'], m['x'], m['y']] for m in module_list]
+        
+        for idx, a in enumerate(agent_list):
+            self.agent_list[idx+1] = Agent(id=idx+1, name=a['name'], principles=a['strategy'])
+            
+        agent_count = len(_agent_list)
         tx = self.factory_contract.functions.startGame(size, num_wealth, agent_count, _agent_list).transact({
             "gasPrice": self.web3.eth.gas_price
         })
@@ -99,13 +107,27 @@ class Web3Game:
         self.gameplay_contract = self.web3.eth.contract(address=gameplay_contract_address,
                                                    abi=load_abi_from_path('./abis/gameplay.json'))
 
+        _module_list_new = []
+        for _module in _module_list:
+            module_contract = self.web3.eth.contract(abi=load_abi_from_path('./abis/TeleportModule.json'), #TODO: change to _module
+                                                       bytecode=load_abi_from_path('./bytecodes/TeleportModule.txt'))
+            tx_hash = module_contract.constructor(gameplay_contract_address, 
+                                                "Teleport", "will move you to a random cell").transact({
+                                                    "gasPrice": self.web3.eth.gas_price})
+            tx_receipt = self.web3.eth.wait_for_transaction_receipt(tx_hash)
+            
+            teleport_module_contract_address = tx_receipt.contractAddress
+            
+            _module_list_new.append([_module[0], _module[1], _module[2], _module[3], teleport_module_contract_address])
+        
+        
+        self.deploy_contracts(_module_list_new)
         return tx.hex()
 
     def start_llm(self):
         for _ in range(10): #define max number of round
-            agent_list = self.get_explorer_list()
+            agent_list = self.get_explorers_list()
             for agent in agent_list:
-                print(agent)
                 agent_id = agent['id']
                 surroundings = self.get_surroundings(agent_id)
                 allowed_actions = self.get_allowed_actions(agent_id)
@@ -113,11 +135,7 @@ class Web3Game:
                     # maybe dead
                     continue
                 explorer = self.get_agent(agent_id)
-                print(self.agent_list)
-                print(self.agent_list[agent_id])
-
                 action = self.agent_list[agent_id].take_action(surroundings, allowed_actions, explorer['stamina'], explorer['wealth'])
-                print(f"action: {action}")
                 if action is None:
                     # I don't know why, but I'm handling it because it sometimes turns out to be none.
                     # Better than falling off.
@@ -131,44 +149,13 @@ class Web3Game:
                     self.rest(agent_id)
                 elif 'attack' in action:
                     _, t = action.split(" ")
-                    if t in ['up', 'down', 'left', 'right']:
-                        target_id = self.get_explorer_id_by_direction(self_id=agent_id, self_pos=None, direction=t)
-                        self.attack(agent_id, target_id)
-                    else:
-                        self.attack(agent_id, t)
-
-
-    def get_explorer_id_by_direction(self, self_id, self_pos, direction) -> str:
-        direction = direction.lower()
-        assert direction in ["up", "down", "left", "right"], WorldError("Invalid direction")
-
-        explorers = {}
-        explorers_onchain = self.get_explorer_list()
-        for e in explorers_onchain:
-            explorers[e["id"]] = e
-
-        if self_pos:
-            x, y = self_pos
-        elif self_id:
-            x, y = explorers[self_id]['x'], explorers[self_id]['y']
-        else:
-            raise Exception("Either self_pos or self_id must be provided")
-
-        if direction == "down":
-            x_, y_ = x, y - 1
-        elif direction == "up":
-            x_, y_ = x, y + 1
-        elif direction == "left":
-            x_, y_ = x - 1, y
-        elif direction == "right":
-            x_, y_ = x + 1, y
-
-        for explor_id in explorers.keys():
-            if explorers[explor_id]['x'] == x_ and explorers[explor_id]['y'] == y_:
-                return explor_id
-
-        raise WorldError("There is no explorer at the given direction: {}".format(direction))
-
+                    # target_id = 0
+                    # for i in self.agent_list.keys():
+                    #     if self.agent_list[i].name.lower() == t.lower():
+                    #         target_id = i
+                    #         break
+                    target_id = int(t.split("(")[1].replace(")", "").strip())
+                    self.attack(agent_id, target_id)
 
     # move explorer
     # onlyOwner
@@ -227,7 +214,7 @@ class Web3Game:
         except Exception as e:
             print(e)
             return None
-
+        
     # get surroundings
     # agent_id: uint256
     def get_surroundings(self, agent_id):
@@ -242,7 +229,7 @@ class Web3Game:
             print(e)
             return None
 
-    # get world state
+    # get world stateagent
     def get_world_state(self):
         return self.gameplay_contract.functions.getWorldState().call()
 
@@ -276,8 +263,8 @@ class Web3Game:
         return result
     
     # getExplorerList
-    def get_explorer_list(self):
-        res = self.gameplay_contract.functions.getExplorerList().call()
+    def get_explorers_list(self):
+        res = self.gameplay_contract.functions.getExplorersList().call()
         result = [{"id": r[0], "name": r[1], "x": r[2], "y": r[3], "stamina": r[4], "wealth": r[5]} for r in res]
         return result
 

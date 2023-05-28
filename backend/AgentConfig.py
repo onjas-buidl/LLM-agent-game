@@ -18,11 +18,10 @@ class Agent:
         self.reset()
         if chat_model == 'GPT3.5':
             self.chat_model = ChatOpenAI(
-                temperature=0, openai_api_key=os.environ.get("OPENAI_API_KEY"), max_tokens=1500, request_timeout=120)
+                temperature=0, openai_api_key=os.environ.get("OPENAI_API_KEY"), max_tokens=1500, request_timeout=360)
         elif chat_model == 'GPT4':
-            print(os.environ.get("OPENAI_API_KEY"))
             self.chat_model = ChatOpenAI(
-                temperature=0, openai_api_key=os.environ.get("OPENAI_API_KEY"), max_tokens=1500, request_timeout=120,
+                temperature=0, openai_api_key=os.environ.get("OPENAI_API_KEY"), max_tokens=1500, request_timeout=360,
                 model_name="gpt-4")
         elif chat_model == 'Claude':
             from langchain.chat_models import ChatAnthropic
@@ -134,7 +133,7 @@ class Agent:
             for j in range(m):
                 v_diff = i - yourself_pos[0]
                 h_diff = j - yourself_pos[1]
-                if lst[i][j] == 0:
+                if lst[i][j] == 'null':
                     continue
                 if lst[i][j] == "W":
                     # if it's wealth
@@ -172,9 +171,9 @@ class Agent:
                             h_diff=abs(h_diff),
                             h_plural='' if abs(h_diff) == 1 else 's',
                             h_direction='left' if h_diff < 0 else 'right',
-                            content=lst[i][j][0])
-                        if lst[i][j][1] > 0:
-                            result_str += f", and {lst[i][j][1]} wealth"
+                            content=lst[i][j].replace("W", "").replace("&", "").strip())
+                        if "W" in lst[i][j]:
+                            result_str += f", and one wealth"
                         result.append(result_str)
 
 
@@ -213,7 +212,7 @@ class Agent:
                 raise e
 
     def take_action(self, surroundings, allowed_actions, stamina, wealth):
-        print(f"allowed_actions: {allowed_actions}")
+        # print(f"allowed_actions: {allowed_actions}")
         formmatted_surroundings = self.get_self_formatted_surroundings(surroundings)
         _input = self.instruction.format_prompt(
             surroundings=formmatted_surroundings, stamina=stamina, wealth=wealth, allowed_actions=allowed_actions)
@@ -221,18 +220,19 @@ class Agent:
 
         _output = self.chat_model(self.message_history)
         json_string = _output.content.split("```json")[-1].strip().replace('```', '')
-        print(f"json_string: {json_string}")
+        # print(f"json_string: {json_string}")
         output = json.loads(json_string)
         self.check_response_format(output, surroundings, allowed_actions, stamina, wealth)
 
         action_parts = output['Action']
         action_parts = action_parts.lower().strip().replace(".", "").strip()
-
         try:
             print(self.name, "choose to: `", action_parts, "`")
-            print(f"action_parts: `{action_parts}`")
             print("Motivation: ", output['Motivation'])
-            if action_parts not in allowed_actions:
+            print("\n")
+            # print(action_parts)
+            # print([i.lower for i in allowed_actions])
+            if action_parts not in [i.lower() for i in allowed_actions]:
                 raise Exception("Action not in allowed list")
             self.reset()
             return action_parts
