@@ -153,8 +153,6 @@ contract GamePlay is IGameplayContract {
         
         uint256 x = explorers[agentId].x;
         uint256 y = explorers[agentId].y;
-        uint256 oldX = x;
-        uint256 oldY = y;
         
         // Calculate the new position based on the specified direction
         if (compareStrings(direction, "up")) {

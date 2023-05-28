@@ -26,19 +26,20 @@ contract StealthModule is BaseModule {
 
     function trigger(uint agentId, uint size) public override {
         // Check if explorer is currently in stealth mode
-        if (stealthStates[agentId].isInStealthMode) {
-            // If the explorer's stealth mode is over
-            if (block.timestamp > stealthStates[agentId].endOfStealth) {
-                stealthStates[agentId].isInStealthMode = false;
-                game.setStealthMode(agentId, false);
-            }
-            // If the explorer is still in stealth mode, don't change anything
-            return;
-        }
+        // if (stealthStates[agentId].isInStealthMode) {
+        //     // If the explorer's stealth mode is over
+        //     if (block.timestamp > stealthStates[agentId].endOfStealth) {
+        //         stealthStates[agentId].isInStealthMode = false;
+        //         game.setStealthMode(agentId, false);
+        //     }
+        //     // If the explorer is still in stealth mode, don't change anything
+        //     return;
+        // }
 
-        // If explorer is not in stealth mode, enable stealth mode for the stealth duration
-        stealthStates[agentId].isInStealthMode = true;
-        stealthStates[agentId].endOfStealth = block.timestamp + stealthDuration;
-        game.setStealthMode(agentId, true);
+        // // If explorer is not in stealth mode, enable stealth mode for the stealth duration
+        // stealthStates[agentId].isInStealthMode = true;
+        // stealthStates[agentId].endOfStealth = block.timestamp + stealthDuration;
+        // game.setStealthMode(agentId, true);
+        uint x = 1; // TODO: remove this
     }
 }

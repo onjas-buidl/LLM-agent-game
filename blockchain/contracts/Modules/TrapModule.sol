@@ -11,17 +11,17 @@ contract TrapModule is BaseModule {
     {}
 
     function trigger(uint agentId, uint size) public override {
-        require(bytes(explorers[agentId].agentName).length != 0, "Explorer not found");
+        // require(bytes(explorers[agentId].agentName).length != 0, "Explorer not found");
         
         // Generate random coordinates for the trap
         uint256 x = randomCoordinate(size);
         uint256 y = randomCoordinate(size);
 
-        // If the agent steps on the trap, reduce their stamina by 1
-        uint256[] memory location = game.getAgentLocation(agentId);
-        if (location[0] == x && location[1] == y) {
-            game.reduceStamina(agentId, 1);
-        }
+        // // If the agent steps on the trap, reduce their stamina by 1
+        // uint256[] memory location = game.getAgentLocation(agentId);
+        // if (location[0] == x && location[1] == y) {
+        //     game.reduceStamina(agentId, 1);
+        // }
     }
 
     //-------------------- Helpers --------------------
