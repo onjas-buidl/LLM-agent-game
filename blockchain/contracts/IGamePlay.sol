@@ -18,8 +18,10 @@ interface IGameplayContract {
     function gatherWealth(uint256 agentId) external;
     function rest(uint256 agentId) external;
     function attack(uint256 attackerId, uint256 defenderId) external;
-    function getSurroundings(uint256 agentId) external view returns (string[][] memory);
-    function getAllowedActions(uint256 agentId) external view returns (string[] memory);
+    // function getSurroundings(uint256 agentId) external view returns (string[][] memory);
+    // function getAllowedActions(uint256 agentId) external view returns (string[] memory);
+    function getAllSurroundings() external view returns (string[][][] memory);
+    function getAllAllowedActions() external view returns (string[][] memory);
     function getWorldState() external view returns (string[][] memory);
 }
 
