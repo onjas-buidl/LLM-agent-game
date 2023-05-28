@@ -6,8 +6,15 @@ from langchain.prompts import ChatPromptTemplate, HumanMessagePromptTemplate
 from langchain.schema import SystemMessage, HumanMessage
 from langchain.chat_models import ChatOpenAI
 
+from PipedLLM import PipedLLM
+api_keys = json.loads(os.environ.get("OPENAI_API_KEYS", "[]"))
+if len(api_keys) == 0:
+    raise ValueError('No OpenAI API keys provided. OPENAI_API_KEYS=["sk-xxx", "sk-yyy"]')
+piped = PipedLLM(api_keys)
+
+
 class Agent:
-    def __init__(self, id, name, principles, max_retry_times=5, chat_model='GPT3.5'):
+    def __init__(self, id, name, principles, max_retry_times=5):
         self.id = id
         self.name = name
         self.principles = principles
@@ -16,31 +23,7 @@ class Agent:
         self.max_retry_times = max_retry_times
         self.retry_times = max_retry_times
         self.reset()
-        if chat_model == 'GPT3.5':
-            self.chat_model = ChatOpenAI(
-                temperature=0, openai_api_key=os.environ.get("OPENAI_API_KEY"), max_tokens=1500, request_timeout=360)
-        elif chat_model == 'GPT4':
-            self.chat_model = ChatOpenAI(
-                temperature=0, openai_api_key=os.environ.get("OPENAI_API_KEY"), max_tokens=1500, request_timeout=360,
-                model_name="gpt-4")
-        elif chat_model == 'Claude':
-            from langchain.chat_models import ChatAnthropic
-            from langchain.prompts.chat import (
-                ChatPromptTemplate,
-                SystemMessagePromptTemplate,
-                AIMessagePromptTemplate,
-                HumanMessagePromptTemplate,
-            )
-            from langchain.schema import (
-                AIMessage,
-                HumanMessage,
-                SystemMessage
-            )
-            # os.environ.get("ANTHROPIC_API_KEY")
-            self.chat_model = ChatAnthropic(temperature=0, anthropic_api_key=os.environ.get("ANTHROPIC_API_KEY"))
-        else:
-            raise NotImplementedError(
-                f"Chat model {chat_model} not implemented.")
+        
         self.instruction = self.get_instruction()
         self.error_message = self.get_error_message()
 
@@ -218,7 +201,8 @@ class Agent:
             surroundings=formmatted_surroundings, stamina=stamina, wealth=wealth, allowed_actions=allowed_actions)
         self.message_history.extend(_input.to_messages())
 
-        _output = self.chat_model(self.message_history)
+        # _output = self.chat_model(self.message_history)
+        _output = piped.put(self.message_history).result()
         json_string = _output.content.split("```json")[-1].strip().replace('```', '')
         # print(f"json_string: {json_string}")
         output = json.loads(json_string)

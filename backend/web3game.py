@@ -4,6 +4,8 @@ from web3 import Web3, HTTPProvider
 from web3.middleware.signing import construct_sign_and_send_raw_middleware
 from eth_account import Account
 from AgentConfig import Agent
+import random
+import time
 
 NODE_URL = os.environ.get('NODE_URL')
 PRIVATE_KEY = os.environ.get('PRIVATE_KEY')
@@ -16,7 +18,7 @@ def load_abi_from_path(path):
         return f.read()
 
 class Web3Game:
-    def __init__(self, factory_contract_address, node_url=NODE_URL) -> None:
+    def __init__(self, factory_contract_address, node_url=NODE_URL, chat_model='GPT3.5') -> None:
         if not factory_contract_address:
             raise Exception('factory_contract_address is required')
 
@@ -126,16 +128,18 @@ class Web3Game:
 
     def start_llm(self):
         for _ in range(10): #define max number of round
+            start_time = time.time()
             agent_list = self.get_explorers_list()
-            for agent in agent_list:
-                agent_id = agent['id']
-                surroundings = self.get_surroundings(agent_id)
-                allowed_actions = self.get_allowed_actions(agent_id)
-                if allowed_actions is None:
-                    # maybe dead
+            surroundings_list = self.get_all_surroundings()
+            allowed_actions_list = self.get_all_allowed_actions()
+            _combine_list = [(i,j,k) for i,j,k in zip(agent_list, surroundings_list, allowed_actions_list)]
+            random.shuffle(_combine_list)
+            for (agent, surroundings, allowed_actions) in _combine_list:
+                if agent['stamina'] == 0:
                     continue
-                explorer = self.get_agent(agent_id)
-                action = self.agent_list[agent_id].take_action(surroundings, allowed_actions, explorer['stamina'], explorer['wealth'])
+                
+                agent_id = agent['id']
+                action = self.agent_list[agent_id].take_action(surroundings, allowed_actions, agent['stamina'], agent['wealth'])
                 if action is None:
                     # I don't know why, but I'm handling it because it sometimes turns out to be none.
                     # Better than falling off.
@@ -156,7 +160,7 @@ class Web3Game:
                     #         break
                     target_id = int(t.split("(")[1].replace(")", "").strip())
                     self.attack(agent_id, target_id)
-
+            print(f"Round {self.round} took {time.time() - start_time} seconds")
     # move explorer
     # onlyOwner
     # agent_id: uint256
@@ -220,6 +224,9 @@ class Web3Game:
     def get_surroundings(self, agent_id):
         return self.gameplay_contract.functions.getSurroundings(agent_id).call()
 
+    def get_all_surroundings(self):
+        return self.gameplay_contract.functions.getAllSurroundings().call()
+    
     # get allowed actions
     # agent_id: uint256
     def get_allowed_actions(self, agent_id):
@@ -229,6 +236,9 @@ class Web3Game:
             print(e)
             return None
 
+    def get_all_allowed_actions(self):
+        return self.gameplay_contract.functions.getAllAllowedActions().call()
+    
     # get world stateagent
     def get_world_state(self):
         return self.gameplay_contract.functions.getWorldState().call()
