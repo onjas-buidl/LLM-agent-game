@@ -45,6 +45,15 @@ class StartGame(Resource):
             "hash": ret,
         }
 
+# start_llm
+@api.route("/start_llm/<string:team>")
+class StartGameByTeam(Resource):
+    def post(self, team):
+        ret = web3Game.start_llm_by_team(team)
+        return {
+            "hash": ret,
+        }
+
 
 # transfer ownership of the gameplay contract
 # onlyOwner
