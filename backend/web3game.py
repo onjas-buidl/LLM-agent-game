@@ -25,7 +25,7 @@ class Web3Game:
         self.web3.middleware_onion.add(construct_sign_and_send_raw_middleware(self.account))
 
         self.factory_contract = self.web3.eth.contract(address=factory_contract_address,
-                                                  abi=load_abi_from_path('./abis/Factory.json'))
+                                                  abi=load_abi_from_path('./abis/factory.json'))
 
         self.agent_list = {}
     # transfer ownership of the gameplay contract
@@ -105,7 +105,7 @@ class Web3Game:
         print(f"gameplay_contract_address: {gameplay_contract_address}")
 
         self.gameplay_contract = self.web3.eth.contract(address=gameplay_contract_address,
-                                                   abi=load_abi_from_path('./abis/GamePlay.json'))
+                                                   abi=load_abi_from_path('./abis/gameplay.json'))
 
         _module_list_new = []
         for _module in _module_list:

@@ -140,6 +140,7 @@ contract GamePlay is IGameplayContract {
         // Set the cell value to the agent's name
         // worldMap[y][x] = name;
         agentMap[y][x] = agentName;
+
         explorersCount += 1;
     }
 
@@ -247,6 +248,7 @@ contract GamePlay is IGameplayContract {
 
     // ---------------------
     // getter funcs
+
     function getExplorersList() external view returns (Explorer[] memory) {
         Explorer[] memory result = new Explorer[](explorersCount);
 
@@ -255,6 +257,7 @@ contract GamePlay is IGameplayContract {
         }
         return result;
     }
+
 
     function getSurroundings(uint256 agentId) external view returns (string[][] memory) {
         require(bytes(explorers[agentId].agentName).length != 0, "Explorer not found");
