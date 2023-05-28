@@ -6,6 +6,7 @@ from eth_account import Account
 from AgentConfig import Agent
 import random
 import time
+import asyncio
 
 NODE_URL = os.environ.get('NODE_URL')
 PRIVATE_KEY = os.environ.get('PRIVATE_KEY')
@@ -126,41 +127,50 @@ class Web3Game:
         self.deploy_contracts(_module_list_new)
         return tx.hex()
 
-    def start_llm(self):
-        for _ in range(10): #define max number of round
+    async def start_llm(self):
+        for _ in range(5): #define max number of round
             start_time = time.time()
             agent_list = self.get_explorers_list()
             surroundings_list = self.get_all_surroundings()
             allowed_actions_list = self.get_all_allowed_actions()
             _combine_list = [(i,j,k) for i,j,k in zip(agent_list, surroundings_list, allowed_actions_list)]
             random.shuffle(_combine_list)
+            tasks = []
             for (agent, surroundings, allowed_actions) in _combine_list:
                 if agent['stamina'] == 0:
                     continue
                 
                 agent_id = agent['id']
-                action = self.agent_list[agent_id].take_action(surroundings, allowed_actions, agent['stamina'], agent['wealth'])
-                if action is None:
-                    # I don't know why, but I'm handling it because it sometimes turns out to be none.
-                    # Better than falling off.
+                tasks.append(self.agent_list[agent_id].take_action(surroundings, allowed_actions, agent['stamina'], agent['wealth']))
+            action_list = await asyncio.gather(*tasks)
+            
+            for agent, action in zip([i[0] for i in _combine_list], action_list):
+                try:
+                    agent_id = agent['id']
+                    if action is None:
+                        # I don't know why, but I'm handling it because it sometimes turns out to be none.
+                        # Better than falling off.
+                        continue
+                    elif 'move' in action:
+                        _, direction = action.split(" ")
+                        self.move(agent_id, direction)
+                    elif 'gather' in action:
+                        self.gather_wealth(agent_id)
+                    elif 'rest' in action:
+                        self.rest(agent_id)
+                    elif 'attack' in action:
+                        _, t = action.split(" ")
+                        # target_id = 0
+                        # for i in self.agent_list.keys():
+                        #     if self.agent_list[i].name.lower() == t.lower():
+                        #         target_id = i
+                        #         break
+                        target_id = int(t.split("(")[1].replace(")", "").strip())
+                        self.attack(agent_id, target_id)
+                except Exception as e:
+                    print(e)
                     continue
-                elif 'move' in action:
-                    _, direction = action.split(" ")
-                    self.move(agent_id, direction)
-                elif 'gather' in action:
-                    self.gather_wealth(agent_id)
-                elif 'rest' in action:
-                    self.rest(agent_id)
-                elif 'attack' in action:
-                    _, t = action.split(" ")
-                    # target_id = 0
-                    # for i in self.agent_list.keys():
-                    #     if self.agent_list[i].name.lower() == t.lower():
-                    #         target_id = i
-                    #         break
-                    target_id = int(t.split("(")[1].replace(")", "").strip())
-                    self.attack(agent_id, target_id)
-            print(f"Round {self.round} took {time.time() - start_time} seconds")
+            print(f"This round {time.time() - start_time} seconds")
     # move explorer
     # onlyOwner
     # agent_id: uint256

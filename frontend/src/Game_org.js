@@ -1,5 +1,8 @@
+import axios from "axios";
 import { useState } from "react";
 import "./Game.css";
+
+axios.defaults.baseURL = "http://localhost:8080";
 
 // const DEFAULT_AGENTS = [
 //     {
@@ -94,17 +97,11 @@ export default function Game() {
   const handleStartGame = async () => {
     setMessage("Starting the game ...");
 
-    await fetch("http://127.0.0.1:8080/start_game", {
-      method: "POST",
-      headers: {
-        "Content-type": "application/json",
-      },
-      body: JSON.stringify({
-        size: size, 
-        num_wealth: numWealth,
-        agent_list: agents,
-        module_list: modules
-      }),
+    await axios.post("/start_game/", {
+      size,
+      num_wealth: numWealth,
+      agent_list: agents,
+      module_list: modules
     });
     setAgents([]);
     setMessage("Successfully started the game!");
@@ -112,49 +109,50 @@ export default function Game() {
     setTimeout(() => setGameStarted(true), 1000);
     setTimeout(() => setMessage(null), 5000);
 
-    
-    fetch("http://127.0.0.1:8080/start_llm", {
-      method: "POST",
-      headers: {
-        "Content-type": "application/json",
-      },
-      body: JSON.stringify({}),
-    });
-    console.log("Successfully started the LLM!");
+    axios.post("/start_llm/").catch();
     setAgents(DEFAULT_AGENTS);
-    setInterval(async () => {
-      const worldConnection = await fetch("http://127.0.0.1:8080/get_world_state", {
-        method: "GET",
-        headers: {
-          "Content-type": "application/json",
-        },
-      });
-      let worldRes = await worldConnection.json();
-      console.log("worldConnection:", worldRes);
-      worldRes = worldRes['ret'];
-      console.log("Current world state:");
-      console.log(worldRes);
-      if (worldRes.length > 0) {
-        // check if the response data is not empty
+    setInterval(() => {
+      axios
+        .get("/get_world_state/")
+        .then((worldRes) => {
+          console.log("Current world state:");
+          console.log(worldRes.data);
+          if (worldRes.data.ret.length > 0) {
+            // check if the response data is not empty
+            
+            setWorldState(worldRes.data.ret);
+          }
 
-        setWorldState(worldRes);
-      }
-      
-      const agentConnection = await fetch("http://127.0.0.1:8080/get_explorers_list", {
-        method: "GET",
-        headers: {
-          "Content-type": "application/json",
-        }
-      });
-      let agentRes = await agentConnection.json();
-      agentRes = agentRes['ret'];
-      console.log("Current agent list:");
-      console.log(agentRes);
-      if (agentRes.length > 0) {
-        // check if the response data is not empty
-        setAgents(agentRes);
-      }
-      }, 1000);
+          axios.get("/get_explorers_list/").then((agentRes) => {
+            console.log("Current agent list:");
+            console.log(agentRes.data.ret);
+            if (agentRes.data.ret.length > 0) {
+              // check if the response data is not empty
+              setAgents(agentRes.data.ret);
+            }
+          });
+
+          // Promise.all(
+          //   agents.map((_, agentId) => axios.get(`/get_explorers_list/${agentId+1}`))
+          // ).then((results) => {
+          //   const newAgents = [...agents];
+          //   results.map((result, index) => {
+          //     newAgents[index] = result.data.ret;
+          //   });
+          //   setAgents(newAgents)
+          // });
+
+          // axios.get("/get_action_history/").then((actionRes) => {
+          //   console.log("Current action history:");
+          //   console.log(actionRes.data.ret);
+          //   if (actionRes.data.ret.length > 0) {
+          //     // check if the response data is not empty
+          //     setActionHistory(actionRes.data.ret);
+          //   }
+          // });
+        })
+        .catch((err) => console.error(err));
+    }, 1000);
   };
 
   const view = (() => {

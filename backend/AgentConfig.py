@@ -4,17 +4,10 @@ import random
 from langchain.output_parsers import StructuredOutputParser, ResponseSchema
 from langchain.prompts import ChatPromptTemplate, HumanMessagePromptTemplate
 from langchain.schema import SystemMessage, HumanMessage
-from langchain.chat_models import ChatOpenAI
-
-from PipedLLM import PipedLLM
-api_keys = json.loads(os.environ.get("OPENAI_API_KEYS", "[]"))
-if len(api_keys) == 0:
-    raise ValueError('No OpenAI API keys provided. OPENAI_API_KEYS=["sk-xxx", "sk-yyy"]')
-piped = PipedLLM(api_keys)
-
+from langchain.chat_models import ChatOpenAI, ChatAnthropic
 
 class Agent:
-    def __init__(self, id, name, principles, max_retry_times=5):
+    def __init__(self, id, name, principles, max_retry_times=5, chat_model='GPT3.5'):
         self.id = id
         self.name = name
         self.principles = principles
@@ -23,7 +16,20 @@ class Agent:
         self.max_retry_times = max_retry_times
         self.retry_times = max_retry_times
         self.reset()
-        
+        self.chat_models = []
+        for api_key in json.loads(os.environ.get("OPENAI_API_KEYS")):
+            if chat_model == 'GPT3.5':
+                self.chat_models.append(ChatOpenAI(
+                    temperature=0, openai_api_key=api_key, max_tokens=1500, request_timeout=120))
+            elif chat_model == 'GPT4':
+                self.chat_model(ChatOpenAI(
+                    temperature=0, openai_api_key=api_key, max_tokens=1500, request_timeout=120,
+                    model_name="gpt-4"))
+            elif chat_model == 'Claude':
+                self.chat_model.append(ChatAnthropic(temperature=0, anthropic_api_key=os.environ.get("ANTHROPIC_API_KEY")))
+            else:
+                raise NotImplementedError(
+                    f"Chat model {chat_model} not implemented.")
         self.instruction = self.get_instruction()
         self.error_message = self.get_error_message()
 
@@ -166,7 +172,7 @@ class Agent:
         else:
             return ''
 
-    def check_response_format(self, response, surroundings, allowed_actions, stamina, wealth):
+    async def check_response_format(self, response, surroundings, allowed_actions, stamina, wealth):
         try:
             assert 'Motivation' in response.keys() and 'Action' in response.keys(), "Output format is wrong"
         except AssertionError as e:
@@ -188,22 +194,21 @@ class Agent:
                 self.retry_times -= 1
                 self.message_history.append(HumanMessage(
                     content="The action result is not one of the following action: move up, move down, move left, move right, gather, rest, attack up, attack down, attack left, attack right. Please try again."))
-                self.take_action(surroundings, allowed_actions, stamina, wealth)
+                await self.take_action(surroundings, allowed_actions, stamina, wealth)
             else:
                 print("The action is not in pre-design categorys, and retry times reached {}. HALT.".format(
                     self.retry_times))
                 raise e
 
-    def take_action(self, surroundings, allowed_actions, stamina, wealth):
+    async def take_action(self, surroundings, allowed_actions, stamina, wealth):
         # print(f"allowed_actions: {allowed_actions}")
         formmatted_surroundings = self.get_self_formatted_surroundings(surroundings)
         _input = self.instruction.format_prompt(
             surroundings=formmatted_surroundings, stamina=stamina, wealth=wealth, allowed_actions=allowed_actions)
         self.message_history.extend(_input.to_messages())
-
-        # _output = self.chat_model(self.message_history)
-        _output = piped.put(self.message_history).result()
-        json_string = _output.content.split("```json")[-1].strip().replace('```', '')
+        model = random.choice(self.chat_models)
+        _output = await model.agenerate([self.message_history])
+        json_string = _output.generations[0][0].text.split("```json")[-1].strip().replace('```', '')
         # print(f"json_string: {json_string}")
         output = json.loads(json_string)
         self.check_response_format(output, surroundings, allowed_actions, stamina, wealth)
@@ -231,7 +236,7 @@ class Agent:
                 self.retry_times -= 1
                 _error_message = self.error_message.format_prompt(action=action_parts)
                 self.message_history.extend(_error_message.to_messages())
-                self.take_action(surroundings, allowed_actions, stamina, wealth)
+                await self.take_action(surroundings, allowed_actions, stamina, wealth)
             else:
                 print("HALT due to retry times reached {}.".format(self.retry_times))
                 raise e
