@@ -2,6 +2,7 @@
 
 // import axios from "axios";
 import { useState } from "react";
+import { useEffect } from "react";
 import "./Game.css";
 
 //axios.defaults.baseURL = "http://localhost:8080";
@@ -12,7 +13,7 @@ const DEFAULT_AGENTS = [
         model: "GPT-3.5",
         x: 0,
         y: 0,
-        stamina: 10,
+        stamina: 5,
         wealth: 0,
         strategy: "You only want to attack. You actively move towards Bob and attack it. You do not care anything else! ",
       },
@@ -21,6 +22,24 @@ const DEFAULT_AGENTS = [
       model: "Alpaca",
       x: 1,
       y: 0,
+      stamina: 5,
+      wealth: 0,
+      strategy: "You only want to attack. You actively move towards Alice and attack it. You do not care anything else!",
+    },
+    {
+      name: "Alex",
+      model: "GPT-4",
+      x: 3,
+      y: 3,
+      stamina: 5,
+      wealth: 0,
+      strategy: "You only want to attack. You actively move towards Alice and attack it. You do not care anything else!",
+    },
+    {
+      name: "Dora",
+      model: "Vicuna",
+      x: 4,
+      y: 1,
       stamina: 5,
       wealth: 0,
       strategy: "You only want to attack. You actively move towards Alice and attack it. You do not care anything else!",
@@ -34,10 +53,6 @@ const DEFAULT_MODULE = [
     y: 3
   }
 ]
-
-//TODO: add function that moves an agent to grid x,y pixel on web page
-//TODO: add function that increase or decrease wealth of an agent
-//TODO: add function that increase or decrease stamina of an agent
 
 
 export default function  Game() {
@@ -54,12 +69,100 @@ export default function  Game() {
     setMessage("Starting the game ...");
     setAgents([]);
     setMessage("Successfully started the game!");
+    // Initialize worldState map
+    setWorldState([['', '', '', 'W', '', ''],['', 'Teleport', '', '', '', ''],['', '', '', '', '', 'W'],['', '', '', '', '', ''],['W', '', '', '', '', ''],['', '', '', '', 'Teleport', '']]);
 
     setTimeout(() => setGameStarted(true), 1000);
     setTimeout(() => setMessage(null), 1000);
 
     setAgents(DEFAULT_AGENTS);
    };
+
+  // Demo Script Functions
+   const moveAgentToPosition = (agentName, targetX, targetY, delay) => {
+    setTimeout(() => {
+      setAgents((prevAgents) =>
+        prevAgents.map((agent) =>
+          agent.name === agentName ? { ...agent, x: targetX, y: targetY, stamina: agent.stamina - 1} : agent
+        )
+      );
+    }, delay);
+  };
+
+  const attackAgent = (attackerName, defenderName, targetX, targetY, delay) => {
+    setTimeout(() => {
+      setAgents((prevAgents) =>
+        prevAgents.map((agent) => {
+          if (agent.name === defenderName) {
+            return { ...agent, stamina:0 };
+          } else if (agent.name === attackerName) {
+            return { ...agent, x: targetX, y: targetY, stamina: agent.stamina - 1};
+          } else {
+            return agent;
+          }
+        })
+      );
+    }, delay);
+  };
+  
+
+  const gatherGold = (agentName, targetX, targetY, delay) => {
+    setTimeout(() => {
+      setAgents((prevAgents) =>
+        prevAgents.map((prevAgent) =>
+          prevAgent.name === agentName
+            ? { ...prevAgent, wealth: prevAgent.wealth + 1, stamina: prevAgent.stamina - 1 }
+            : prevAgent
+        )
+      );
+    
+      setWorldState((prevWorldState) =>
+        prevWorldState.map((row, rowIndex) =>
+          row.map((cell, colIndex) =>
+            rowIndex === targetY && colIndex === targetX ? cell.replace('W', '') : cell
+          )
+        )
+      );
+    }, delay);
+  };
+
+  const rest = (agentName, delay) => {
+    setTimeout(() => {
+      setAgents((prevAgents) =>
+        prevAgents.map((prevAgent) =>
+          prevAgent.name === agentName
+            ? { ...prevAgent, stamina: prevAgent.stamina + 3 }
+            : prevAgent
+        )
+      );
+    }, delay);
+  };
+
+
+   useEffect(() => {
+    if (gameStarted) {
+      // Move Scripts
+      moveAgentToPosition("Alice", 0, 1, 500); // Move Alice to (0, 1) after 0.5 seconds
+      moveAgentToPosition("Bob", 2, 0, 1000);
+      moveAgentToPosition("Alex", 3, 4, 1500);
+      moveAgentToPosition("Dora", 4, 2, 2000);
+
+      // Teleport Scripts
+      moveAgentToPosition("Alice", 4, 3, 2500); // Teleport Alice to (0, 1) after 2 seconds
+
+      moveAgentToPosition("Bob", 3, 0, 3000);
+      moveAgentToPosition("Alex", 3, 5, 3500);
+
+      // Attack Scripts
+      attackAgent("Dora", "Alice", 4, 3, 4000); // Dora attacks Alice at (4, 3) after 4 seconds
+
+      // Gather Scripts
+      gatherGold("Bob", 3, 0, 4500); // Bob gathers gold at (3, 0) after 4.5 seconds
+
+      // Rest
+      rest("Alex", 5000); // Bob rests after 5 seconds
+    }
+  }, [gameStarted]);
 
   const view = (() => {
     if (gameStarted) {
@@ -89,33 +192,40 @@ export default function  Game() {
                 .map((_, i) => (
                   <div key={`grid_${i}`} className="grid"></div>
                 ))}
-
               {agents.map((agent, index) => (
-                agent.stamina > 0 &&
-                <div
-                  key={`spirit-agent-${index}`}
-                  className="agent"
-                  style={{
-                    left: 80 * agent.x,
-                    top: 80 * agent.y,
-                  }}
-                >
-                  <div className="name">{agent.name}</div>
-                  {agent.name.startsWith("A") ? (
-                    <div
-                      className="stamina-red"
-                      style={{
-                        width: `${Math.max(agent.stamina * 5, 80)}%`,
-                      }}
-                    ></div>) : (
-                    <div
-                      className="stamina-blue"
-                      style={{
-                        width: `${Math.max(agent.stamina * 5, 80)}%`,
-                      }}
-                    ></div>
-                  )}
-                </div>
+                agent.stamina > 0 && (
+                  <div
+                    key={`spirit-agent-${index}`}
+                    className="agent"
+                    style={{
+                      left: 80 * agent.x,
+                      top: 80 * agent.y,
+                    }}
+                  >
+                    <div className="name">{agent.name}</div>
+                    {agent.name.startsWith("A") ? (
+                      <div className="stamina-red-container">
+                        <div
+                          className="stamina-red"
+                          style={{
+                            width: `${Math.max(agent.stamina * 5, 20)}px`,
+                          }}
+                        ></div>
+                        <div className="stamina-text">{agent.stamina}</div>
+                      </div>
+                    ) : (
+                      <div className="stamina-blue-container">
+                        <div
+                          className="stamina-blue"
+                          style={{
+                            width: `${Math.max(agent.stamina * 5, 20)}px`,
+                          }}
+                        ></div>
+                        <div className="stamina-text">{agent.stamina}</div>
+                      </div>
+                    )}
+                  </div>
+                )
               ))}
               {worldState.map((row, i) =>
                 row.map((cell, j) =>
