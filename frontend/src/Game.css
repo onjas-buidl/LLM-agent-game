@@ -163,6 +163,16 @@ main.setup {
   color: white;
 }
 
+.agents > .agent .llm {
+  width: 150px;
+  font-size: 15px;
+  outline: none;
+  border: none;
+  appearance: none;
+  background: none;
+  color: white;
+}
+
 .agents > .agent .strategy {
   flex: 1;
   font-size: 20px;
@@ -291,7 +301,7 @@ main.game {
 }
 
 .map > .grid {
-  background-color: #5e4a3a;
+  background-color: #cad3f4;
   width: 80px;
   height: 80px;
   box-shadow: 0px 0px 1px #000000;

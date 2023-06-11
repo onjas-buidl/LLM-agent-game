@@ -1,28 +1,31 @@
-import axios from "axios";
+// Script Version for demo purpose
+
+// import axios from "axios";
 import { useState } from "react";
 import "./Game.css";
 
-axios.defaults.baseURL = "http://localhost:8080";
+//axios.defaults.baseURL = "http://localhost:8080";
 
-// const DEFAULT_AGENTS = [
-//     {
-//         name: "Alice",
-//         x: 0,
-//         y: 0,
-//         stamina: 10,
-//         wealth: 0,
-//         strategy: "You only want to attack. You actively move towards Bob and attack it. You do not care anything else! ",
-//       },
-//     {
-//       name: "Bob",
-//       x: 1,
-//       y: 0,
-//       stamina: 5,
-//       wealth: 0,
-//       strategy: "You only want to attack. You actively move towards Alice and attack it. You do not care anything else!",
-//     },
-// ];
-// const DEFAULT_MODULE = [];
+const DEFAULT_AGENTS = [
+    {
+        name: "Alice",
+        model: "GPT-3.5",
+        x: 0,
+        y: 0,
+        stamina: 10,
+        wealth: 0,
+        strategy: "You only want to attack. You actively move towards Bob and attack it. You do not care anything else! ",
+      },
+    {
+      name: "Bob",
+      model: "Alpaca",
+      x: 1,
+      y: 0,
+      stamina: 5,
+      wealth: 0,
+      strategy: "You only want to attack. You actively move towards Alice and attack it. You do not care anything else!",
+    },
+];
 const DEFAULT_MODULE = [
   {
     name: "Teleport",
@@ -32,59 +35,12 @@ const DEFAULT_MODULE = [
   }
 ]
 
-const DEFAULT_AGENTS = [
-  {
-    name: "A-Optimism",
-    x: 3,
-    y: 5,
-    stamina: 10,
-    wealth: 0,
-    strategy: "You are a smart explorer of team A. You should not attack your colleagues with names starting in “A-” and you will attack B team enemies when you have stamina of more than 7. You usually should collect more wealth, but always watch your stamina, if it is below 5, you should rest until it's equal or above 8. ",
-  },
-  {
-    name: "A-0xPARC",
-    x: 4,
-    y: 3,
-    stamina: 10,
-    wealth: 0,
-    strategy: "You are a smart explorer of team A. You should not attack your colleagues with names starting in “A-” and you will attack B team enemies whenever possible if they are 1 step around you. You do not like wealth and want to preserve your stamina as much as possible by taking rest whenever possible. ",
-  },
-  {
-    name: "A-Lattice",
-    x: 1,
-    y: 1,
-    stamina: 10,
-    wealth: 0,
-    strategy: "You are a smart explorer of team A. You should not attack your colleagues with names starting in “A-” and you will attack B team enemies whenever possible if they are 1 step around you. You do not like wealth and want to preserve your stamina as much as possible by taking rest whenever possible. ",
-  },
-  {
-    name: "B-Terra",
-    x: 1,
-    y: 4,
-    stamina: 10,
-    wealth: 0,
-    strategy: "You are a evil explorer. You are not afraid of death and want to gather as much wealth as possible. Do not pay attention to your stamina and roam around the map to collect more wealth. ",
-  },
-  {
-    name: "B-3AC",
-    x: 3,
-    y: 4,
-    stamina: 10,
-    wealth: 0,
-    strategy: "You are a evil explorer. You are not afraid of death and want to gather as much wealth as possible. Do not pay attention to your stamina and roam around the map to collect more wealth. ",
-  },
-  {
-    name: "B-FTX",
-    x: 4,
-    y: 1,
-    stamina: 10,
-    wealth: 0,
-    strategy: "You are a evil explorer. You are not afraid of death and want to gather as much wealth as possible. Do not pay attention to your stamina and roam around the map to collect more wealth. ",
-  },
+//TODO: add function that moves an agent to grid x,y pixel on web page
+//TODO: add function that increase or decrease wealth of an agent
+//TODO: add function that increase or decrease stamina of an agent
 
-];
 
-export default function Game() {
+export default function  Game() {
   const [gameStarted, setGameStarted] = useState(false);
   const [message, setMessage] = useState(null);
   const [worldState, setWorldState] = useState([]);
@@ -96,64 +52,14 @@ export default function Game() {
 
   const handleStartGame = async () => {
     setMessage("Starting the game ...");
-
-    await axios.post("/start_game/", {
-      size,
-      num_wealth: numWealth,
-      agent_list: agents,
-      module_list: modules
-    });
     setAgents([]);
     setMessage("Successfully started the game!");
 
     setTimeout(() => setGameStarted(true), 1000);
-    setTimeout(() => setMessage(null), 5000);
+    setTimeout(() => setMessage(null), 1000);
 
-    axios.post("/start_llm/").catch();
     setAgents(DEFAULT_AGENTS);
-    setInterval(() => {
-      axios
-        .get("/get_world_state/")
-        .then((worldRes) => {
-          console.log("Current world state:");
-          console.log(worldRes.data);
-          if (worldRes.data.ret.length > 0) {
-            // check if the response data is not empty
-            
-            setWorldState(worldRes.data.ret);
-          }
-
-          axios.get("/get_explorers_list/").then((agentRes) => {
-            console.log("Current agent list:");
-            console.log(agentRes.data.ret);
-            if (agentRes.data.ret.length > 0) {
-              // check if the response data is not empty
-              setAgents(agentRes.data.ret);
-            }
-          });
-
-          // Promise.all(
-          //   agents.map((_, agentId) => axios.get(`/get_explorers_list/${agentId+1}`))
-          // ).then((results) => {
-          //   const newAgents = [...agents];
-          //   results.map((result, index) => {
-          //     newAgents[index] = result.data.ret;
-          //   });
-          //   setAgents(newAgents)
-          // });
-
-          // axios.get("/get_action_history/").then((actionRes) => {
-          //   console.log("Current action history:");
-          //   console.log(actionRes.data.ret);
-          //   if (actionRes.data.ret.length > 0) {
-          //     // check if the response data is not empty
-          //     setActionHistory(actionRes.data.ret);
-          //   }
-          // });
-        })
-        .catch((err) => console.error(err));
-    }, 1000);
-  };
+   };
 
   const view = (() => {
     if (gameStarted) {
@@ -346,6 +252,17 @@ export default function Game() {
                   onChange={(e) => {
                     const newAgents = [...agents];
                     newAgents[i].name = e.target.value;
+                    setAgents(newAgents);
+                  }}
+                />
+                <input
+                  className="llm"
+                  placeholder="Empower your Agent with an open selection of models"
+                  type="text"
+                  value={agent.model}
+                  onChange={(e) => {
+                    const newAgents = [...agents];
+                    newAgents[i].model = e.target.value;
                     setAgents(newAgents);
                   }}
                 />
