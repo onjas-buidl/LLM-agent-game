@@ -4,8 +4,11 @@
 import { useState } from "react";
 import { useEffect } from "react";
 import "./Game.css";
-import commanderIcon from './assets/commander_idle.gif'
-import soldierIcon from './assets/soldier_idle.gif'
+import BarbarianIcon from './assets/Barbarian.gif'
+import CavalryIcon from './assets/Cavalry.gif'
+import HospitalModule from './assets/Hospital.gif'
+import CrystalModule from './assets/Crystal.png'
+import TeleportModule from './assets/Teleport.gif'
 
 //axios.defaults.baseURL = "http://localhost:8080";
 
@@ -18,7 +21,7 @@ const DEFAULT_AGENTS = [
         stamina: 5,
         wealth: 0,
         strategy: "You only want to attack. You actively move towards Bob and attack it. You do not care anything else! ",
-        image: soldierIcon,
+        image: BarbarianIcon,
       },
     {
       name: "Bob",
@@ -28,7 +31,7 @@ const DEFAULT_AGENTS = [
       stamina: 5,
       wealth: 0,
       strategy: "You only want to attack. You actively move towards Alice and attack it. You do not care anything else!",
-      image: commanderIcon,
+      image: BarbarianIcon,
     },
     {
       name: "Alex",
@@ -38,7 +41,7 @@ const DEFAULT_AGENTS = [
       stamina: 5,
       wealth: 0,
       strategy: "You only want to attack. You actively move towards Alice and attack it. You do not care anything else!",
-      image: commanderIcon,
+      image: CavalryIcon,
     },
     {
       name: "Dora",
@@ -48,13 +51,13 @@ const DEFAULT_AGENTS = [
       stamina: 5,
       wealth: 0,
       strategy: "You only want to attack. You actively move towards Alice and attack it. You do not care anything else!",
-      image: soldierIcon,
+      image: CavalryIcon,
     },
 ];
 const DEFAULT_MODULE = [
   {
     name: "Teleport",
-    description: "will move to a random cell",
+    description: "will move agent to a random cell",
     x: 2,
     y: 3
   }
@@ -76,7 +79,7 @@ export default function  Game() {
     setAgents([]);
     setMessage("Successfully started the game!");
     // Initialize worldState map
-    setWorldState([['', '', '', 'W', '', ''],['', 'Teleport', '', '', '', ''],['', '', '', '', '', 'W'],['', '', '', '', '', ''],['W', '', '', '', '', ''],['', '', '', '', 'Teleport', '']]);
+    setWorldState([['', '', '', 'W', '', ''],['', 'Teleport', '', '', '', ''],['', '', '', '', '', 'W'],['', '', '', 'Hospital', '', ''],['W', '', '', '', '', ''],['', '', '', '', 'Teleport', '']]);
 
     setTimeout(() => setGameStarted(true), 1000);
     setTimeout(() => setMessage(null), 1000);
@@ -218,7 +221,6 @@ export default function  Game() {
                           width: `${Math.max(agent.stamina * 5, 20)}px`,
                         }}
                       ></div>
-                      <div className="stamina-text">{agent.stamina}</div>
                     </div>
                   ) : (
                     <div className="stamina-blue-container">
@@ -228,39 +230,51 @@ export default function  Game() {
                           width: `${Math.max(agent.stamina * 5, 20)}px`,
                         }}
                       ></div>
-                      <div className="stamina-text">{agent.stamina}</div>
                     </div>
                   )}
                 </div>
               )
             ))}
-              {worldState.map((row, i) =>
-                row.map((cell, j) =>
-                  cell.startsWith("W") ? (
-                    <div
-                      key={`spirit-gold-${i}-${j}`}
-                      className="gold"
-                      style={{
-                        left: 80 * j,
-                        top: 80 * i,
-                      }}
-                    >
-                      💰
-                    </div>
-                  ) : ((cell === "Teleport") ? (
-                    <div
-                      key={`spirit-teleport-${i}-${j}`}
-                      className="teleport"
-                      style={{
-                        left: 80 * j,
-                        top: 80 * i,
-                      }}
-                    >
-                      🚪
-                    </div>
-                  ) : null)
-                )
-              )}
+            {worldState.map((row, i) =>
+              row.map((cell, j) =>
+                cell.startsWith("W") ? (
+                  <div
+                    key={`spirit-gold-${i}-${j}`}
+                    className="gold"
+                    style={{
+                      left: 80 * j,
+                      top: 80 * i,
+                    }}
+                  >
+                    <img src={CrystalModule} className="crystal-image" />
+                  </div>
+                ) : cell === "Teleport" ? (
+                  <div
+                    key={`spirit-teleport-${i}-${j}`}
+                    className="teleport"
+                    style={{
+                      left: 80 * j,
+                      top: 80 * i,
+                    }}
+                  >
+                    <img src={TeleportModule} alt="Teleport"className="teleport-image"/>
+                  </div>
+                ) : cell === "Hospital" ? (
+                  <div
+                    key={`spirit-hospital-${i}-${j}`}
+                    className="hospital"
+                    style={{
+                      left: 80 * j,
+                      top: 80 * i,
+                    }}
+                  >
+                    <img src={HospitalModule} alt="Hospital" className="hospital-image"/>
+                  </div>
+                ) : null
+              )
+            )}
+
+              
             </div>
             {/* <div className="actions">
             <div className="title">Action History</div>

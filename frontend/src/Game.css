@@ -1,6 +1,12 @@
+@font-face {
+  font-family: 'freePixel';
+  src: url('./assets/freePixel.ttf') format('truetype');
+}
+
 body {
+  padding: 65px;
   min-height: 100vh;
-  background-color: #282c34;
+  background-color: #1b1d21;
   color: white;
 }
 
@@ -19,20 +25,22 @@ main.setup {
   flex-direction: row;
   align-items: center;
   justify-content: center;
+  font-family: 'freePixel';
   font-size: 28px;
   background-color: #000000a0;
 }
 
 .brand {
-  font-family: monospace;
+  font-family: 'freePixel';
   font-size: 48px;
   text-transform: uppercase;
   margin-bottom: 30px;
 }
 
 .title {
-  font-variant: small-caps;
+  font-variant: 'freePixel';
   font-size: 28px;
+  font-family: 'freePixel';
   margin-bottom: 15px;
 }
 
@@ -45,22 +53,24 @@ main.setup {
 }
 
 .settings .setting {
-  background-color: #383d49;
+  background-color: #262a31;
   padding: 10px 15px;
   border-radius: 10px;
 }
 
 .settings .setting label {
   font-size: 18px;
+  font-family: 'freePixel';
   margin-right: 15px;
 }
 
 .settings .setting input {
   font-size: 18px;
+  font-family: 'freePixel';
   outline: none;
   border: none;
   appearance: none;
-  background-color: #4f5667;
+  background-color: #262a31;
   color: white;
   padding: 10px 15px;
   border-radius: 10px;
@@ -78,7 +88,7 @@ main.setup {
 .modules > .module {
   display: flex;
   align-items: center;
-  background-color: #383d49;
+  background-color: #262a31;
   padding: 15px;
   border-radius: 10px;
 }
@@ -86,6 +96,7 @@ main.setup {
 .modules > .module .name {
   width: 150px;
   font-size: 20px;
+  font-family: 'freePixel';
   outline: none;
   border: none;
   appearance: none;
@@ -96,6 +107,7 @@ main.setup {
 .modules > .module .description {
   flex: 1;
   font-size: 20px;
+  font-family: 'freePixel';
   outline: none;
   border: none;
   appearance: none;
@@ -109,6 +121,7 @@ main.setup {
 
 .modules > .module .location label {
   font-size: 18px;
+  font-family: 'freePixel';
   margin-right: 5px;
 }
 
@@ -116,10 +129,11 @@ main.setup {
   margin-right: 10px;
   width: 50px;
   font-size: 18px;
+  font-family: 'freePixel';
   outline: none;
   border: none;
   appearance: none;
-  background-color: #4f5667;
+  background-color: #262a31;
   color: white;
   padding: 10px;
   border-radius: 10px;
@@ -127,10 +141,11 @@ main.setup {
 
 .modules > .module .remove {
   font-size: 18px;
+  font-family: 'freePixel';
   outline: none;
   border: none;
   appearance: none;
-  background-color: #823c3c;
+  background-color: #bba255;
   color: white;
   padding: 10px 15px;
   border-radius: 10px;
@@ -148,7 +163,7 @@ main.setup {
 .agents > .agent {
   display: flex;
   align-items: center;
-  background-color: #383d49;
+  background-color: #262a31;
   padding: 15px;
   border-radius: 10px;
 }
@@ -156,6 +171,7 @@ main.setup {
 .agents > .agent .name {
   width: 150px;
   font-size: 15px;
+  font-family: 'freePixel';
   outline: none;
   border: none;
   appearance: none;
@@ -166,6 +182,7 @@ main.setup {
 .agents > .agent .llm {
   width: 150px;
   font-size: 15px;
+  font-family: 'freePixel';
   outline: none;
   border: none;
   appearance: none;
@@ -176,6 +193,7 @@ main.setup {
 .agents > .agent .strategy {
   flex: 1;
   font-size: 20px;
+  font-family: 'freePixel';
   outline: none;
   border: none;
   appearance: none;
@@ -189,6 +207,7 @@ main.setup {
 
 .agents > .agent .location label {
   font-size: 18px;
+  font-family: 'freePixel';
   margin-right: 5px;
 }
 
@@ -196,10 +215,11 @@ main.setup {
   margin-right: 10px;
   width: 50px;
   font-size: 18px;
+  font-family: 'freePixel';
   outline: none;
   border: none;
   appearance: none;
-  background-color: #4f5667;
+  background-color: #343944;
   color: white;
   padding: 10px;
   border-radius: 10px;
@@ -207,10 +227,11 @@ main.setup {
 
 .agents > .agent .remove {
   font-size: 18px;
+  font-family: 'freePixel';
   outline: none;
   border: none;
   appearance: none;
-  background-color: #823c3c;
+  background-color: #bba255;
   color: white;
   padding: 10px 15px;
   border-radius: 10px;
@@ -222,10 +243,11 @@ main.setup {
 
 .buttons button {
   font-size: 20px;
+  font-family: 'freePixel';
   outline: none;
   border: none;
   appearance: none;
-  background-color: #836cb5;
+  background-color: #bba255;
   color: white;
   padding: 10px 15px;
   border-radius: 10px;
@@ -245,7 +267,7 @@ main.game {
   width: 200px;
   /* height: 30%; */
   flex-shrink: 0;
-  background-color: #383d49;
+  background-color: #272a31;
   padding: 15px;
 }
 
@@ -255,6 +277,7 @@ main.game {
   align-items: center;
   margin-bottom: 10px;
   font-size: 18px;
+  font-family: 'freePixel';
 }
 
 .leaderboard > .agent .name {
@@ -282,6 +305,7 @@ main.game {
   align-items: center;
   margin-bottom: 10px;
   font-size: 10px;
+  font-family: 'freePixel';
 }
 
 .present {
@@ -301,7 +325,7 @@ main.game {
 }
 
 .map > .grid {
-  background-color: #282c34;
+  background-color: #131416;
   width: 80px;
   height: 80px;
   box-shadow: 0px 0px 1px #000000;
@@ -313,6 +337,28 @@ main.game {
   width: 60px;
   height: 60px;
   overflow: hidden;
+}
+
+.map > .gold .crystal-image{
+  position: absolute;
+  width: 25px;
+  height: 25px;
+  object-fit: contain;
+}
+
+.map > .teleport .teleport-image{
+  position: absolute;
+  margin: 10px;
+  width: 50px;
+  height: 50px;
+  object-fit: contain;
+}
+
+.map > .hospital .hospital-image{
+  position: absolute;
+  width: 50px;
+  height: 50px;
+  object-fit: contain;
 }
 
 .map > .teleport {
@@ -338,22 +384,27 @@ main.game {
 .map > .agent .name {
   font-weight: bold;
   font-size: 10px;
+  font-family: 'freePixel';
   margin-bottom: 5px;
 }
 
 .map > .agent .stamina-red {
   height: 5px;
-  background-color: lightcoral;
+  background-color: rgb(255, 255, 255);
 }
 
 .map > .agent .stamina-blue {
   height: 5px;
-  background-color: lightblue;
+  background-color: rgb(255, 255, 255);
 }
 
 .map > .agent .image {
   position: absolute;
-  width: 80px;
-  height: 80px;
+  width: 50px;
+  height: 50px;
   object-fit: contain;
+  left: 60%; /* Adjust this value as needed */
+  top: 10px; /* Adjust this value as needed */
+  transform: translate(-45%, -10%);
 }
+
