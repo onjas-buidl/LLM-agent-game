@@ -180,6 +180,7 @@ export default function  Game() {
           <div className="leaderboard">
             <div className="title">Leaderboard</div>
             {[...agents]
+              .filter((agent) => agent.stamina > 0)
               .sort((a, b) => b.wealth - a.wealth)
               .map((agent) => (
                 <div key={agent.name} className="agent">
