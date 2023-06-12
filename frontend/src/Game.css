@@ -301,7 +301,7 @@ main.game {
 }
 
 .map > .grid {
-  background-color: #cad3f4;
+  background-color: #282c34;
   width: 80px;
   height: 80px;
   box-shadow: 0px 0px 1px #000000;
@@ -349,4 +349,11 @@ main.game {
 .map > .agent .stamina-blue {
   height: 5px;
   background-color: lightblue;
+}
+
+.map > .agent .image {
+  position: absolute;
+  width: 80px;
+  height: 80px;
+  object-fit: contain;
 }

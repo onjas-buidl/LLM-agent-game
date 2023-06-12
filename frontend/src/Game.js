@@ -4,6 +4,8 @@
 import { useState } from "react";
 import { useEffect } from "react";
 import "./Game.css";
+import commanderIcon from './assets/commander_idle.gif'
+import soldierIcon from './assets/soldier_idle.gif'
 
 //axios.defaults.baseURL = "http://localhost:8080";
 
@@ -16,6 +18,7 @@ const DEFAULT_AGENTS = [
         stamina: 5,
         wealth: 0,
         strategy: "You only want to attack. You actively move towards Bob and attack it. You do not care anything else! ",
+        image: soldierIcon,
       },
     {
       name: "Bob",
@@ -25,6 +28,7 @@ const DEFAULT_AGENTS = [
       stamina: 5,
       wealth: 0,
       strategy: "You only want to attack. You actively move towards Alice and attack it. You do not care anything else!",
+      image: commanderIcon,
     },
     {
       name: "Alex",
@@ -34,6 +38,7 @@ const DEFAULT_AGENTS = [
       stamina: 5,
       wealth: 0,
       strategy: "You only want to attack. You actively move towards Alice and attack it. You do not care anything else!",
+      image: commanderIcon,
     },
     {
       name: "Dora",
@@ -43,6 +48,7 @@ const DEFAULT_AGENTS = [
       stamina: 5,
       wealth: 0,
       strategy: "You only want to attack. You actively move towards Alice and attack it. You do not care anything else!",
+      image: soldierIcon,
     },
 ];
 const DEFAULT_MODULE = [
@@ -193,40 +199,41 @@ export default function  Game() {
                   <div key={`grid_${i}`} className="grid"></div>
                 ))}
               {agents.map((agent, index) => (
-                agent.stamina > 0 && (
-                  <div
-                    key={`spirit-agent-${index}`}
-                    className="agent"
-                    style={{
-                      left: 80 * agent.x,
-                      top: 80 * agent.y,
-                    }}
-                  >
-                    <div className="name">{agent.name}</div>
-                    {agent.name.startsWith("A") ? (
-                      <div className="stamina-red-container">
-                        <div
-                          className="stamina-red"
-                          style={{
-                            width: `${Math.max(agent.stamina * 5, 20)}px`,
-                          }}
-                        ></div>
-                        <div className="stamina-text">{agent.stamina}</div>
-                      </div>
-                    ) : (
-                      <div className="stamina-blue-container">
-                        <div
-                          className="stamina-blue"
-                          style={{
-                            width: `${Math.max(agent.stamina * 5, 20)}px`,
-                          }}
-                        ></div>
-                        <div className="stamina-text">{agent.stamina}</div>
-                      </div>
-                    )}
-                  </div>
-                )
-              ))}
+              agent.stamina > 0 && (
+                <div
+                  key={`spirit-agent-${index}`}
+                  className="agent"
+                  style={{
+                    left: 80 * agent.x,
+                    top: 80 * agent.y,
+                  }}
+                >
+                  <div className="name">{agent.name}</div>
+                  <img src={agent.image} alt={`Agent ${index + 1}`} className="image" />
+                  {agent.name.startsWith("A") ? (
+                    <div className="stamina-red-container">
+                      <div
+                        className="stamina-red"
+                        style={{
+                          width: `${Math.max(agent.stamina * 5, 20)}px`,
+                        }}
+                      ></div>
+                      <div className="stamina-text">{agent.stamina}</div>
+                    </div>
+                  ) : (
+                    <div className="stamina-blue-container">
+                      <div
+                        className="stamina-blue"
+                        style={{
+                          width: `${Math.max(agent.stamina * 5, 20)}px`,
+                        }}
+                      ></div>
+                      <div className="stamina-text">{agent.stamina}</div>
+                    </div>
+                  )}
+                </div>
+              )
+            ))}
               {worldState.map((row, i) =>
                 row.map((cell, j) =>
                   cell.startsWith("W") ? (
