@@ -346,18 +346,17 @@ main.game {
   object-fit: contain;
 }
 
-.map > .teleport .teleport-image{
+.map > .hospital {
   position: absolute;
-  margin: 10px;
-  width: 50px;
-  height: 50px;
+  width: 70px;
+  height: 70px;
   object-fit: contain;
 }
 
 .map > .hospital .hospital-image{
   position: absolute;
-  width: 50px;
-  height: 50px;
+  width: 70px;
+  height: 70px;
   object-fit: contain;
 }
 
@@ -367,6 +366,14 @@ main.game {
   width: 60px;
   height: 60px;
   overflow: hidden;
+}
+
+.map > .teleport .teleport-image{
+  position: absolute;
+  margin: 10px;
+  width: 50px;
+  height: 50px;
+  object-fit: contain;
 }
 
 .map > .agent {
@@ -400,8 +407,8 @@ main.game {
 
 .map > .agent .image {
   position: absolute;
-  width: 50px;
-  height: 50px;
+  width: 40px;
+  height: 40px;
   object-fit: contain;
   left: 60%; /* Adjust this value as needed */
   top: 10px; /* Adjust this value as needed */
