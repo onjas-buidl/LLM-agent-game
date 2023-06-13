@@ -614,13 +614,14 @@ export default function  Game() {
       moveAgentDirection("A", "left", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
       moveAgentDirection("B", "left", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
       term_num = 16;
-      moveAgentDirection("A", "left", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
-      moveAgentDirection("B", "left", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
-      term_num = 17;
-      moveAgentDirection("A", "left", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
-      moveAgentDirection("B", "left", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
-      term_num = 18;
       moveAgentDirection("B", "up", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
+      // moveAgentDirection("A", "left", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
+      // moveAgentDirection("B", "left", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
+      // term_num = 17;
+      // moveAgentDirection("A", "left", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
+      // moveAgentDirection("B", "left", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
+      // term_num = 18;
+      
       
 
 
