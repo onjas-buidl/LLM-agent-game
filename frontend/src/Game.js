@@ -480,7 +480,7 @@ export default function  Game() {
 
    useEffect(() => {
     if (gameStarted) {
-      const term_length = 2000;
+      const term_length = 800;
       const x_basis = 10; 
       const y_basis = 29;
       const degree_of_random = 200;
@@ -489,13 +489,17 @@ export default function  Game() {
       // 1 
       var term_num = 1;
       // default method to move an agent 
-      addCommandWithDelay("Move because found enemy nearby", term_length);
+      addCommandWithDelay("Infantry: move to attack", term_length * term_num);
+      addCommandWithDelay("Cavalry: stay to wait for attack time", term_length);
       moveAgentDirection("A", "up", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
       moveAgentDirection("B", "up", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
       
       
       // 2
+      
       term_num = 2;
+      addCommandWithDelay("Infantry: move to attack", term_length * term_num);
+      addCommandWithDelay("Cavalry: stay to wait for attack time", term_length * term_num);
       moveAgentDirection("A", "up", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
       moveAgentDirection("B", "up", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
       moveNPCDirection("E1", "down", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
@@ -504,6 +508,9 @@ export default function  Game() {
 
       // 3
       term_num = 3;
+      addCommandWithDelay("Infantry: move to attack", term_length * term_num);
+      addCommandWithDelay("Cavalry: stay to wait for attack time", term_length * term_num);
+
       moveAgentDirection("A", "right", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
       moveAgentDirection("B", "right", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
       // moveNPCDirection("E1", "left", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
@@ -512,6 +519,9 @@ export default function  Game() {
 
       // 4
       term_num = 4;
+      addCommandWithDelay("Infantry: move to attack", term_length * term_num);
+      addCommandWithDelay("Cavalry: move to attack", term_length * term_num);
+
       moveNPCDirection("E2", "left", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
 
       reduceStamina("A", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
@@ -533,6 +543,8 @@ export default function  Game() {
 
 
       // 5
+      addCommandWithDelay("Infantry: move to attack", term_length * term_num);
+      addCommandWithDelay("Cavalry: move to attack", term_length * term_num);
       term_num = 5;
       moveAgentDirection("D", "up", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
       moveAgentDirection("E", "up", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
@@ -556,6 +568,8 @@ export default function  Game() {
 
 
       // 6
+      addCommandWithDelay("Infantry: move to attack", term_length * term_num);
+      addCommandWithDelay("Cavalry: move to attack", term_length * term_num);
       term_num = 6;
       reduceStamina("A", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
       reduceStamina("B", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
@@ -568,6 +582,8 @@ export default function  Game() {
 
       // 7
       term_num = 7;
+      addCommandWithDelay("Infantry: move to hospital", term_length * term_num);
+      addCommandWithDelay("Cavalry: move to attack", term_length * term_num);
       moveAgentDirection("A", "left", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
       moveAgentDirection("B", "left", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
       moveAgentDirection("D", "up", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
@@ -577,6 +593,9 @@ export default function  Game() {
 
       // 8
       term_num = 8;
+      addCommandWithDelay("Infantry: move to hospital", term_length * term_num);
+      addCommandWithDelay("Cavalry: move to attack", term_length * term_num);
+
       reduceStamina("D", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
       NPCreduceStamina("E3", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
       NPCreduceStamina("E3", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
@@ -587,6 +606,9 @@ export default function  Game() {
 
       // 9
       term_num = 9;
+      addCommandWithDelay("Infantry: move to hospital", term_length * term_num);
+      addCommandWithDelay("Cavalry: move to attack", term_length * term_num);
+      
       reduceStamina("D", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
       NPCreduceStamina("E3", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
       NPCreduceStamina("E3", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
@@ -596,6 +618,8 @@ export default function  Game() {
 
       // 10
       term_num = 10;
+      addCommandWithDelay("Infantry: move to hospital", term_length * term_num);
+      addCommandWithDelay("Cavalry: move to hospital, stay", term_length * term_num);
       moveAgentDirection("A", "left", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
       moveAgentDirection("B", "left", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
       term_num = 11;
@@ -606,22 +630,32 @@ export default function  Game() {
       moveAgentDirection("B", "left", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
       
       term_num = 12;
+      addCommandWithDelay("Infantry: move to hospital", term_length * term_num);
+      addCommandWithDelay("Cavalry: move to hospital, stay", term_length * term_num);
       moveAgentToPosition("D", 3, 25, term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
       moveAgentDirection("A", "left", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
       moveAgentDirection("B", "left", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
       
       
       term_num = 13;
+      addCommandWithDelay("Infantry: move to hospital", term_length * term_num);
+      addCommandWithDelay("Cavalry: move to hospital, stay", term_length * term_num);
       moveAgentToPosition("D", 3, 26, term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
       moveAgentDirection("A", "left", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
       moveAgentDirection("B", "left", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
       term_num = 14;
+      addCommandWithDelay("Infantry: move to hospital", term_length * term_num);
+      addCommandWithDelay("Cavalry: move to hospital, stay", term_length * term_num);
       moveAgentDirection("A", "left", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
       moveAgentDirection("B", "left", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
       term_num = 15;
+      addCommandWithDelay("Infantry: move to hospital", term_length * term_num);
+      addCommandWithDelay("Cavalry: move to hospital, stay", term_length * term_num);
       moveAgentDirection("A", "left", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
       moveAgentDirection("B", "left", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
       term_num = 16;
+      addCommandWithDelay("Infantry: move to hospital", term_length * term_num);
+      addCommandWithDelay("Cavalry: move to hospital, stay", term_length * term_num);
       moveAgentDirection("B", "up", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
       // moveAgentDirection("A", "left", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
       // moveAgentDirection("B", "left", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
