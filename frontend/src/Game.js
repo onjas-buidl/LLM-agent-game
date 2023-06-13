@@ -32,15 +32,15 @@ console.log(model);
 
 const DEFAULT_COMMANDER = [
   {
-    name: "Defenders",
+    name: "Infantry",
     model: "GPT-3.5",
-    strategy: "You want to preserve as much stamina as possible while moving towards the enemy. You do not care about wealth.",
+    strategy: "",
     selectedAgents: ["Alice", "Bob"]
   },
   {
-    name: "Attakers",
+    name: "Cavalry",
     model: "GPT-4",
-    strategy: "You want to be very aggressive and very greedy. You want to gather as much wealth as possible while attacking the enemy. You do not care about stamina.",
+    strategy: "",
     selectedAgents: ["Alex", "Dora"]
   },
 ];
@@ -65,16 +65,16 @@ const DEFAULT_AGENTS = [
     strategy: "You only want to attack. You actively move towards Alice and attack it. You do not care anything else!",
     image: BarbarianIcon,
   },
-  {
-    name: "C",
-    model: "GPT-4",
-    x: 10,
-    y: 31,
-    stamina: 5,
-    wealth: 0,
-    strategy: "You only want to attack. You actively move towards Alice and attack it. You do not care anything else!",
-    image: BarbarianIcon,
-  },
+  // {
+  //   name: "C",
+  //   model: "GPT-4",
+  //   x: 10,
+  //   y: 31,
+  //   stamina: 5,
+  //   wealth: 0,
+  //   strategy: "You only want to attack. You actively move towards Alice and attack it. You do not care anything else!",
+  //   image: BarbarianIcon,
+  // },
   {
     name: "D",
     model: "Vicuna",
@@ -114,12 +114,14 @@ const DEFAULT_MODULE = [
     y: 3
   }
 ]
-
+const x_basis = 10; 
+const y_basis = 29;
 const DEFAULT_NPC = [
 
-  { name: "Elise", x: 11, y: 25, stamina: 5, wealth: 0, image: NPCBarbarianIcon },
-  { name: "Frank", x: 11, y: 26, stamina: 5, wealth: 0, image: NPCBarbarianIcon },
-  { name: "Grace", x: 12, y: 27, stamina: 5, wealth: 0, image: BarbarianIcon },
+  { name: "E1", x: x_basis+2, y: y_basis-2, stamina: 5, wealth: 0, image: NPCBarbarianIcon },
+  { name: "E2", x: x_basis+3, y: y_basis-3, stamina: 5, wealth: 0, image: NPCBarbarianIcon },
+  { name: "E3", x: x_basis+2, y: y_basis-4, stamina: 5, wealth: 0, image: NPCBarbarianIcon },
+  // { name: "Grace", x: 12, y: 27, stamina: 5, wealth: 0, image: BarbarianIcon },
   // { name: "Henry", x: 30, y: 25, stamina: 5, wealth: 0, image: BarbarianIcon },
   // { name: "Ivy", x: 14, y: 6, stamina: 5, wealth: 0, image: BarbarianIcon },
   // { name: "Jack", x: 23, y: 19, stamina: 5, wealth: 0, image: BarbarianIcon },
@@ -141,21 +143,21 @@ const DEFAULT_NPC = [
   // { name: "Yvonne", x: 24, y: 2, stamina: 5, wealth: 0, image: CavalryIcon },
   // { name: "Zachary", x: 34, y: 13, stamina: 5, wealth: 0, image: CavalryIcon },
   // { name: "Ava", x: 8, y: 24, stamina: 5, wealth: 0, image: CavalryIcon },
-  { name: "Benjamin", x: 28, y: 15, stamina: 5, wealth: 0, image: NPCCavalryIcon },
-  { name: "Charlotte", x: 3, y: 36, stamina: 5, wealth: 0, image: CavalryIcon },
-  { name: "Daniel", x: 22, y: 27, stamina: 5, wealth: 0, image: CavalryIcon },
-  { name: "Emma", x: 36, y: 19, stamina: 5, wealth: 0, image: CavalryIcon },
-  { name: "Felix", x: 10, y: 10, stamina: 5, wealth: 0, image: CavalryIcon },
-  { name: "Grace", x: 26, y: 1, stamina: 5, wealth: 0, image: NPCCavalryIcon },
-  { name: "Henry", x: 39, y: 12, stamina: 5, wealth: 0, image: CavalryIcon },
-  { name: "Yan", x: 12, y: 23, stamina: 5, wealth: 0, image: NPCCavalryIcon },
-  { name: "Jack", x: 31, y: 14, stamina: 5, wealth: 0, image: CavalryIcon },
-  { name: "Kate", x: 5, y: 35, stamina: 5, wealth: 0, image: NPCCavalryIcon },
-  { name: "Liam", x: 20, y: 26, stamina: 5, wealth: 0, image: NPCCavalryIcon },
-  { name: "Will", x: 33, y: 18, stamina: 5, wealth: 0, image: NPCCavalryIcon },
-  { name: "Noah", x: 6, y: 9, stamina: 5, wealth: 0, image: CavalryIcon },
-  { name: "Olivia", x: 19, y: 0, stamina: 5, wealth: 0, image: CavalryIcon },
-  { name: "Jason", x: 30, y: 11, stamina: 5, wealth: 0, image: CavalryIcon },
+  // { name: "Benjamin", x: 28, y: 15, stamina: 5, wealth: 0, image: NPCCavalryIcon },
+  // { name: "Charlotte", x: 3, y: 36, stamina: 5, wealth: 0, image: CavalryIcon },
+  // { name: "Daniel", x: 22, y: 27, stamina: 5, wealth: 0, image: CavalryIcon },
+  // { name: "Emma", x: 36, y: 19, stamina: 5, wealth: 0, image: CavalryIcon },
+  // { name: "Felix", x: 10, y: 10, stamina: 5, wealth: 0, image: CavalryIcon },
+  // { name: "Grace", x: 26, y: 1, stamina: 5, wealth: 0, image: NPCCavalryIcon },
+  // { name: "Henry", x: 39, y: 12, stamina: 5, wealth: 0, image: CavalryIcon },
+  // { name: "Yan", x: 12, y: 23, stamina: 5, wealth: 0, image: NPCCavalryIcon },
+  // { name: "Jack", x: 31, y: 14, stamina: 5, wealth: 0, image: CavalryIcon },
+  // { name: "Kate", x: 5, y: 35, stamina: 5, wealth: 0, image: NPCCavalryIcon },
+  // { name: "Liam", x: 20, y: 26, stamina: 5, wealth: 0, image: NPCCavalryIcon },
+  // { name: "Will", x: 33, y: 18, stamina: 5, wealth: 0, image: NPCCavalryIcon },
+  // { name: "Noah", x: 6, y: 9, stamina: 5, wealth: 0, image: CavalryIcon },
+  // { name: "Olivia", x: 19, y: 0, stamina: 5, wealth: 0, image: CavalryIcon },
+  // { name: "Jason", x: 30, y: 11, stamina: 5, wealth: 0, image: CavalryIcon },
 ]
 
 
@@ -310,7 +312,7 @@ export default function Game() {
               newY += 1;
             }
 
-            return { ...agent, x: newX, y: newY, stamina: agent.stamina - 1 };
+            return { ...agent, x: newX, y: newY, stamina: agent.stamina };
           } else {
             return agent;
           }
@@ -337,7 +339,7 @@ export default function Game() {
               newY += 1;
             }
 
-            return { ...npc, x: newX, y: newY, stamina: npc.stamina - 1 };
+            return { ...npc, x: newX, y: newY, stamina: npc.stamina };
           } else {
             return npc;
           }
@@ -393,6 +395,42 @@ export default function Game() {
     }, delay);
   };
 
+  const reduceStamina = (agentName, delay) => {
+    setTimeout(() => {
+      setAgents((prevAgents) => {
+        const updatedAgents = prevAgents.map((agent) =>
+          agent.name === agentName
+            ? { ...agent, stamina: agent.stamina - 1 }
+            : agent
+        );
+        const agent = updatedAgents.find((agent) => agent.name === agentName);
+        if (agent) {
+          console.log(`${agentName} stamina: ${agent.stamina}`);
+        }
+        return updatedAgents;
+      });
+    }, delay);
+  };
+
+  const NPCreduceStamina = (npcName, delay) => {
+    setTimeout(() => {
+      setNPC((prevNPC) => {
+        const updatedNPC = prevNPC.map((npc) =>
+          npc.name === npcName
+            ? { ...npc, stamina: npc.stamina - 1 }
+            : npc
+        );
+        const npc = updatedNPC.find((npc) => npc.name === npcName);
+        if (npc) {
+          console.log(`${npcName} stamina: ${npc.stamina}`);
+        }
+        return updatedNPC;
+      });
+    }, delay);
+  };
+  
+  
+
 
   const gatherGold = (agentName, targetX, targetY, delay) => {
     setTimeout(() => {
@@ -430,7 +468,99 @@ export default function Game() {
   useEffect(() => {
     if (gameStarted) {
       const term_length = 2000;
-      moveAgentDirection("A", "left", 1 * term_length);
+      const x_basis = 10; 
+      const y_basis = 29;
+      const degree_of_random = 200;
+
+      
+      // 1 
+      var term_num = 1;
+      // default method to move an agent 
+      moveAgentDirection("A", "up", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
+      moveAgentDirection("B", "up", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
+      
+      
+      // 2
+      term_num = 2;
+      moveAgentDirection("A", "up", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
+      moveAgentDirection("B", "up", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
+      moveNPCDirection("E1", "down", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
+      moveNPCDirection("E2", "down", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
+      moveNPCDirection("E3", "down", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
+
+      // 3
+      term_num = 3;
+      moveAgentDirection("A", "right", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
+      moveAgentDirection("B", "right", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
+      // moveNPCDirection("E1", "left", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
+      // moveNPCDirection("E2", "left", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
+      // moveNPCDirection("E3", "left", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
+
+      // 4
+      term_num = 4;
+      moveNPCDirection("E2", "left", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
+
+      reduceStamina("A", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
+      reduceStamina("B", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
+      NPCreduceStamina("E1", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
+      NPCreduceStamina("E2", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
+
+      moveAgentDirection("D", "up", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
+      moveAgentDirection("E", "up", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
+      moveAgentDirection("F", "up", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
+
+      moveAgentDirection("D", "left", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
+      moveAgentDirection("E", "left", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
+      moveAgentDirection("F", "left", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
+
+      moveAgentDirection("D", "up", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
+      moveAgentDirection("E", "up", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
+      moveAgentDirection("F", "up", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
+
+
+      // 5
+      term_num = 5;
+      moveAgentDirection("D", "up", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
+      moveAgentDirection("E", "up", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
+      moveAgentDirection("F", "up", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
+
+      // moveAgentDirection("D", "left", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
+      // moveAgentDirection("E", "left", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
+      // moveAgentDirection("F", "left", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
+
+      moveAgentDirection("D", "up", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
+      moveAgentDirection("E", "up", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
+      moveAgentDirection("F", "up", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
+
+      reduceStamina("A", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
+      reduceStamina("B", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
+      NPCreduceStamina("E1", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
+      NPCreduceStamina("E2", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
+      NPCreduceStamina("E1", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
+      NPCreduceStamina("E2", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
+
+
+
+      // 6
+      reduceStamina("A", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
+      reduceStamina("B", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
+      NPCreduceStamina("E1", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
+      NPCreduceStamina("E2", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
+      NPCreduceStamina("E1", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
+      NPCreduceStamina("E2", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
+
+
+      // 7
+      moveAgentDirection("A", "up", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
+
+
+      // 8
+
+
+      // 9
+
+
+      // 10
       
 
 
@@ -442,27 +572,27 @@ export default function Game() {
       // moveAgentToPosition("Dora", 4, 2, 2000);
 
       // Teleport Scripts
-      moveAgentToPosition("Alice", 4, 3, 2500); // Teleport Alice to (0, 1) after 2 seconds
+      // moveAgentToPosition("Alice", 4, 3, 2500); // Teleport Alice to (0, 1) after 2 seconds
 
-      moveAgentToPosition("Bob", 3, 0, 3000);
-      moveAgentToPosition("Alex", 3, 5, 3500);
+      // moveAgentToPosition("Bob", 3, 0, 3000);
+      // moveAgentToPosition("Alex", 3, 5, 3500);
 
-      // Attack Scripts
-      attackAgent("Dora", "Alice", 4, 3, 4000); // Dora attacks Alice at (4, 3) after 4 seconds
+      // // Attack Scripts
+      // attackAgent("Dora", "Alice", 4, 3, 4000); // Dora attacks Alice at (4, 3) after 4 seconds
 
-      // Gather Scripts
-      gatherGold("Bob", 3, 0, 4500); // Bob gathers gold at (3, 0) after 4.5 seconds
+      // // Gather Scripts
+      // gatherGold("Bob", 3, 0, 4500); // Bob gathers gold at (3, 0) after 4.5 seconds
 
-      // Rest
-      rest("Alex", 5000); // Bob rests after 5 seconds
+      // // Rest
+      // rest("Alex", 5000); // Bob rests after 5 seconds
 
-      // Move Scripts
-      moveNPCToPosition("Elise", 40, 26, 500); // Move Alice to (0, 1) after 0.5 seconds
-      moveNPCToPosition("Frank", 3, 35, 1000);
-      moveNPCToPosition("Will", 32, 18, 1500);
-      moveNPCToPosition("Jason", 30, 12, 2000);
-      moveNPCToPosition("Noah", 7, 9, 2500);
-      moveNPCToPosition("Olivia", 19, 1, 3000);
+      // // Move Scripts
+      // moveNPCToPosition("Elise", 40, 26, 500); // Move Alice to (0, 1) after 0.5 seconds
+      // moveNPCToPosition("Frank", 3, 35, 1000);
+      // moveNPCToPosition("Will", 32, 18, 1500);
+      // moveNPCToPosition("Jason", 30, 12, 2000);
+      // moveNPCToPosition("Noah", 7, 9, 2500);
+      // moveNPCToPosition("Olivia", 19, 1, 3000);
     }
   }, [gameStarted]);
 
@@ -520,7 +650,7 @@ export default function Game() {
                               <div
                                 className="stamina-red"
                                 style={{
-                                  width: `${Math.max(agent.stamina * 2, 10)}px`,
+                                  width: `${Math.min(agent.stamina * 2, 10)}px`,
                                 }}
                               ></div>
                             </div>
@@ -529,7 +659,7 @@ export default function Game() {
                               <div
                                 className="stamina-blue"
                                 style={{
-                                  width: `${Math.max(agent.stamina * 2, 10)}px`,
+                                  width: `${Math.min(agent.stamina * 2, 10)}px`,
                                 }}
                               ></div>
                             </div>
@@ -554,7 +684,7 @@ export default function Game() {
                               <div
                                 className="stamina-red"
                                 style={{
-                                  width: `${Math.max(agent.stamina * 2, 10)}px`,
+                                  width: `${Math.min(agent.stamina * 2, 10)}px`,
                                 }}
                               ></div>
                             </div>
@@ -563,7 +693,7 @@ export default function Game() {
                               <div
                                 className="stamina-blue"
                                 style={{
-                                  width: `${Math.max(agent.stamina * 2, 10)}px`,
+                                  width: `${Math.min(agent.stamina * 2, 10)}px`,
                                 }}
                               ></div>
                             </div>
