@@ -263,8 +263,9 @@ main.game {
 }
 
 .leaderboard {
-  margin: 15px;
+  margin: px;
   width: 200px;
+  height: 1750px;
   /* height: 30%; */
   flex-shrink: 0;
   background-color: #272a31;
@@ -355,6 +356,36 @@ main.game {
 
 .map > .hospital .hospital-image{
   position: absolute;
+  width: 25px;
+  height: 25px;
+  object-fit: contain;
+}
+
+.map > .mine {
+  position: absolute;
+  width: 70px;
+  height: 70px;
+  object-fit: contain;
+}
+
+.map > .mine .mine-image{
+  position: absolute;
+  margin-top: 3px;
+  width: 25px;
+  height: 25px;
+  object-fit: contain;
+}
+
+.map > .mountain {
+  position: absolute;
+  width: 70px;
+  height: 70px;
+  object-fit: contain;
+}
+
+.map > .mountain .mountain-image{
+  position: absolute;
+  margin-top: 3px;
   width: 25px;
   height: 25px;
   object-fit: contain;
