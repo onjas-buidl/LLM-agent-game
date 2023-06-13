@@ -219,7 +219,7 @@ export default function  Game() {
         ['', '', '', 'W', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''],
         ['', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'Mountain', '', '', '', '', 'Mine', 'Mine', 'W', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''],
         ['', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'Mountain', '', '', '', '', '', 'Mine', 'Mine', 'Mine', 'Mine', '', '', '', '', 'W', '', '', '', '', '', '', '', '', '', '', 'W'],
-        ['', '', '', '', '', '', '', '', '', '', 'Hospital', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'Teleport', '', '', '', '', '', '', '', '', '', '', '', '', 'Mountain', 'Mountain', 'W', 'Mine', 'Mine', 'W', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''],
+        ['', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'Teleport', '', '', '', '', '', '', '', '', '', '', '', '', 'Mountain', 'Mountain', 'W', 'Mine', 'Mine', 'W', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''],
         ['', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'W', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'Mountain', 'Mountain', '', '', '', '', 'W', 'W', 'Mine', 'W', 'W', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''],
         ['', '', '', '', 'Mine', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'Mountain', '', '', '', '', '', '', 'Mine', 'Mine', 'Mine', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''],
         ['', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'W', '', '', '', '', '', '', '', '', '', '', '', 'W', '', '', '', '', '', '', '', '', '', '', '', '', '', 'Mine', 'Mine', 'W', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''],
@@ -548,25 +548,71 @@ export default function  Game() {
 
 
       // 6
+      term_num = 6;
       reduceStamina("A", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
       reduceStamina("B", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
       NPCreduceStamina("E1", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
       NPCreduceStamina("E2", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
       NPCreduceStamina("E1", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
       NPCreduceStamina("E2", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
+      NPCreduceStamina("E3", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
 
 
       // 7
-      moveAgentDirection("A", "up", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
+      term_num = 7;
+      moveAgentDirection("A", "left", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
+      moveAgentDirection("B", "left", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
+      moveAgentDirection("D", "up", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
+      moveAgentDirection("E", "up", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
+      moveAgentDirection("D", "left", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
 
 
       // 8
+      term_num = 8;
+      reduceStamina("D", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
+      NPCreduceStamina("E3", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
+      NPCreduceStamina("E3", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
+      NPCreduceStamina("E3", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
+      moveAgentDirection("A", "up", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
+      moveAgentDirection("B", "up", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
 
 
       // 9
+      term_num = 9;
+      reduceStamina("D", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
+      NPCreduceStamina("E3", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
+      NPCreduceStamina("E3", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
+      moveAgentDirection("A", "left", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
+      moveAgentDirection("B", "left", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
 
 
       // 10
+      term_num = 10;
+      moveAgentDirection("A", "left", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
+      moveAgentDirection("B", "left", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
+      term_num = 11;
+      moveAgentDirection("A", "left", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
+      moveAgentDirection("B", "left", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
+      term_num = 12;
+      moveAgentDirection("A", "left", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
+      moveAgentDirection("B", "left", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
+      term_num = 13;
+      moveAgentDirection("A", "left", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
+      moveAgentDirection("B", "left", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
+      term_num = 14;
+      moveAgentDirection("A", "left", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
+      moveAgentDirection("B", "left", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
+      term_num = 15;
+      moveAgentDirection("A", "left", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
+      moveAgentDirection("B", "left", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
+      term_num = 16;
+      moveAgentDirection("A", "left", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
+      moveAgentDirection("B", "left", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
+      term_num = 17;
+      moveAgentDirection("A", "left", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
+      moveAgentDirection("B", "left", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
+      term_num = 18;
+      moveAgentDirection("B", "up", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
       
 
 
