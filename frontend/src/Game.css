@@ -169,7 +169,19 @@ main.setup {
 }
 
 .agents > .agent .name {
-  width: 150px;
+  width: 100px;
+  font-size: 15px;
+  font-family: 'freePixel';
+  outline: none;
+  border: none;
+  appearance: none;
+  background: none;
+  color: white;
+}
+
+.agents > .agent .name2 {
+  display: block;
+  width: 50px;
   font-size: 15px;
   font-family: 'freePixel';
   outline: none;
@@ -191,8 +203,9 @@ main.setup {
 }
 
 .agents > .agent .strategy {
-  flex: 1;
+  width: 2000px;
   font-size: 20px;
+  margin-right: 20px;
   font-family: 'freePixel';
   outline: none;
   border: none;
@@ -203,6 +216,7 @@ main.setup {
 
 .agents > .agent .location {
   margin-left: 15px;
+  margin: 10px;
 }
 
 .agents > .agent .location label {
@@ -223,6 +237,7 @@ main.setup {
   color: white;
   padding: 10px;
   border-radius: 10px;
+  margin-bottom: 10px;
 }
 
 .agents > .agent .remove {
