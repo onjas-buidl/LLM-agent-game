@@ -326,23 +326,23 @@ main.game {
 
 .map > .grid {
   background-color: #131416;
-  width: 80px;
-  height: 80px;
+  width: 25px;
+  height: 25px;
   box-shadow: 0px 0px 1px #000000;
 }
 
 .map > .gold {
   position: absolute;
-  margin: 10px;
-  width: 60px;
-  height: 60px;
+  margin: 3px;
+  width: 40px;
+  height: 40px;
   overflow: hidden;
 }
 
 .map > .gold .crystal-image{
   position: absolute;
-  width: 25px;
-  height: 25px;
+  width: 10px;
+  height: 10px;
   object-fit: contain;
 }
 
@@ -355,31 +355,32 @@ main.game {
 
 .map > .hospital .hospital-image{
   position: absolute;
-  width: 70px;
-  height: 70px;
+  width: 25px;
+  height: 25px;
   object-fit: contain;
 }
 
 .map > .teleport {
   position: absolute;
-  margin: 10px;
-  width: 60px;
-  height: 60px;
+  margin: 2px;
+  width: 30px;
+  height: 30px;
   overflow: hidden;
 }
 
 .map > .teleport .teleport-image{
   position: absolute;
-  margin: 10px;
-  width: 50px;
-  height: 50px;
+  margin: -2px;
+  width: 25px;
+  height: 25px;
   object-fit: contain;
 }
 
 .map > .agent {
   position: absolute;
   transition: left 500ms, top 500ms;
-  margin: 10px;
+  margin: 3px;
+  margin-top: -40px;
   width: 60px;
   height: 60px;
   overflow: hidden;
@@ -390,28 +391,28 @@ main.game {
 
 .map > .agent .name {
   font-weight: bold;
-  font-size: 10px;
+  font-size: 5px;
   font-family: 'freePixel';
-  margin-bottom: 5px;
+  margin-bottom: 2px;
 }
 
 .map > .agent .stamina-red {
-  height: 5px;
+  height: 2px;
   background-color: rgb(255, 255, 255);
 }
 
 .map > .agent .stamina-blue {
-  height: 5px;
+  height: 2px;
   background-color: rgb(255, 255, 255);
 }
 
 .map > .agent .image {
   position: absolute;
-  width: 40px;
-  height: 40px;
+  width: 12px;
+  height: 12px;
   object-fit: contain;
-  left: 60%; /* Adjust this value as needed */
-  top: 10px; /* Adjust this value as needed */
-  transform: translate(-45%, -10%);
+  left: 30%; /* Adjust this value as needed */
+  top: 36px; /* Adjust this value as needed */
+  transform: translate(-80%, 70%);
 }
 
