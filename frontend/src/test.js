@@ -139,17 +139,24 @@ const DEFAULT_NPC = [
 
 
 export default function  Game() {
-  const [gameStarted, setGameStarted] = useState(false);
-  const [message, setMessage] = useState(null);
-  const [worldState, setWorldState] = useState([]);
-  // const [actionHistory, setActionHistory] = useState([]); 
-  const [size, setSize] = useState(70);
-  const [gridSize, setGridSize] = useState(25);
-  const [numWealth, setNumWealth] = useState(10);
-  const [modules, setModules] = useState(DEFAULT_MODULE);
-  const [agents, setAgents] = useState(DEFAULT_AGENTS);
-  const [commanders, setCommanders] = useState(DEFAULT_COMMANDER);
-  const [npc, setNPC] = useState(DEFAULT_NPC);
+    const [gameStarted, setGameStarted] = useState(false);
+    const [message, setMessage] = useState(null);
+    const [worldState, setWorldState] = useState([]);
+    // const [actionHistory, setActionHistory] = useState([]); 
+    const [size, setSize] = useState(70);
+    const [gridSize, setGridSize] = useState(25);
+    const [numWealth, setNumWealth] = useState(10);
+    const [modules, setModules] = useState(DEFAULT_MODULE);
+    const [agents, setAgents] = useState(DEFAULT_AGENTS);
+    const [commanders, setCommanders] = useState(DEFAULT_COMMANDER);
+    const [npc, setNPC] = useState(DEFAULT_NPC);
+    const Agent = () => {
+    const [showBox, setShowBox] = useState(false);
+
+    const handleClick = () => {
+            setShowBox(!showBox);
+            console.log("clicked");
+        };
 
   const handleStartGame = async () => {
     setMessage("Starting the game ...");
@@ -412,7 +419,12 @@ export default function  Game() {
                           }}
                         >
                           <div className="name">{agent.name}</div>
-                          <img src={agent.image} alt={`Agent ${index + 1}`} className="image" />
+                          <img src={agent.image} alt={`Agent ${index + 1}`} className="image" onclick={handleClick}/>
+                          {showBox && (
+                                <div className="box">
+                                This is the box content.
+                                </div>
+                            )}
                           {agent.name.startsWith("A") ? (
                             <div className="stamina-red-container">
                               <div
@@ -727,9 +739,9 @@ export default function  Game() {
           <div className="buttons">
             <button
               onClick={() =>
-                setAgents([
-                  ...agents,
-                  { name: "", x: 0, y: 0, stamina: 0, wealth: 0 },
+                setCommanders([
+                  ...commanders,
+                  { name: "", model: "", strategy: "", selectedAgents: [] },
                 ])
               }
             >

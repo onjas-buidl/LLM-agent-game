@@ -216,13 +216,11 @@ main.setup {
 
 .agents > .agent .location {
   margin-left: 15px;
-  margin: 10px;
 }
 
 .agents > .agent .location label {
   font-size: 18px;
   font-family: 'freePixel';
-  margin-right: 5px;
 }
 
 .agents > .agent .location input {
@@ -450,6 +448,15 @@ main.game {
 .map > .agent .stamina-blue {
   height: 2px;
   background-color: rgb(255, 255, 255);
+}
+
+.map > .agent .box {
+  background-color: lightgreen;
+  color: white;
+  padding: 10px;
+  border-radius: 5px;
+  width: 1000px;
+  font-size: 100px;
 }
 
 .map > .agent .image {

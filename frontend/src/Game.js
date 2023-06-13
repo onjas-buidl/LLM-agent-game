@@ -35,76 +35,76 @@ const DEFAULT_COMMANDER = [
     name: "Defenders",
     model: "GPT-3.5",
     strategy: "You want to preserve as much stamina as possible while moving towards the enemy. You do not care about wealth.",
-    selectedAgents: ["Alice", "Bob"]
+    selectedAgents: ["Alice", "Bob", "Elaine"]
   },
   {
     name: "Attakers",
     model: "GPT-4",
     strategy: "You want to be very aggressive and very greedy. You want to gather as much wealth as possible while attacking the enemy. You do not care about stamina.",
-    selectedAgents: ["Alex", "Dora"]
+    selectedAgents: ["Alex", "Dora", "Mike"]
   },
 ];
 const DEFAULT_AGENTS = [
-  {
-    name: "A",
-    model: "GPT-3.5",
-    x: 10,
-    y: 29,
-    stamina: 5,
-    wealth: 0,
-    strategy: "You only want to attack. You actively move towards Bob and attack it. You do not care anything else! ",
-    image: BarbarianIcon,
-  },
-  {
-    name: "B",
-    model: "Alpaca",
-    x: 10,
-    y: 30,
-    stamina: 5,
-    wealth: 0,
-    strategy: "You only want to attack. You actively move towards Alice and attack it. You do not care anything else!",
-    image: BarbarianIcon,
-  },
-  {
-    name: "C",
-    model: "GPT-4",
-    x: 10,
-    y: 31,
-    stamina: 5,
-    wealth: 0,
-    strategy: "You only want to attack. You actively move towards Alice and attack it. You do not care anything else!",
-    image: BarbarianIcon,
-  },
-  {
-    name: "D",
-    model: "Vicuna",
-    x: 14,
-    y: 30,
-    stamina: 5,
-    wealth: 0,
-    strategy: "You only want to attack. You actively move towards Alice and attack it. You do not care anything else!",
-    image: CavalryIcon,
-  },
-  {
-    name: "E",
-    model: "GPT",
-    x: 14,
-    y: 31,
-    stamina: 5,
-    wealth: 0,
-    strategy: "You only want to attack. You actively move towards Alice and attack it. You do not care anything else!",
-    image: CavalryIcon,
-  },
-  {
-    name: "F",
-    model: "Vicuna",
-    x: 14,
-    y: 32,
-    stamina: 5,
-    wealth: 0,
-    strategy: "You only want to attack. You actively move towards Alice and attack it. You do not care anything else!",
-    image: CavalryIcon,
-  },
+    {
+        name: "Alice",
+        model: "GPT-3.5",
+        x: 0,
+        y: 0,
+        stamina: 5,
+        wealth: 0,
+        strategy: "You only want to attack. You actively move towards Bob and attack it. You do not care anything else! ",
+        image: BarbarianIcon,
+      },
+    {
+      name: "Bob",
+      model: "Alpaca",
+      x: 1,
+      y: 0,
+      stamina: 5,
+      wealth: 0,
+      strategy: "You only want to attack. You actively move towards Alice and attack it. You do not care anything else!",
+      image: NPCBarbarianIcon,
+    },
+    {
+      name: "Alex",
+      model: "GPT-4",
+      x: 3,
+      y: 3,
+      stamina: 5,
+      wealth: 0,
+      strategy: "You only want to attack. You actively move towards Alice and attack it. You do not care anything else!",
+      image: CavalryIcon,
+    },
+    {
+      name: "Dora",
+      model: "Vicuna",
+      x: 4,
+      y: 1,
+      stamina: 5,
+      wealth: 0,
+      strategy: "You only want to attack. You actively move towards Alice and attack it. You do not care anything else!",
+      image: NPCCavalryIcon,
+    },
+    {
+      name: "Elaine",
+      model: "Vicuna",
+      x: 2,
+      y: 1,
+      stamina: 5,
+      wealth: 0,
+      strategy: "You only want to attack. You actively move towards Alice and attack it. You do not care anything else!",
+      image: NPCCavalryIcon,
+    },
+    {
+      name: "Mike",
+      model: "Vicuna",
+      x: 5,
+      y: 5,
+      stamina: 5,
+      wealth: 0,
+      strategy: "You only want to attack. You actively move towards Alice and attack it. You do not care anything else!",
+      image: NPCCavalryIcon,
+    },
 ];
 const DEFAULT_MODULE = [
   {
@@ -116,31 +116,30 @@ const DEFAULT_MODULE = [
 ]
 
 const DEFAULT_NPC = [
-
-  { name: "Elise", x: 11, y: 25, stamina: 5, wealth: 0, image: NPCBarbarianIcon },
-  { name: "Frank", x: 11, y: 26, stamina: 5, wealth: 0, image: NPCBarbarianIcon },
-  { name: "Grace", x: 12, y: 27, stamina: 5, wealth: 0, image: BarbarianIcon },
-  // { name: "Henry", x: 30, y: 25, stamina: 5, wealth: 0, image: BarbarianIcon },
-  // { name: "Ivy", x: 14, y: 6, stamina: 5, wealth: 0, image: BarbarianIcon },
-  // { name: "Jack", x: 23, y: 19, stamina: 5, wealth: 0, image: BarbarianIcon },
-  // { name: "Kate", x: 32, y: 9, stamina: 5, wealth: 0, image: BarbarianIcon },
-  // { name: "Liam", x: 42, y: 16, stamina: 5, wealth: 0, image: BarbarianIcon },
-  // { name: "Mia", x: 7, y: 39, stamina: 5, wealth: 0, image: NPCBarbarianIcon },
-  // { name: "Nick", x: 21, y: 30, stamina: 5, wealth: 0, image: NPCBarbarianIcon },
-  // { name: "Olivia", x: 37, y: 22, stamina: 5, wealth: 0, image: BarbarianIcon },
-  // { name: "Parker", x: 13, y: 17, stamina: 5, wealth: 0, image: BarbarianIcon },
-  // { name: "Quinn", x: 29, y: 8, stamina: 5, wealth: 0, image: BarbarianIcon },
-  // { name: "Ryan", x: 4, y: 33, stamina: 5, wealth: 0, image: BarbarianIcon },
-  // { name: "Sophia", x: 27, y: 14, stamina: 5, wealth: 0, image: BarbarianIcon },
-  // { name: "Thomas", x: 38, y: 26, stamina: 5, wealth: 0, image: BarbarianIcon },
-  // { name: "Uma", x: 11, y: 37, stamina: 5, wealth: 0, image: BarbarianIcon },
-  // { name: "Vincent", x: 25, y: 28, stamina: 5, wealth: 0, image: CavalryIcon },
-  // { name: "Willow", x: 35, y: 20, stamina: 5, wealth: 0, image: CavalryIcon },
-  // { name: "Vitalik", x: 63, y: 3, stamina: 5, wealth: 0, image: NPCBarbarianIcon },
-  // { name: "Xavier", x: 9, y: 11, stamina: 5, wealth: 0, image: CavalryIcon },
-  // { name: "Yvonne", x: 24, y: 2, stamina: 5, wealth: 0, image: CavalryIcon },
-  // { name: "Zachary", x: 34, y: 13, stamina: 5, wealth: 0, image: CavalryIcon },
-  // { name: "Ava", x: 8, y: 24, stamina: 5, wealth: 0, image: CavalryIcon },
+  {name: "Elise", x: 40, y: 25, stamina: 5, wealth: 0, image: NPCBarbarianIcon},
+  { name: "Frank", x: 2, y: 35, stamina: 5, wealth: 0, image: NPCBarbarianIcon },
+  { name: "Grace", x: 45, y: 12, stamina: 5, wealth: 0, image: BarbarianIcon },
+  { name: "Henry", x: 30, y: 25, stamina: 5, wealth: 0, image: BarbarianIcon },
+  { name: "Ivy", x: 14, y: 6, stamina: 5, wealth: 0, image: BarbarianIcon },
+  { name: "Jack", x: 23, y: 19, stamina: 5, wealth: 0, image: BarbarianIcon },
+  { name: "Kate", x: 32, y: 9, stamina: 5, wealth: 0, image: BarbarianIcon },
+  { name: "Liam", x: 42, y: 16, stamina: 5, wealth: 0, image: BarbarianIcon },
+  { name: "Mia", x: 7, y: 39, stamina: 5, wealth: 0, image: NPCBarbarianIcon },
+  { name: "Nick", x: 21, y: 30, stamina: 5, wealth: 0, image: NPCBarbarianIcon },
+  { name: "Olivia", x: 37, y: 22, stamina: 5, wealth: 0, image: BarbarianIcon },
+  { name: "Parker", x: 13, y: 17, stamina: 5, wealth: 0, image: BarbarianIcon },
+  { name: "Quinn", x: 29, y: 8, stamina: 5, wealth: 0, image: BarbarianIcon },
+  { name: "Ryan", x: 4, y: 33, stamina: 5, wealth: 0, image: BarbarianIcon },
+  { name: "Sophia", x: 27, y: 14, stamina: 5, wealth: 0, image: BarbarianIcon },
+  { name: "Thomas", x: 38, y: 26, stamina: 5, wealth: 0, image: BarbarianIcon },
+  { name: "Uma", x: 11, y: 37, stamina: 5, wealth: 0, image: BarbarianIcon },
+  { name: "Vincent", x: 25, y: 28, stamina: 5, wealth: 0, image: CavalryIcon },
+  { name: "Willow", x: 35, y: 20, stamina: 5, wealth: 0, image: CavalryIcon },
+  { name: "Vitalik", x:63, y:3, stamina: 5, wealth: 0, image: NPCBarbarianIcon },
+  { name: "Xavier", x: 9, y: 11, stamina: 5, wealth: 0, image: CavalryIcon },
+  { name: "Yvonne", x: 24, y: 2, stamina: 5, wealth: 0, image: CavalryIcon },
+  { name: "Zachary", x: 34, y: 13, stamina: 5, wealth: 0, image: CavalryIcon },
+  { name: "Ava", x: 8, y: 24, stamina: 5, wealth: 0, image: CavalryIcon },
   { name: "Benjamin", x: 28, y: 15, stamina: 5, wealth: 0, image: NPCCavalryIcon },
   { name: "Charlotte", x: 3, y: 36, stamina: 5, wealth: 0, image: CavalryIcon },
   { name: "Daniel", x: 22, y: 27, stamina: 5, wealth: 0, image: CavalryIcon },
@@ -159,7 +158,7 @@ const DEFAULT_NPC = [
 ]
 
 
-export default function Game() {
+export default function  Game() {
   const [gameStarted, setGameStarted] = useState(false);
   const [message, setMessage] = useState(null);
   const [worldState, setWorldState] = useState([]);
@@ -171,11 +170,17 @@ export default function Game() {
   const [agents, setAgents] = useState(DEFAULT_AGENTS);
   const [commanders, setCommanders] = useState(DEFAULT_COMMANDER);
   const [npc, setNPC] = useState(DEFAULT_NPC);
-
+  const [showBox, setShowBox] = useState(false);
+  
+  const handleClick = () => {
+    setShowBox(!showBox);
+    console.log("clicked");
+};
+  
   const handleStartGame = async () => {
     setMessage("Starting the game ...");
     setAgents([]);
-
+    
     // Initialize worldState map
     setWorldState(
       [
@@ -248,7 +253,7 @@ export default function Game() {
         ['', '', '', '', '', '', '', '', '', '', 'W', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'W', '', '', '', '', '', '', '', '', '', '', '', 'W', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'Mountain', 'Mountain', 'Mountain'],
         ['', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'Hospital', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'Mountain', 'Mountain', 'Mountain', 'Mountain', 'Mountain', 'Mountain'],
         ['', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'Mountain', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'W', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'Mountain', 'Mountain', 'Mountain', 'Mountain', 'Mountain', 'Mountain'],
-        ['', '', '', '', 'Teleport', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'Mountain', 'Mountain', '', '', '', '', 'W', '', '', '', '', '', '', 'Teleport', '', '', '', '', '', '', '', '', '', '', 'Mine', '', '', '', '', '', '', '', 'W', '', '', '', '', 'Mountain', 'Mountain', 'Mountain', 'Mountain', 'Mountain', 'Mountain', 'Mountain', 'Mountain', 'Mountain'],
+        ['', '', '', '', 'Teleport', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'Mountain', 'Mountain', '', '', '', '', 'W', '', '', '', '', '', '', 'Teleport', '', '', '', '', '', '', '', '', '', '', 'Mine', '', '', '', '', '', '', '', 'W', '', '', '', '', 'Mountain', 'Mountain', 'Mountain', 'Mountain', 'Mountain', 'Mountain', 'Mountain','Mountain','Mountain'],
       ]
     );
 
@@ -256,7 +261,7 @@ export default function Game() {
     setTimeout(() => setMessage(null), 3000);
 
     setAgents(DEFAULT_AGENTS);
-
+    
     const input = 'Once upon a time, ';
     const options = {
       temperature: 0.7,
@@ -274,104 +279,29 @@ export default function Game() {
     const response = await window.ai.generateText({
       messages: [{ role: "user", content: "Who are you?" }]
     });
-
+    
     console.log(response[0].message.content); // "I am an AI language model"
     setMessage("Successfully started the game!");
-    setTimeout(() => setMessage(null), 2000);
+    setTimeout(() => setMessage(null), 2000);    
 
-  };
+   };
 
   // Demo Script Functions
-  const moveAgentToPosition = (agentName, targetX, targetY, delay) => {
+   const moveAgentToPosition = (agentName, targetX, targetY, delay) => {
     setTimeout(() => {
       setAgents((prevAgents) =>
         prevAgents.map((agent) =>
-          agent.name === agentName ? { ...agent, x: targetX, y: targetY, stamina: agent.stamina - 1 } : agent
+          agent.name === agentName ? { ...agent, x: targetX, y: targetY, stamina: agent.stamina - 1} : agent
         )
       );
     }, delay);
   };
 
-  const moveAgentDirection = (agentName, direction, delay) => {
-    setTimeout(() => {
-      setAgents((prevAgents) =>
-        prevAgents.map((agent) => {
-          if (agent.name === agentName) {
-            let newX = agent.x;
-            let newY = agent.y;
-
-            if (direction === "left") {
-              newX -= 1;
-            } else if (direction === "right") {
-              newX += 1;
-            } else if (direction === "up") {
-              newY -= 1;
-            } else if (direction === "down") {
-              newY += 1;
-            }
-
-            return { ...agent, x: newX, y: newY, stamina: agent.stamina - 1 };
-          } else {
-            return agent;
-          }
-        })
-      );
-    }, delay);
-  };
-  
-  const moveNPCDirection = (npcName, direction, delay) => {
-    setTimeout(() => {
-      setNPC((prevAgents) =>
-        prevAgents.map((npc) => {
-          if (npc.name === npcName) {
-            let newX = npc.x;
-            let newY = npc.y;
-
-            if (direction === "left") {
-              newX -= 1;
-            } else if (direction === "right") {
-              newX += 1;
-            } else if (direction === "up") {
-              newY -= 1;
-            } else if (direction === "down") {
-              newY += 1;
-            }
-
-            return { ...npc, x: newX, y: newY, stamina: npc.stamina - 1 };
-          } else {
-            return npc;
-          }
-        })
-      );
-    }, delay);
-  };
-  
-
-  // const moveAgent = (agentName, targetX, targetY, delay) => {
-  //   setTimeout(() => {
-  //     setAgents((prevAgents) =>
-  //       prevAgents.map((agent) =>
-  //         agent.name === agentName ? { ...agent, x: targetX, y: targetY, stamina: agent.stamina - 1 } : agent
-  //       )
-  //     );
-  //   }, delay);
-  // };
-
-  // const moveNPC = (agentName, targetX, targetY, delay) => {
-  //   setTimeout(() => {
-  //     setAgents((prevAgents) =>
-  //       prevAgents.map((agent) =>
-  //         agent.name === agentName ? { ...agent, x: targetX, y: targetY, stamina: agent.stamina - 1 } : agent
-  //       )
-  //     );
-  //   }, delay);
-  // };
-
   const moveNPCToPosition = (agentName, targetX, targetY, delay) => {
     setTimeout(() => {
       setNPC((prevAgents) =>
         prevAgents.map((npc) =>
-          npc.name === agentName ? { ...npc, x: targetX, y: targetY, stamina: npc.stamina - 1 } : npc
+          npc.name === agentName ? { ...npc, x: targetX, y: targetY, stamina: npc.stamina - 1} : npc
         )
       );
     }, delay);
@@ -382,9 +312,9 @@ export default function Game() {
       setAgents((prevAgents) =>
         prevAgents.map((agent) => {
           if (agent.name === defenderName) {
-            return { ...agent, stamina: 0 };
+            return { ...agent, stamina:0 };
           } else if (agent.name === attackerName) {
-            return { ...agent, x: targetX, y: targetY, stamina: agent.stamina - 1 };
+            return { ...agent, x: targetX, y: targetY, stamina: agent.stamina - 1};
           } else {
             return agent;
           }
@@ -392,7 +322,7 @@ export default function Game() {
       );
     }, delay);
   };
-
+  
 
   const gatherGold = (agentName, targetX, targetY, delay) => {
     setTimeout(() => {
@@ -403,7 +333,7 @@ export default function Game() {
             : prevAgent
         )
       );
-
+    
       setWorldState((prevWorldState) =>
         prevWorldState.map((row, rowIndex) =>
           row.map((cell, colIndex) =>
@@ -427,19 +357,13 @@ export default function Game() {
   };
 
 
-  useEffect(() => {
+   useEffect(() => {
     if (gameStarted) {
-      const term_length = 2000;
-      moveAgentDirection("A", "left", 1 * term_length);
-      
-
-
-
       // Move Scripts
-      // moveAgentToPosition("Alice", 0, 1, 500); // Move Alice to (0, 1) after 0.5 seconds
-      // moveAgentToPosition("Bob", 2, 0, 1000);
-      // moveAgentToPosition("Alex", 3, 4, 1500);
-      // moveAgentToPosition("Dora", 4, 2, 2000);
+      moveAgentToPosition("Alice", 0, 1, 500); // Move Alice to (0, 1) after 0.5 seconds
+      moveAgentToPosition("Bob", 2, 0, 1000);
+      moveAgentToPosition("Alex", 3, 4, 1500);
+      moveAgentToPosition("Dora", 4, 2, 2000);
 
       // Teleport Scripts
       moveAgentToPosition("Alice", 4, 3, 2500); // Teleport Alice to (0, 1) after 2 seconds
@@ -514,7 +438,7 @@ export default function Game() {
                           }}
                         >
                           <div className="name">{agent.name}</div>
-                          <img src={agent.image} alt={`Agent ${index + 1}`} className="image" />
+                          <img src={agent.image} alt={`Agent ${index + 1}`} className="image" onclick={handleClick}/>
                           {agent.name.startsWith("A") ? (
                             <div className="stamina-red-container">
                               <div
@@ -571,68 +495,68 @@ export default function Game() {
                         </div>
                       )
                     ))}
-                    {worldState.map((row, i) =>
-                      row.map((cell, j) =>
-                        cell.startsWith("W") ? (
-                          <div
-                            key={`spirit-gold-${i}-${j}`}
-                            className="gold"
-                            style={{
-                              left: gridSize * j,
-                              top: gridSize * i,
-                            }}
-                          >
-                            <img src={CrystalModule} className="crystal-image" />
-                          </div>
-                        ) : cell === "Teleport" ? (
-                          <div
-                            key={`spirit-teleport-${i}-${j}`}
-                            className="teleport"
-                            style={{
-                              left: gridSize * j,
-                              top: gridSize * i,
-                            }}
-                          >
-                            <img src={TeleportModule} alt="Teleport" className="teleport-image" />
-                          </div>
-                        ) : cell === "Hospital" ? (
-                          <div
-                            key={`spirit-hospital-${i}-${j}`}
-                            className="hospital"
-                            style={{
-                              left: gridSize * j,
-                              top: gridSize * i,
-                            }}
-                          >
-                            <img src={HospitalModule} alt="Hospital" className="hospital-image" />
-                          </div>
-                        ) : cell === "Mine" ? (
-                          <div
-                            key={`spirit-mine-${i}-${j}`}
-                            className="mine"
-                            style={{
-                              left: gridSize * j,
-                              top: gridSize * i,
-                            }}
-                          >
-                            <img src={CrystalMineModule} alt="Mine" className="mine-image" />
-                          </div>
-                        ) : cell === "Mountain" ? (
-                          <div
-                            key={`spirit-mountain-${i}-${j}`}
-                            className="mountain"
-                            style={{
-                              left: gridSize * j,
-                              top: gridSize * i,
-                            }}
-                          >
-                            <img src={MountainModule} alt="Mountain" className="mountain-image" />
-                          </div>
-                        ) : null
-                      )
-                    )}
-                  </div>
-                  {/* <div className="actions">
+                  {worldState.map((row, i) =>
+                    row.map((cell, j) =>
+                      cell.startsWith("W") ? (
+                        <div
+                          key={`spirit-gold-${i}-${j}`}
+                          className="gold"
+                          style={{
+                            left: gridSize * j,
+                            top: gridSize * i,
+                          }}
+                        >
+                          <img src={CrystalModule} className="crystal-image" />
+                        </div>
+                      ) : cell === "Teleport" ? (
+                        <div
+                          key={`spirit-teleport-${i}-${j}`}
+                          className="teleport"
+                          style={{
+                            left: gridSize * j,
+                            top: gridSize * i,
+                          }}
+                        >
+                          <img src={TeleportModule} alt="Teleport"className="teleport-image"/>
+                        </div>
+                      ) : cell === "Hospital" ? (
+                        <div
+                          key={`spirit-hospital-${i}-${j}`}
+                          className="hospital"
+                          style={{
+                            left: gridSize * j,
+                            top: gridSize * i,
+                          }}
+                        >
+                          <img src={HospitalModule} alt="Hospital" className="hospital-image"/>
+                        </div>
+                      ) : cell === "Mine" ? (
+                        <div
+                          key={`spirit-mine-${i}-${j}`}
+                          className="mine"
+                          style={{
+                            left: gridSize * j,
+                            top: gridSize * i,
+                          }}
+                        >
+                          <img src={CrystalMineModule} alt="Mine" className="mine-image"/>
+                        </div>
+                      ) :cell === "Mountain" ? (
+                        <div
+                          key={`spirit-mountain-${i}-${j}`}
+                          className="mountain"
+                          style={{
+                            left: gridSize * j,
+                            top: gridSize * i,
+                          }}
+                        >
+                          <img src={MountainModule} alt="Mountain" className="mountain-image"/>
+                        </div>
+                      ) : null
+                    )
+                  )}
+                </div>
+            {/* <div className="actions">
             <div className="title">Action History</div>
             {actionHistory.map((action, i) => (
               <div key={i} className="action">
@@ -640,10 +564,10 @@ export default function Game() {
               </div>
               ))}
           </div> */}
-                </div>
-              </TransformComponent>
-            </TransformWrapper>
-          </DraggableCore>
+          </div>
+          </TransformComponent>
+          </TransformWrapper>
+        </DraggableCore>
         </main>
       );
     } else {
