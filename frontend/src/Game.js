@@ -206,13 +206,13 @@ export default function  Game() {
         ['Mountain', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'Mountain', 'Mountain', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'W', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''],
         ['Mountain', '', '', 'W', '', '', '', '', '', '', '', '', 'Teleport', '', '', '', '', '', '', '', '', '', '', '', 'Mountain', 'Mountain', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'Teleport', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''],
         ['Mountain', 'Mountain', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'Mountain'],
-        ['Mountain', '', '', 'Teleport', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'Mine', '', '', '', '', '', 'Mountain'],
+        ['Mountain', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'Mine', '', '', '', '', '', 'Mountain'],
         ['', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'Mountain', 'Mountain', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'Mountain', 'Mountain', 'Mountain'],
         ['', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'Mountain', 'Mountain', 'Mountain', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'Mountain', 'Mountain'],
         ['', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'Mountain', 'Mountain', '', '', '', '', '', '', '', '', '', '', '', '', '', 'Mountain', 'Mountain'],
         ['', '', '', 'W', '', '', '', '', '', '', '', 'Teleport', '', '', '', '', '', '', '', '', '', '', 'Hospital', '', '', '', '', '', '', '', '', '', '', '', '', 'Teleport', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'W', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''],
         ['', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'W', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''],
-        ['', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'Mine', '', '', '', '', '', '', '', '', '', '', '', '', '', 'Teleport', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''],
+        ['', '', '', 'Teleport', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'Mine', '', '', '', '', '', '', '', '', '', '', '', '', '', 'Teleport', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''],
         ['', '', '', 'Hospital', '', '', '', '', '', '', '', '', '', '', '', 'Hospital', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'W', '', '', '', '', '', '', ''],
         ['', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''],
         ['', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'W', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''],
@@ -591,12 +591,20 @@ export default function  Game() {
       moveAgentDirection("A", "left", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
       moveAgentDirection("B", "left", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
       term_num = 11;
+      moveAgentDirection("D", "up", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
+      moveAgentDirection("D", "up", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
+      moveAgentDirection("D", "left", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
       moveAgentDirection("A", "left", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
       moveAgentDirection("B", "left", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
+      
       term_num = 12;
+      moveAgentToPosition("D", 3, 25, term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
       moveAgentDirection("A", "left", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
       moveAgentDirection("B", "left", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
+      
+      
       term_num = 13;
+      moveAgentToPosition("D", 3, 26, term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
       moveAgentDirection("A", "left", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
       moveAgentDirection("B", "left", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
       term_num = 14;
@@ -618,10 +626,10 @@ export default function  Game() {
 
 
       // Move Scripts
-      moveAgentToPosition("Alice", 0, 1, 500); // Move Alice to (0, 1) after 0.5 seconds
-      moveAgentToPosition("Bob", 2, 0, 1000);
-      moveAgentToPosition("Alex", 3, 4, 1500);
-      moveAgentToPosition("Dora", 4, 2, 2000);
+      // moveAgentToPosition("Alice", 0, 1, 500); // Move Alice to (0, 1) after 0.5 seconds
+      // moveAgentToPosition("Bob", 2, 0, 1000);
+      // moveAgentToPosition("Alex", 3, 4, 1500);
+      // moveAgentToPosition("Dora", 4, 2, 2000);
 
       // Teleport Scripts
       // moveAgentToPosition("Alice", 4, 3, 2500); // Teleport Alice to (0, 1) after 2 seconds
