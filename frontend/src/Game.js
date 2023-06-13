@@ -174,6 +174,7 @@ export default function  Game() {
   const [commanders, setCommanders] = useState(DEFAULT_COMMANDER);
   const [npc, setNPC] = useState(DEFAULT_NPC);
   const [showBox, setShowBox] = useState(false);
+  const [commands, setCommands] = useState([]);
   
   const handleClick = () => {
     setShowBox(!showBox);
@@ -470,6 +471,12 @@ export default function  Game() {
     }, delay);
   };
 
+  const addCommandWithDelay = (command, delay) => {
+    setTimeout(() => {
+      setCommands((prevCommands) => [...prevCommands, command]);
+    }, delay);
+  };
+
 
    useEffect(() => {
     if (gameStarted) {
@@ -482,6 +489,7 @@ export default function  Game() {
       // 1 
       var term_num = 1;
       // default method to move an agent 
+      addCommandWithDelay("Move because found enemy nearby", term_length);
       moveAgentDirection("A", "up", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
       moveAgentDirection("B", "up", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
       
@@ -662,16 +670,12 @@ export default function  Game() {
       return (
         <main className="game">
           <div className="leaderboard">
-            <div className="title">Leaderboard</div>
-            {[...agents]
-              .filter((agent) => agent.stamina > 0)
-              .sort((a, b) => b.wealth - a.wealth)
-              .map((agent) => (
-                <div key={agent.name} className="agent">
-                  <div className="name">{agent.name}</div>
-                  <div className="wealth">{agent.wealth}</div>
-                </div>
-              ))}
+            <div className="title">Live Commands</div>
+            {commands.map((command, index) => (
+              <div key={index} className="command">
+                {command}
+              </div>
+            ))}
           </div>
           <DraggableCore>
             <TransformWrapper
