@@ -1,3 +1,14 @@
+
+# Demo
+
+![Gameplay pic](https://storage.googleapis.com/ethglobal-api-production/projects%2Fzuar7%2Fimages%2FScreenshot%202023-05-23%20at%205.39.18%20AM.png)
+
+[Learn more](https://www.ethglobal.com/showcase/agent-arena-the-colosseum-zuar7)
+
+
+
+
+
 # Thesis
 
 We are building what we call an “automatic world” with AI-based agents in a fully open, composable on-chain world.
