@@ -1,6 +1,4 @@
-// Script Version for demo purpose
-
-// import axios from "axios";
+import axios from "axios";
 import { useState } from "react";
 import { useEffect } from "react";
 import "./Game.css";
@@ -65,16 +63,6 @@ const DEFAULT_AGENTS = [
     strategy: "You only want to attack. You actively move towards Alice and attack it. You do not care anything else!",
     image: BarbarianIcon,
   },
-  // {
-  //   name: "C",
-  //   model: "GPT-4",
-  //   x: 10,
-  //   y: 31,
-  //   stamina: 5,
-  //   wealth: 0,
-  //   strategy: "You only want to attack. You actively move towards Alice and attack it. You do not care anything else!",
-  //   image: BarbarianIcon,
-  // },
   {
     name: "D",
     model: "Vicuna",
@@ -108,8 +96,8 @@ const DEFAULT_AGENTS = [
 ];
 const DEFAULT_MODULE = [
   {
-    name: "Teleport",
-    description: "will move agent to a random cell",
+    name: "Hospital",
+    description: "Add 1 stamina",
     x: 2,
     y: 3
   }
@@ -121,43 +109,6 @@ const DEFAULT_NPC = [
   { name: "E1", x: x_basis+2, y: y_basis-2, stamina: 5, wealth: 0, image: NPCBarbarianIcon },
   { name: "E2", x: x_basis+3, y: y_basis-3, stamina: 5, wealth: 0, image: NPCBarbarianIcon },
   { name: "E3", x: x_basis+2, y: y_basis-4, stamina: 5, wealth: 0, image: NPCBarbarianIcon },
-  // { name: "Grace", x: 12, y: 27, stamina: 5, wealth: 0, image: BarbarianIcon },
-  // { name: "Henry", x: 30, y: 25, stamina: 5, wealth: 0, image: BarbarianIcon },
-  // { name: "Ivy", x: 14, y: 6, stamina: 5, wealth: 0, image: BarbarianIcon },
-  // { name: "Jack", x: 23, y: 19, stamina: 5, wealth: 0, image: BarbarianIcon },
-  // { name: "Kate", x: 32, y: 9, stamina: 5, wealth: 0, image: BarbarianIcon },
-  // { name: "Liam", x: 42, y: 16, stamina: 5, wealth: 0, image: BarbarianIcon },
-  // { name: "Mia", x: 7, y: 39, stamina: 5, wealth: 0, image: NPCBarbarianIcon },
-  // { name: "Nick", x: 21, y: 30, stamina: 5, wealth: 0, image: NPCBarbarianIcon },
-  // { name: "Olivia", x: 37, y: 22, stamina: 5, wealth: 0, image: BarbarianIcon },
-  // { name: "Parker", x: 13, y: 17, stamina: 5, wealth: 0, image: BarbarianIcon },
-  // { name: "Quinn", x: 29, y: 8, stamina: 5, wealth: 0, image: BarbarianIcon },
-  // { name: "Ryan", x: 4, y: 33, stamina: 5, wealth: 0, image: BarbarianIcon },
-  // { name: "Sophia", x: 27, y: 14, stamina: 5, wealth: 0, image: BarbarianIcon },
-  // { name: "Thomas", x: 38, y: 26, stamina: 5, wealth: 0, image: BarbarianIcon },
-  // { name: "Uma", x: 11, y: 37, stamina: 5, wealth: 0, image: BarbarianIcon },
-  // { name: "Vincent", x: 25, y: 28, stamina: 5, wealth: 0, image: CavalryIcon },
-  // { name: "Willow", x: 35, y: 20, stamina: 5, wealth: 0, image: CavalryIcon },
-  // { name: "Vitalik", x: 63, y: 3, stamina: 5, wealth: 0, image: NPCBarbarianIcon },
-  // { name: "Xavier", x: 9, y: 11, stamina: 5, wealth: 0, image: CavalryIcon },
-  // { name: "Yvonne", x: 24, y: 2, stamina: 5, wealth: 0, image: CavalryIcon },
-  // { name: "Zachary", x: 34, y: 13, stamina: 5, wealth: 0, image: CavalryIcon },
-  // { name: "Ava", x: 8, y: 24, stamina: 5, wealth: 0, image: CavalryIcon },
-  // { name: "Benjamin", x: 28, y: 15, stamina: 5, wealth: 0, image: NPCCavalryIcon },
-  // { name: "Charlotte", x: 3, y: 36, stamina: 5, wealth: 0, image: CavalryIcon },
-  // { name: "Daniel", x: 22, y: 27, stamina: 5, wealth: 0, image: CavalryIcon },
-  // { name: "Emma", x: 36, y: 19, stamina: 5, wealth: 0, image: CavalryIcon },
-  // { name: "Felix", x: 10, y: 10, stamina: 5, wealth: 0, image: CavalryIcon },
-  // { name: "Grace", x: 26, y: 1, stamina: 5, wealth: 0, image: NPCCavalryIcon },
-  // { name: "Henry", x: 39, y: 12, stamina: 5, wealth: 0, image: CavalryIcon },
-  // { name: "Yan", x: 12, y: 23, stamina: 5, wealth: 0, image: NPCCavalryIcon },
-  // { name: "Jack", x: 31, y: 14, stamina: 5, wealth: 0, image: CavalryIcon },
-  // { name: "Kate", x: 5, y: 35, stamina: 5, wealth: 0, image: NPCCavalryIcon },
-  // { name: "Liam", x: 20, y: 26, stamina: 5, wealth: 0, image: NPCCavalryIcon },
-  // { name: "Will", x: 33, y: 18, stamina: 5, wealth: 0, image: NPCCavalryIcon },
-  // { name: "Noah", x: 6, y: 9, stamina: 5, wealth: 0, image: CavalryIcon },
-  // { name: "Olivia", x: 19, y: 0, stamina: 5, wealth: 0, image: CavalryIcon },
-  // { name: "Jason", x: 30, y: 11, stamina: 5, wealth: 0, image: CavalryIcon },
 ]
 
 
