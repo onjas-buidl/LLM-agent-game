@@ -19,81 +19,73 @@ import { DraggableCore } from "react-draggable";
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 
 
-// initialize the client
-const ai = await getWindowAI();
+// initialize the window.ai client
+// const ai = await getWindowAI();
+// const model = ai.getCurrentModel();
+// console.log(model);
 
-const model = ai.getCurrentModel();
-console.log(model);
-
-//axios.defaults.baseURL = "http://localhost:8080";
+axios.defaults.baseURL = "http://localhost:8080";
 
 
-const DEFAULT_COMMANDER = [
+const DEFAULT_COMMANDER_1 = [
   {
-    name: "Infantry",
-    model: "GPT-3.5",
+    name: "commander_1",
+    model: "gpt-3.5-turbo-16k",
     strategy: "You want to preserve as much stamina as possible while moving towards the enemy. You do not care about wealth.",
-    selectedAgents: ["A", "B", "C"]
+    selectedsoldiers: ["A", "B", "C"]
   },
-  {
-    name: "Cavalry",
-    model: "GPT-4",
-    strategy: "You want to be very aggressive and very greedy. You want to gather as much wealth as possible while attacking the enemy. You do not care about stamina.",
-    selectedAgents: ["D", "E", "F"]
-  },
+  // {
+  //   name: "Cavalry",
+  //   model: "GPT-4",
+  //   strategy: "You want to be very aggressive and very greedy. You want to gather as much wealth as possible while attacking the enemy. You do not care about stamina.",
+  //   selectedsoldiers: ["D", "E", "F"]
+  // },
 ];
-const DEFAULT_AGENTS = [
+const DEFAULT_SOLDIERS = [
   {
     name: "A",
-    model: "GPT-3.5",
     x: 10,
     y: 29,
     stamina: 5,
-    wealth: 0,
-    strategy: "You only want to attack. You actively move towards Bob and attack it. You do not care anything else! ",
     image: BarbarianIcon,
   },
   {
     name: "B",
-    model: "Alpaca",
     x: 10,
     y: 30,
     stamina: 5,
-    wealth: 0,
-    strategy: "You only want to attack. You actively move towards Alice and attack it. You do not care anything else!",
+    image: BarbarianIcon,
+  },
+  {
+    name: "C",
+    x: 10,
+    y: 31,
+    stamina: 5,
     image: BarbarianIcon,
   },
   {
     name: "D",
-    model: "Vicuna",
     x: 14,
     y: 30,
     stamina: 5,
-    wealth: 0,
-    strategy: "You only want to attack. You actively move towards Alice and attack it. You do not care anything else!",
-    image: CavalryIcon,
+    image: NPCBarbarianIcon,
   },
   {
     name: "E",
-    model: "GPT",
     x: 14,
     y: 31,
     stamina: 5,
-    wealth: 0,
-    strategy: "You only want to attack. You actively move towards Alice and attack it. You do not care anything else!",
-    image: CavalryIcon,
+    image: NPCBarbarianIcon,
   },
   {
     name: "F",
-    model: "Vicuna",
     x: 14,
     y: 32,
     stamina: 5,
-    wealth: 0,
-    strategy: "You only want to attack. You actively move towards Alice and attack it. You do not care anything else!",
-    image: CavalryIcon,
+    image: NPCBarbarianIcon,
   },
 ];
+
 const DEFAULT_MODULE = [
   {
     name: "Hospital",
@@ -102,13 +94,14 @@ const DEFAULT_MODULE = [
     y: 3
   }
 ]
-const x_basis = 10; 
-const y_basis = 29;
-const DEFAULT_NPC = [
 
-  { name: "E1", x: x_basis+2, y: y_basis-2, stamina: 5, wealth: 0, image: NPCBarbarianIcon },
-  { name: "E2", x: x_basis+3, y: y_basis-3, stamina: 5, wealth: 0, image: NPCBarbarianIcon },
-  { name: "E3", x: x_basis+2, y: y_basis-4, stamina: 5, wealth: 0, image: NPCBarbarianIcon },
+const DEFAULT_COMMANDER_2 = [
+  {
+    name: "commander_2",
+    model: "gpt-3.5-turbo-16k",
+    strategy: "soldiers always attack the competitor with the lowest stamina",
+    selectedsoldiers: ["D", "E", "F"]
+  },
 ]
 
 
@@ -121,9 +114,9 @@ export default function  Game() {
   const [gridSize, setGridSize] = useState(25);
   const [numWealth, setNumWealth] = useState(10);
   const [modules, setModules] = useState(DEFAULT_MODULE);
-  const [agents, setAgents] = useState(DEFAULT_AGENTS);
-  const [commanders, setCommanders] = useState(DEFAULT_COMMANDER);
-  const [npc, setNPC] = useState(DEFAULT_NPC);
+  const [soldiers, setSoldiers] = useState(DEFAULT_SOLDIERS);
+  const [commander_1, setCommander_1] = useState(DEFAULT_COMMANDER_1);
+  const [commander_2, setCommander_2] = useState(DEFAULT_COMMANDER_2);
   const [showBox, setShowBox] = useState(false);
   const [commands, setCommands] = useState([]);
   
@@ -134,521 +127,54 @@ export default function  Game() {
   
   const handleStartGame = async () => {
     setMessage("Starting the game ...");
-    setAgents([]);
-    
+    await axios.post("/create_world/", {
+      size,
+    });
+    setSoldiers([]);
+
+    await axios.get("/start_game/", {
+      size,
+      commander_info: commander_1, // Add Commander_2
+      soldier_info: soldiers,
+      hospital_info: modules
+    });
     // Initialize worldState map
     setWorldState(
-      [
-        ['', '', '', 'W', '', '', 'Mine', 'Mountain', 'Mountain', 'Mountain', 'Mountain', 'Mountain', 'Mountain', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'W', '', '', '', '', '', '', '', 'Mountain', '', '', '', '', '', '', '', '', '', '', '', '', 'Teleport', '', '', '', '', '', '', '', '', '', '', '', '', '', 'Mountain', 'Mountain', '', ''],
-        ['', 'Teleport', '', '', '', '', '', '', 'Mountain', 'Mountain', 'Mountain', '', '', '', '', '', 'W', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'Mountain', 'Mountain'],
-        ['', 'Mountain', '', '', '', '', '', '', '', 'Mountain', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'W', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'W', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'Mountain', 'Mountain'],
-        ['', '', '', 'Hospital', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'Hospital', '', '', '', '', 'Mountain', 'Mountain'],
-        ['W', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'Mountain'],
-        ['', '', '', '', 'Teleport', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'W', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''],
-        ['', '', '', 'W', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'W', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'W', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''],
-        ['', '', '', '', '', '', '', '', 'Teleport', '', '', '', '', '', '', '', '', '', '', '', '', '', 'Teleport', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'W', '', '', '', ''],
-        ['', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'Mine', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''],
-        ['', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'W', '', '', '', '', '', '', 'Hospital', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'W', '', '', '', 'Mountain', 'Mountain', '', '', '', '', '', '', '', '', '', ''],
-        ['W', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'Mountain', '', '', '', '', '', '', '', '', '', ''],
-        ['', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'Mine', '', '', '', '', '', '', 'W', '', '', '', '', '', '', 'W', '', '', '', '', '', '', ''],
-        ['', '', '', 'W', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''],
-        ['', '', '', '', '', '', '', '', '', '', '', 'Mountain', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''],
-        ['', '', '', '', '', '', '', '', '', 'Hospital', 'Mountain', '', '', '', '', '', '', 'Teleport', '', '', '', '', 'Mountain', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'W', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''],
-        ['', '', '', '', '', '', '', '', '', '', '', '', '', 'Mountain', '', '', '', '', '', '', '', '', '', '', '', '', '', 'Mountain', '', 'W', '', '', '', '', 'Teleport', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''],
-        ['Mountain', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'Mountain', 'Mountain', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'W', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''],
-        ['Mountain', '', '', 'W', '', '', '', '', '', '', '', '', 'Teleport', '', '', '', '', '', '', '', '', '', '', '', 'Mountain', 'Mountain', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'Teleport', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''],
-        ['Mountain', 'Mountain', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'Mountain'],
-        ['Mountain', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'Mine', '', '', '', '', '', 'Mountain'],
-        ['', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'Mountain', 'Mountain', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'Mountain', 'Mountain', 'Mountain'],
-        ['', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'Mountain', 'Mountain', 'Mountain', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'Mountain', 'Mountain'],
-        ['', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'Mountain', 'Mountain', '', '', '', '', '', '', '', '', '', '', '', '', '', 'Mountain', 'Mountain'],
-        ['', '', '', 'W', '', '', '', '', '', '', '', 'Teleport', '', '', '', '', '', '', '', '', '', '', 'Hospital', '', '', '', '', '', '', '', '', '', '', '', '', 'Teleport', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'W', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''],
-        ['', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'W', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''],
-        ['', '', '', 'Teleport', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'Mine', '', '', '', '', '', '', '', '', '', '', '', '', '', 'Teleport', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''],
-        ['', '', '', 'Hospital', '', '', '', '', '', '', '', '', '', '', '', 'Hospital', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'W', '', '', '', '', '', '', ''],
-        ['', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''],
-        ['', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'W', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''],
-        ['', '', '', 'W', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''],
-        ['', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'Mountain', '', '', '', '', 'Mine', 'Mine', 'W', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''],
-        ['', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'Mountain', '', '', '', '', '', 'Mine', 'Mine', 'Mine', 'Mine', '', '', '', '', 'W', '', '', '', '', '', '', '', '', '', '', 'W'],
-        ['', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'Teleport', '', '', '', '', '', '', '', '', '', '', '', '', 'Mountain', 'Mountain', 'W', 'Mine', 'Mine', 'W', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''],
-        ['', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'W', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'Mountain', 'Mountain', '', '', '', '', 'W', 'W', 'Mine', 'W', 'W', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''],
-        ['', '', '', '', 'Mine', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'Mountain', '', '', '', '', '', '', 'Mine', 'Mine', 'Mine', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''],
-        ['', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'W', '', '', '', '', '', '', '', '', '', '', '', 'W', '', '', '', '', '', '', '', '', '', '', '', '', '', 'Mine', 'Mine', 'W', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''],
-        ['', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'Mountain', 'Mountain', '', '', '', '', '', '', '', 'Mine', 'W', 'W', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''],
-        ['', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'Mountain', '', '', '', '', '', '', 'Mountain', 'Mountain', '', '', '', 'Teleport', '', '', 'W', '', 'W', 'W', 'W', '', '', '', '', '', '', '', '', '', 'Hospital', '', '', '', '', '', '', '', ''],
-        ['', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'Hospital', '', '', '', '', '', '', '', '', 'Mountain', '', '', '', 'Mountain', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'W', '', '', '', '', '', '', '', '', '', ''],
-        ['', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'Teleport', '', '', '', '', 'W', '', '', '', 'Mountain', 'Mountain', '', '', 'Mountain', 'Mountain', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''],
-        ['', '', '', '', '', '', '', '', 'Mountain', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'Mine', '', '', '', '', '', '', '', '', 'Mountain', '', '', 'Mountain', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''],
-        ['', '', '', 'W', '', '', '', 'Mountain', 'Mountain', 'Mountain', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'Mountain', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'Teleport', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''],
-        ['', '', '', '', '', '', '', '', '', '', '', '', 'Teleport', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'W', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''],
-        ['', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'Hospital', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''],
-        ['', '', '', 'Hospital', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''],
-        ['', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''],
-        ['', '', '', '', 'Teleport', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''],
-        ['', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'Mine', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''],
-        ['', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'W', '', '', '', '', '', '', '', '', 'W', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'Teleport', '', '', '', '', '', '', '', '', '', '', ''],
-        ['', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'W', 'Mine', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''],
-        ['', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'Mine'],
-        ['', '', '', '', '', '', '', '', '', 'Hospital', '', '', '', '', '', '', '', '', '', '', '', '', 'Mountain', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''],
-        ['', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'Mountain', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''],
-        ['', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'Mountain', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'Teleport', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''],
-        ['', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'Teleport', '', '', '', '', '', '', '', '', '', 'Mountain', 'Mountain', '', '', '', '', '', '', 'Teleport', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'W', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''],
-        ['', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'Mountain', 'Mountain', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''],
-        ['', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'Mountain', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''],
-        ['', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'W', '', '', '', '', '', '', '', '', '', 'Mountain', '', '', '', '', '', '', '', '', '', '', '', '', 'Teleport', '', '', '', '', 'W', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''],
-        ['', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'W', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'W', '', '', '', '', '', '', ''],
-        ['', '', '', 'W', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'Mine', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''],
-        ['', '', '', '', '', '', '', 'Hospital', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'Hospital', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''],
-        ['', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''],
-        ['', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'Mine', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''],
-        ['', '', '', '', 'Teleport', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'W', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'W', '', '', '', '', '', '', '', '', '', '', '', '', 'Hospital', '', '', '', '', '', '', ''],
-        ['', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''],
-        ['', 'Teleport', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'W', '', '', '', '', '', '', '', '', '', '', '', '', '', 'Mountain', 'Mountain'],
-        ['', '', '', '', '', '', '', '', '', '', 'W', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'W', '', '', '', '', '', '', '', '', '', '', '', 'W', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'Mountain', 'Mountain', 'Mountain'],
-        ['', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'Hospital', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'Mountain', 'Mountain', 'Mountain', 'Mountain', 'Mountain', 'Mountain'],
-        ['', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'Mountain', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'W', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'Mountain', 'Mountain', 'Mountain', 'Mountain', 'Mountain', 'Mountain'],
-        ['', '', '', '', 'Teleport', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'Mountain', 'Mountain', '', '', '', '', 'W', '', '', '', '', '', '', 'Teleport', '', '', '', '', '', '', '', '', '', '', 'Mine', '', '', '', '', '', '', '', 'W', '', '', '', '', 'Mountain', 'Mountain', 'Mountain', 'Mountain', 'Mountain', 'Mountain', 'Mountain','Mountain','Mountain'],
-      ]
+      []
     );
 
     setTimeout(() => setGameStarted(true), 4000);
     setTimeout(() => setMessage(null), 3000);
 
-    setAgents(DEFAULT_AGENTS);
+    setSoldiers(DEFAULT_SOLDIERS);
     
-    const input = 'Once upon a time, ';
-    const options = {
-      temperature: 0.7,
-      maxTokens: 100,
-    };
-
-    // ai.generateText(input, options).then((results) => {
-    //   // Process the completion results
-    //   console.log(results);
-    // })
-    // .catch((error) => {
-    //   // Handle any errors
-    //   console.error(error);
+    // const input = 'Once upon a time, ';
+    // const options = {
+    //   temperature: 0.7,
+    //   maxTokens: 100,
+    // };
+    // const response = await window.ai.generateText({
+    //   messages: [{ role: "user", content: "Who are you?" }]
     // });
-    const response = await window.ai.generateText({
-      messages: [{ role: "user", content: "Who are you?" }]
-    });
     
-    console.log(response[0].message.content); // "I am an AI language model"
+    // console.log(response[0].message.content); // "I am an AI language model"
     setMessage("Successfully started the game!");
     setTimeout(() => setMessage(null), 2000);    
 
-   };
-
-  // Demo Script Functions
-   const moveAgentToPosition = (agentName, targetX, targetY, delay) => {
-    setTimeout(() => {
-      setAgents((prevAgents) =>
-        prevAgents.map((agent) =>
-          agent.name === agentName ? { ...agent, x: targetX, y: targetY, stamina: agent.stamina - 1} : agent
-        )
-      );
-    }, delay);
-  };
-
-  const moveAgentDirection = (agentName, direction, delay) => {
-    setTimeout(() => {
-      setAgents((prevAgents) =>
-        prevAgents.map((agent) => {
-          if (agent.name === agentName) {
-            let newX = agent.x;
-            let newY = agent.y;
-
-            if (direction === "left") {
-              newX -= 1;
-            } else if (direction === "right") {
-              newX += 1;
-            } else if (direction === "up") {
-              newY -= 1;
-            } else if (direction === "down") {
-              newY += 1;
-            }
-
-            return { ...agent, x: newX, y: newY, stamina: agent.stamina };
-          } else {
-            return agent;
+    setInterval(() => {
+      axios
+        .get("/get_world_state/")
+        .then((worldRes) => {
+          console.log("Current world state:");
+          console.log(worldRes.data);
+          if (worldRes.data.ret.length > 0) {
+            //TODO: check if the response data is not empty
+            setWorldState(worldRes.data.ret);
           }
         })
-      );
-    }, delay);
+        .catch((err) => console.error(err));
+    }, 1000);
   };
-  
-  const moveNPCDirection = (npcName, direction, delay) => {
-    setTimeout(() => {
-      setNPC((prevAgents) =>
-        prevAgents.map((npc) => {
-          if (npc.name === npcName) {
-            let newX = npc.x;
-            let newY = npc.y;
-
-            if (direction === "left") {
-              newX -= 1;
-            } else if (direction === "right") {
-              newX += 1;
-            } else if (direction === "up") {
-              newY -= 1;
-            } else if (direction === "down") {
-              newY += 1;
-            }
-
-            return { ...npc, x: newX, y: newY, stamina: npc.stamina };
-          } else {
-            return npc;
-          }
-        })
-      );
-    }, delay);
-  };
-  
-
-  // const moveAgent = (agentName, targetX, targetY, delay) => {
-  //   setTimeout(() => {
-  //     setAgents((prevAgents) =>
-  //       prevAgents.map((agent) =>
-  //         agent.name === agentName ? { ...agent, x: targetX, y: targetY, stamina: agent.stamina - 1 } : agent
-  //       )
-  //     );
-  //   }, delay);
-  // };
-
-  // const moveNPC = (agentName, targetX, targetY, delay) => {
-  //   setTimeout(() => {
-  //     setAgents((prevAgents) =>
-  //       prevAgents.map((agent) =>
-  //         agent.name === agentName ? { ...agent, x: targetX, y: targetY, stamina: agent.stamina - 1 } : agent
-  //       )
-  //     );
-  //   }, delay);
-  // };
-
-  const moveNPCToPosition = (agentName, targetX, targetY, delay) => {
-    setTimeout(() => {
-      setNPC((prevAgents) =>
-        prevAgents.map((npc) =>
-          npc.name === agentName ? { ...npc, x: targetX, y: targetY, stamina: npc.stamina - 1} : npc
-        )
-      );
-    }, delay);
-  };
-
-  const attackAgent = (attackerName, defenderName, targetX, targetY, delay) => {
-    setTimeout(() => {
-      setAgents((prevAgents) =>
-        prevAgents.map((agent) => {
-          if (agent.name === defenderName) {
-            return { ...agent, stamina:0 };
-          } else if (agent.name === attackerName) {
-            return { ...agent, x: targetX, y: targetY, stamina: agent.stamina - 1};
-          } else {
-            return agent;
-          }
-        })
-      );
-    }, delay);
-  };
-
-  const reduceStamina = (agentName, delay) => {
-    setTimeout(() => {
-      setAgents((prevAgents) => {
-        const updatedAgents = prevAgents.map((agent) =>
-          agent.name === agentName
-            ? { ...agent, stamina: agent.stamina - 1 }
-            : agent
-        );
-        const agent = updatedAgents.find((agent) => agent.name === agentName);
-        if (agent) {
-          console.log(`${agentName} stamina: ${agent.stamina}`);
-        }
-        return updatedAgents;
-      });
-    }, delay);
-  };
-
-  const NPCreduceStamina = (npcName, delay) => {
-    setTimeout(() => {
-      setNPC((prevNPC) => {
-        const updatedNPC = prevNPC.map((npc) =>
-          npc.name === npcName
-            ? { ...npc, stamina: npc.stamina - 1 }
-            : npc
-        );
-        const npc = updatedNPC.find((npc) => npc.name === npcName);
-        if (npc) {
-          console.log(`${npcName} stamina: ${npc.stamina}`);
-        }
-        return updatedNPC;
-      });
-    }, delay);
-  };
-  
-  
-
-
-  const gatherGold = (agentName, targetX, targetY, delay) => {
-    setTimeout(() => {
-      setAgents((prevAgents) =>
-        prevAgents.map((prevAgent) =>
-          prevAgent.name === agentName
-            ? { ...prevAgent, wealth: prevAgent.wealth + 1, stamina: prevAgent.stamina - 1 }
-            : prevAgent
-        )
-      );
-    
-      setWorldState((prevWorldState) =>
-        prevWorldState.map((row, rowIndex) =>
-          row.map((cell, colIndex) =>
-            rowIndex === targetY && colIndex === targetX ? cell.replace('W', '') : cell
-          )
-        )
-      );
-    }, delay);
-  };
-
-  const rest = (agentName, delay) => {
-    setTimeout(() => {
-      setAgents((prevAgents) =>
-        prevAgents.map((prevAgent) =>
-          prevAgent.name === agentName
-            ? { ...prevAgent, stamina: prevAgent.stamina + 3 }
-            : prevAgent
-        )
-      );
-    }, delay);
-  };
-
-  const addCommandWithDelay = (command, delay) => {
-    setTimeout(() => {
-      setCommands((prevCommands) => [...prevCommands, command]);
-    }, delay);
-  };
-
-
-   useEffect(() => {
-    if (gameStarted) {
-      const term_length = 800;
-      const x_basis = 10; 
-      const y_basis = 29;
-      const degree_of_random = 200;
-
-      
-      // 1 
-      var term_num = 1;
-      // default method to move an agent 
-      addCommandWithDelay("Infantry: move to attack", term_length * term_num);
-      addCommandWithDelay("Cavalry: stay to wait for attack time", term_length);
-      moveAgentDirection("A", "up", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
-      moveAgentDirection("B", "up", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
-      
-      
-      // 2
-      
-      term_num = 2;
-      addCommandWithDelay("Infantry: move to attack", term_length * term_num);
-      addCommandWithDelay("Cavalry: stay to wait for attack time", term_length * term_num);
-      moveAgentDirection("A", "up", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
-      moveAgentDirection("B", "up", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
-      moveNPCDirection("E1", "down", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
-      moveNPCDirection("E2", "down", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
-      moveNPCDirection("E3", "down", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
-
-      // 3
-      term_num = 3;
-      addCommandWithDelay("Infantry: move to attack", term_length * term_num);
-      addCommandWithDelay("Cavalry: stay to wait for attack time", term_length * term_num);
-
-      moveAgentDirection("A", "right", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
-      moveAgentDirection("B", "right", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
-      // moveNPCDirection("E1", "left", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
-      // moveNPCDirection("E2", "left", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
-      // moveNPCDirection("E3", "left", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
-
-      // 4
-      term_num = 4;
-      addCommandWithDelay("Infantry: move to attack", term_length * term_num);
-      addCommandWithDelay("Cavalry: move to attack", term_length * term_num);
-
-      moveNPCDirection("E2", "left", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
-
-      reduceStamina("A", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
-      reduceStamina("B", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
-      NPCreduceStamina("E1", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
-      NPCreduceStamina("E2", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
-
-      moveAgentDirection("D", "up", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
-      moveAgentDirection("E", "up", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
-      moveAgentDirection("F", "up", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
-
-      moveAgentDirection("D", "left", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
-      moveAgentDirection("E", "left", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
-      moveAgentDirection("F", "left", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
-
-      moveAgentDirection("D", "up", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
-      moveAgentDirection("E", "up", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
-      moveAgentDirection("F", "up", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
-
-
-      // 5
-      addCommandWithDelay("Infantry: move to attack", term_length * term_num);
-      addCommandWithDelay("Cavalry: move to attack", term_length * term_num);
-      term_num = 5;
-      moveAgentDirection("D", "up", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
-      moveAgentDirection("E", "up", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
-      moveAgentDirection("F", "up", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
-
-      // moveAgentDirection("D", "left", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
-      // moveAgentDirection("E", "left", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
-      // moveAgentDirection("F", "left", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
-
-      moveAgentDirection("D", "up", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
-      moveAgentDirection("E", "up", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
-      moveAgentDirection("F", "up", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
-
-      reduceStamina("A", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
-      reduceStamina("B", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
-      NPCreduceStamina("E1", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
-      NPCreduceStamina("E2", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
-      NPCreduceStamina("E1", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
-      NPCreduceStamina("E2", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
-
-
-
-      // 6
-      addCommandWithDelay("Infantry: move to attack", term_length * term_num);
-      addCommandWithDelay("Cavalry: move to attack", term_length * term_num);
-      term_num = 6;
-      reduceStamina("A", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
-      reduceStamina("B", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
-      NPCreduceStamina("E1", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
-      NPCreduceStamina("E2", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
-      NPCreduceStamina("E1", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
-      NPCreduceStamina("E2", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
-      NPCreduceStamina("E3", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
-
-
-      // 7
-      term_num = 7;
-      addCommandWithDelay("Infantry: move to hospital", term_length * term_num);
-      addCommandWithDelay("Cavalry: move to attack", term_length * term_num);
-      moveAgentDirection("A", "left", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
-      moveAgentDirection("B", "left", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
-      moveAgentDirection("D", "up", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
-      moveAgentDirection("E", "up", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
-      moveAgentDirection("D", "left", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
-
-
-      // 8
-      term_num = 8;
-      addCommandWithDelay("Infantry: move to hospital", term_length * term_num);
-      addCommandWithDelay("Cavalry: move to attack", term_length * term_num);
-
-      reduceStamina("D", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
-      NPCreduceStamina("E3", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
-      NPCreduceStamina("E3", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
-      NPCreduceStamina("E3", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
-      moveAgentDirection("A", "up", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
-      moveAgentDirection("B", "up", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
-
-
-      // 9
-      term_num = 9;
-      addCommandWithDelay("Infantry: move to hospital", term_length * term_num);
-      addCommandWithDelay("Cavalry: move to attack", term_length * term_num);
-      
-      reduceStamina("D", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
-      NPCreduceStamina("E3", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
-      NPCreduceStamina("E3", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
-      moveAgentDirection("A", "left", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
-      moveAgentDirection("B", "left", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
-
-
-      // 10
-      term_num = 10;
-      addCommandWithDelay("Infantry: move to hospital", term_length * term_num);
-      addCommandWithDelay("Cavalry: move to hospital, stay", term_length * term_num);
-      moveAgentDirection("A", "left", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
-      moveAgentDirection("B", "left", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
-      term_num = 11;
-      moveAgentDirection("D", "up", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
-      moveAgentDirection("D", "up", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
-      moveAgentDirection("D", "left", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
-      moveAgentDirection("A", "left", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
-      moveAgentDirection("B", "left", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
-      
-      term_num = 12;
-      addCommandWithDelay("Infantry: move to hospital", term_length * term_num);
-      addCommandWithDelay("Cavalry: move to hospital, stay", term_length * term_num);
-      moveAgentToPosition("D", 3, 25, term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
-      moveAgentDirection("A", "left", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
-      moveAgentDirection("B", "left", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
-      
-      
-      term_num = 13;
-      addCommandWithDelay("Infantry: move to hospital", term_length * term_num);
-      addCommandWithDelay("Cavalry: move to hospital, stay", term_length * term_num);
-      moveAgentToPosition("D", 3, 26, term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
-      moveAgentDirection("A", "left", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
-      moveAgentDirection("B", "left", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
-      term_num = 14;
-      addCommandWithDelay("Infantry: move to hospital", term_length * term_num);
-      addCommandWithDelay("Cavalry: move to hospital, stay", term_length * term_num);
-      moveAgentDirection("A", "left", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
-      moveAgentDirection("B", "left", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
-      term_num = 15;
-      addCommandWithDelay("Infantry: move to hospital", term_length * term_num);
-      addCommandWithDelay("Cavalry: move to hospital, stay", term_length * term_num);
-      moveAgentDirection("A", "left", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
-      moveAgentDirection("B", "left", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
-      term_num = 16;
-      addCommandWithDelay("Infantry: move to hospital", term_length * term_num);
-      addCommandWithDelay("Cavalry: move to hospital, stay", term_length * term_num);
-      moveAgentDirection("B", "up", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
-      // moveAgentDirection("A", "left", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
-      // moveAgentDirection("B", "left", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
-      // term_num = 17;
-      // moveAgentDirection("A", "left", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
-      // moveAgentDirection("B", "left", term_num * term_length + Math.floor(Math.random() * degree_of_random) + 1);
-      // term_num = 18;
-      
-      
-
-
-
-      // Move Scripts
-      // moveAgentToPosition("Alice", 0, 1, 500); // Move Alice to (0, 1) after 0.5 seconds
-      // moveAgentToPosition("Bob", 2, 0, 1000);
-      // moveAgentToPosition("Alex", 3, 4, 1500);
-      // moveAgentToPosition("Dora", 4, 2, 2000);
-
-      // Teleport Scripts
-      // moveAgentToPosition("Alice", 4, 3, 2500); // Teleport Alice to (0, 1) after 2 seconds
-
-      // moveAgentToPosition("Bob", 3, 0, 3000);
-      // moveAgentToPosition("Alex", 3, 5, 3500);
-
-      // // Attack Scripts
-      // attackAgent("Dora", "Alice", 4, 3, 4000); // Dora attacks Alice at (4, 3) after 4 seconds
-
-      // // Gather Scripts
-      // gatherGold("Bob", 3, 0, 4500); // Bob gathers gold at (3, 0) after 4.5 seconds
-
-      // // Rest
-      // rest("Alex", 5000); // Bob rests after 5 seconds
-
-      // // Move Scripts
-      // moveNPCToPosition("Elise", 40, 26, 500); // Move Alice to (0, 1) after 0.5 seconds
-      // moveNPCToPosition("Frank", 3, 35, 1000);
-      // moveNPCToPosition("Will", 32, 18, 1500);
-      // moveNPCToPosition("Jason", 30, 12, 2000);
-      // moveNPCToPosition("Noah", 7, 9, 2500);
-      // moveNPCToPosition("Olivia", 19, 1, 3000);
-    }
-  }, [gameStarted]);
 
   const view = (() => {
     if (gameStarted) {
@@ -665,8 +191,8 @@ export default function  Game() {
           <DraggableCore>
             <TransformWrapper
               options={{
-                minScale: 0.01, // Adjust the minimum scale value here
-                maxScale: 2,   // Adjust the maximum scale value here
+                minScale: 0.01, // Adjust the minimum scale value
+                maxScale: 2,   // Adjust the maximum scale value
               }}
             >
               <TransformComponent>
@@ -683,24 +209,24 @@ export default function  Game() {
                       .map((_, i) => (
                         <div key={`grid_${i}`} className="grid"></div>
                       ))}
-                    {agents.map((agent, index) => (
-                      agent.stamina > 0 && (
+                    {soldiers.map((soldier, index) => (
+                      soldier.stamina > 0 && (
                         <div
-                          key={`spirit-agent-${index}`}
-                          className="agent"
+                          key={`spirit-soldier-${index}`}
+                          className="soldier"
                           style={{
-                            left: gridSize * agent.x,
-                            top: gridSize * agent.y,
+                            left: gridSize * soldier.x,
+                            top: gridSize * soldier.y,
                           }}
                         >
-                          <div className="name">{agent.name}</div>
-                          <img src={agent.image} alt={`Agent ${index + 1}`} className="image" onclick={handleClick}/>
-                          {agent.name.startsWith("A") ? (
+                          <div className="name">{soldier.name}</div>
+                          <img src={soldier.image} alt={`soldier ${index + 1}`} className="image" onclick={handleClick}/>
+                          {soldier.name.startsWith("A") ? (
                             <div className="stamina-red-container">
                               <div
                                 className="stamina-red"
                                 style={{
-                                  width: `${Math.min(agent.stamina * 2, 10)}px`,
+                                  width: `${Math.min(soldier.stamina * 2, 10)}px`,
                                 }}
                               ></div>
                             </div>
@@ -709,7 +235,7 @@ export default function  Game() {
                               <div
                                 className="stamina-blue"
                                 style={{
-                                  width: `${Math.min(agent.stamina * 2, 10)}px`,
+                                  width: `${Math.min(soldier.stamina * 2, 10)}px`,
                                 }}
                               ></div>
                             </div>
@@ -717,24 +243,24 @@ export default function  Game() {
                         </div>
                       )
                     ))}
-                    {npc.map((agent, index) => (
-                      agent.stamina > 0 && (
+                    {npc.map((soldier, index) => (
+                      soldier.stamina > 0 && (
                         <div
-                          key={`spirit-agent-${index}`}
-                          className="agent"
+                          key={`spirit-soldier-${index}`}
+                          className="soldier"
                           style={{
-                            left: gridSize * agent.x,
-                            top: gridSize * agent.y,
+                            left: gridSize * soldier.x,
+                            top: gridSize * soldier.y,
                           }}
                         >
-                          <div className="name">{agent.name}</div>
-                          <img src={agent.image} alt={`Agent ${index + 1}`} className="image" />
-                          {agent.name.startsWith("A") ? (
+                          <div className="name">{soldier.name}</div>
+                          <img src={soldier.image} alt={`soldier ${index + 1}`} className="image" />
+                          {soldier.name.startsWith("A") ? (
                             <div className="stamina-red-container">
                               <div
                                 className="stamina-red"
                                 style={{
-                                  width: `${Math.min(agent.stamina * 2, 10)}px`,
+                                  width: `${Math.min(soldier.stamina * 2, 10)}px`,
                                 }}
                               ></div>
                             </div>
@@ -743,7 +269,7 @@ export default function  Game() {
                               <div
                                 className="stamina-blue"
                                 style={{
-                                  width: `${Math.min(agent.stamina * 2, 10)}px`,
+                                  width: `${Math.min(soldier.stamina * 2, 10)}px`,
                                 }}
                               ></div>
                             </div>
@@ -840,14 +366,6 @@ export default function  Game() {
                 onChange={(e) => setSize(+e.target.value)}
               />
             </div>
-            <div className="setting">
-              <label>Number of Wealth:</label>
-              <input
-                type="number"
-                value={numWealth}
-                onChange={(e) => setNumWealth(+e.target.value)}
-              />
-            </div>
           </div>
           <div className="title">Modules</div>
           <div className="modules">
@@ -913,90 +431,180 @@ export default function  Game() {
           <div className="title">Commanders</div>
 
 
-          <div className="agents">
-            {commanders.map((commander, i) => (
-              <div className="agent" key={i}>
+          <div className="soldiers">
+            {commander_1.map((commander, i) => (
+              <div className="soldier" key={i}>
                 <input
                   className="name"
-                  placeholder="Agent name"
+                  placeholder="soldier name"
                   type="text"
                   value={commander.name}
                   onChange={(e) => {
-                    const newCommanders = [...commanders];
-                    newCommanders[i].name = e.target.value;
-                    setCommanders(newCommanders);
+                    const newCommander_1 = [...commander_1];
+                    newCommander_1[i].name = e.target.value;
+                    setCommander_1(newCommander_1);
                   }}
                 />
                 <select
                   className="llm"
                   value={commander.model}
                   onChange={(e) => {
-                    const newCommanders = [...commanders];
-                    newCommanders[i].model = e.target.value;
-                    setCommanders(newCommanders);
+                    const newCommander_1 = [...commander_1];
+                    newCommander_1[i].model = e.target.value;
+                    setCommander_1(newCommander_1);
                   }}
                 >
-                  <option value="GPT-3.5">GPT-3.5(Default)</option>
+                  <option value="GPT-3.5">GPT-3.5-turbo(Default)</option>
                   <option value="GPT-4">GPT-4</option>
                   <option value="Claude-v1">Claude-v1</option>
-                  <option value="GPT-3.5-turbo">GPT-3.5-turbo</option>
                   <option value="Alpaca">Alpaca</option>
                   <option value="Vicuna">Vicuna</option>
                 </select>
                 <input
                   className="strategy"
-                  placeholder="Please write strategy for this agent"
+                  placeholder="Please write strategy for this soldier"
                   type="text"
                   value={commander.strategy}
                   onChange={(e) => {
-                    const newCommanders = [...commanders];
-                    newCommanders[i].strategy = e.target.value;
-                    setCommanders(newCommanders);
+                    const newCommander_1 = [...commander_1];
+                    newCommander_1[i].strategy = e.target.value;
+                    setCommander_1(newCommander_1);
                   }}
                 /> 
                 <br />
                 <br />
-                {agents
-                .filter((agent) => commander.selectedAgents.includes(agent.name)) // Filter agents based on selectedAgents list
-                .map((agent, j) =>  (
+                {soldiers
+                .filter((soldier) => commander.selectedsoldiers.includes(soldier.name)) // Filter soldiers based on selectedsoldiers list
+                .map((soldier, j) =>  (
                 <><input
                 className="name2"
-                placeholder="Agent name"
+                placeholder="soldier name"
                 type="text"
-                value={agent.name}
+                value={soldier.name}
                 onChange={(e) => {
-                  const newAgents = [...agents];
-                  newAgents[j].name = e.target.value;
-                  setCommanders(newAgents);
+                  const newSoldiers = [...soldiers];
+                  newSoldiers[j].name = e.target.value;
+                  setCommander_1(newSoldiers);
                 }}
               />
                 <div className="location">
                     <label>X:</label>
                     <input
                       type="number"
-                      value={agent.x}
+                      value={soldier.x}
                       onChange={(e) => {
-                        const newAgents = [...agents];
-                        newAgents[j].x = +e.target.value;
-                        setAgents(newAgents);
+                        const newSoldiers = [...soldiers];
+                        newSoldiers[j].x = +e.target.value;
+                        setSoldiers(newSoldiers);
                       } } />
                     <label>Y:</label>
                     <input
                       type="number"
-                      value={agent.y}
+                      value={soldier.y}
                       onChange={(e) => {
-                        const newAgents = [...agents];
-                        newAgents[j].y = +e.target.value;
-                        setAgents(newAgents);
+                        const newSoldiers = [...soldiers];
+                        newSoldiers[j].y = +e.target.value;
+                        setSoldiers(newSoldiers);
                       } } />
                   </div></>
                     ))}
                     <button
                     className="remove"
                     onClick={() => {
-                      const newAgents = [...agents];
-                      newAgents.splice(i, 1);
-                      setAgents(newAgents);
+                      const newSoldiers = [...soldiers];
+                      newSoldiers.splice(i, 1);
+                      setSoldiers(newSoldiers);
+                    } }
+                  >
+                      Remove
+                    </button>
+              </div>
+            ))}
+          </div>
+
+          <div className="soldiers">
+            {commander_2.map((commander, i) => (
+              <div className="soldier" key={i}>
+                <input
+                  className="name"
+                  placeholder="soldier name"
+                  type="text"
+                  value={commander.name}
+                  onChange={(e) => {
+                    const newCommander_2 = [...commander_2];
+                    newCommander_2[i].name = e.target.value;
+                    setCommander_2(newCommander_2);
+                  }}
+                />
+                <select
+                  className="llm"
+                  value={commander.model}
+                  onChange={(e) => {
+                    const newCommander_2 = [...commander_2];
+                    newCommander_2[i].model = e.target.value;
+                    setCommander_2(newCommander_2);
+                  }}
+                >
+                  <option value="GPT-3.5">GPT-3.5-turbo(Default)</option>
+                  <option value="GPT-4">GPT-4</option>
+                  <option value="Claude-v1">Claude-v1</option>
+                  <option value="Alpaca">Alpaca</option>
+                  <option value="Vicuna">Vicuna</option>
+                </select>
+                <input
+                  className="strategy"
+                  placeholder="Please write strategy for this soldier"
+                  type="text"
+                  value={commander.strategy}
+                  onChange={(e) => {
+                    const newCommander_2 = [...commander_2];
+                    newCommander_2[i].strategy = e.target.value;
+                    setCommander_2(newCommander_2);
+                  }}
+                /> 
+                <br />
+                <br />
+                {soldiers
+                .filter((soldier) => commander.selectedsoldiers.includes(soldier.name)) // Filter soldiers based on selectedsoldiers list
+                .map((soldier, j) =>  (
+                <><input
+                className="name2"
+                placeholder="soldier name"
+                type="text"
+                value={soldier.name}
+                onChange={(e) => {
+                  const newSoldiers = [...soldiers];
+                  newSoldiers[j].name = e.target.value;
+                  setCommander_1(newSoldiers);
+                }}
+              />
+                <div className="location">
+                    <label>X:</label>
+                    <input
+                      type="number"
+                      value={soldier.x}
+                      onChange={(e) => {
+                        const newSoldiers = [...soldiers];
+                        newSoldiers[j].x = +e.target.value;
+                        setSoldiers(newSoldiers);
+                      } } />
+                    <label>Y:</label>
+                    <input
+                      type="number"
+                      value={soldier.y}
+                      onChange={(e) => {
+                        const newSoldiers = [...soldiers];
+                        newSoldiers[j].y = +e.target.value;
+                        setSoldiers(newSoldiers);
+                      } } />
+                  </div></>
+                    ))}
+                    <button
+                    className="remove"
+                    onClick={() => {
+                      const newSoldiers = [...soldiers];
+                      newSoldiers.splice(i, 1);
+                      setSoldiers(newSoldiers);
                     } }
                   >
                       Remove
@@ -1009,8 +617,8 @@ export default function  Game() {
           <div className="buttons">
             <button
               onClick={() =>
-                setAgents([
-                  ...agents,
+                setSoldiers([
+                  ...soldiers,
                   { name: "", x: 0, y: 0, stamina: 0, wealth: 0 },
                 ])
               }
