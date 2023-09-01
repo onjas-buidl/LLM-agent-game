@@ -69,7 +69,8 @@ class ExplorerAgent:
                 SystemMessage
             )
             # os.environ.get("ANTHROPIC_API_KEY")
-            self.chat_model = ChatAnthropic(temperature=0, anthropic_api_key=os.environ.get("ANTHROPIC_API_KEY"))
+            self.chat_model = ChatAnthropic(
+                temperature=0, anthropic_api_key=os.environ.get("ANTHROPIC_API_KEY"))
         else:
             raise NotImplementedError(
                 f"Chat model {chat_model} not implemented.")
@@ -96,18 +97,18 @@ class ExplorerAgent:
         """
 
     def get_instruction(self):
-        response_schemas = [
-            ResponseSchema(name="Motivation",
-                           description="This is the motivation and thought process behind the action."),
-            ResponseSchema(name="Action",
-                           description="Select one action from allowed actions."),
-        ]
+        # response_schemas = [
+        #     ResponseSchema(name="Motivation",
+        #                    description="This is the motivation and thought process behind the action."),
+        #     ResponseSchema(name="Action",
+        #                    description="Select one action from allowed actions."),
+        # ]
 
-        # How you would like to parse your output
-        output_parser = StructuredOutputParser.from_response_schemas(
-            response_schemas)
-        # See the prompt template you created for formatting
-        format_instructions = output_parser.get_format_instructions()
+        # # How you would like to parse your output
+        # output_parser = StructuredOutputParser.from_response_schemas(
+        #     response_schemas)
+        # # See the prompt template you created for formatting
+        # format_instructions = output_parser.get_format_instructions()
 
         mind_template = """
         **Current game situation**:
@@ -132,7 +133,8 @@ class ExplorerAgent:
             messages=[
                 HumanMessagePromptTemplate.from_template(mind_template)
             ],
-            input_variables=["surroundings", "stamina", "wealth", "allowed_actions"],
+            input_variables=["surroundings", "stamina",
+                             "wealth", "allowed_actions"],
             partial_variables={
                 "format_instructions": format_instructions, "principle": self.principles}
         )
@@ -211,14 +213,17 @@ class ExplorerAgent:
 
     def check_response_format(self, response):
         try:
-            assert 'Motivation' in response.keys() and 'Action' in response.keys(), "Output format is wrong"
+            assert 'Motivation' in response.keys(
+            ) and 'Action' in response.keys(), "Output format is wrong"
         except AssertionError as e:
             if self.retry_times > 0:
                 self.retry_times -= 1
-                self.message_history.append(HumanMessage(content="The response format is wrong. Please try again."))
+                self.message_history.append(HumanMessage(
+                    content="The response format is wrong. Please try again."))
                 self.take_action(world)
             else:
-                print("The response format is wrong, and retry times reached {}. HALT.".format(self.retry_times))
+                print("The response format is wrong, and retry times reached {}. HALT.".format(
+                    self.retry_times))
                 raise e
 
         try:
@@ -247,7 +252,8 @@ class ExplorerAgent:
         self.message_history.extend(_input.to_messages())
 
         _output = self.chat_model(self.message_history)
-        json_string = _output.content.split("```json")[-1].strip().replace('```', '')
+        json_string = _output.content.split(
+            "```json")[-1].strip().replace('```', '')
         output = json.loads(json_string)
         self.check_response_format(output)
 
@@ -287,7 +293,8 @@ class ExplorerAgent:
             print("[ERROR] Retrying...\n")
             if self.retry_times > 0:
                 self.retry_times -= 1
-                _error_message = self.error_message.format_prompt(action=action_parts, error_message=error_message)
+                _error_message = self.error_message.format_prompt(
+                    action=action_parts, error_message=error_message)
                 self.message_history.extend(_error_message.to_messages())
                 self.take_action(world, print_all)
             else:
@@ -312,7 +319,8 @@ if __name__ == "__main__":
 
     for i in range(5):
         print("*" * 25, "Turn", i, "Start", "*" * 25)
-        for agent_name in list(world.explorers.keys()):  # To make sure each agent we simulate is alive
+        # To make sure each agent we simulate is alive
+        for agent_name in list(world.explorers.keys()):
             print("*" * 50)
             print("World Before Changing:", "\n", world)
             agent_dict[agent_name].take_action(world)
